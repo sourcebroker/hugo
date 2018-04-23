@@ -9,6 +9,10 @@ https://github.com/sourcebroker/hugo-typo3-theme.
 
 This is early beta version. So far only export of pages is working but needs fine tuning.
 
+"hugo-typo3-theme" and this extension are both in early beta so be patient with bugs!
+
+Any help to improve the code appreciated.
+
 Installation
 ************
 
