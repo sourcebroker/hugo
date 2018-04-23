@@ -1,0 +1,9 @@
+tx_hugo {
+    path {
+        content = hugo/content
+        data = hugo/data
+    }
+    writer {
+        class = SourceBroker\Hugo\Writer\YamlWriter
+    }
+}
