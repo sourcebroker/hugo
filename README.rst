@@ -4,7 +4,7 @@ TYPO3 Extension ``hugo``
 What does it do?
 ****************
 
-This extension allows you to export TYPO3 pages and content in a way that is able to consume by TYPO3 Hugo Theme.
+This extension allows you to export TYPO3 pages and content in a way that is able to be consumed by TYPO3 Hugo Theme.
 https://github.com/sourcebroker/hugo-typo3-theme.
 
 This is early beta version. So far only export of pages is working but needs fine tuning.
