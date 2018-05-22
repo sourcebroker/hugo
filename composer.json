@@ -6,7 +6,8 @@
   "type": "typo3-cms-extension",
   "description": "Export TYPO3 pages and content in a way that is able to be consumed by typo3-hugo-theme.",
   "require": {
-    "typo3/cms-core": "^8.7"
+    "typo3/cms-core": "^8.7",
+    "cocur/slugify": "^3.1"
   },
   "require-dev": {
     "phpunit/phpunit": "~4.8.0",
