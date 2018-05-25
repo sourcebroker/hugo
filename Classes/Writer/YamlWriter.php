@@ -16,7 +16,7 @@ class YamlWriter implements WriterInterface
     /**
      * @var string
      */
-    protected $ext = 'yaml';
+    protected $ext = 'md';
 
     /**
      * @var string
@@ -54,7 +54,7 @@ class YamlWriter implements WriterInterface
 
         $fullPath = GeneralUtility::getFileAbsFileName($this->rootPath . implode('/', $path)) . '/' . $filename;
 
-        $content = Yaml::dump($document->getMetaData());
+        $content = "---\n" . Yaml::dump($document->getMetaData()) . "---\n";
 
         GeneralUtility::mkdir_deep(dirname($fullPath));
 
