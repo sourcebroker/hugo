@@ -9,6 +9,7 @@ Changelog
     to export content to separate folders.
 4) [BUGFIX] Remove not needed ImageoptCommandController scheduler task init.
 5) [TASK] Add folders to ignore after installing vendors.
+6) [TASK] Add dummy "layout" value for having beginning working solution.
 
 0.0.3
 ~~~~~

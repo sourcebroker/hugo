@@ -29,6 +29,7 @@ class PageIndexer extends AbstractIndexer
             ->setSlug($this->slugify($row['nav_title'] ?: $row['title']))
             ->setDraft(!empty($row['hidden']))
             ->setDeleted(!empty($row['deleted']))
+            ->setLayout('main') // Just to test then change with sliding $row['backend_layout'] / $row['backend_layout_next_level']
             ->setRoot(!empty($row['is_siteroot']))
         ;
 

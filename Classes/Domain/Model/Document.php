@@ -42,6 +42,10 @@ class Document
      */
     protected $root = false;
 
+    /**
+     * @var string
+     */
+    protected $layout = null;
 
     /**
      * @var array
@@ -204,5 +208,24 @@ class Document
         $this->root = $root;
         return $this;
     }
+
+    /**
+     * @return string
+     */
+    public function getLayout(): string
+    {
+        return $this->layout;
+    }
+
+    /**
+     * @param string $layout
+     * @return Document
+     */
+    public function setLayout(string $layout): self
+    {
+        $this->metaData['layout'] = $layout;
+        return $this;
+    }
+
 
 }
