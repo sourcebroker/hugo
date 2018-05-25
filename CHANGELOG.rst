@@ -8,6 +8,7 @@ Changelog
 3) [FEATURE] Introduce support for multi site root. Each of site root should have own configuration of writer pathes
     to export content to separate folders.
 4) [BUGFIX] Remove not needed ImageoptCommandController scheduler task init.
+5) [TASK] Add folders to ignore after installing vendors.
 
 0.0.3
 ~~~~~
