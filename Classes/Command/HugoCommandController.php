@@ -26,15 +26,13 @@ class HugoCommandController extends CommandController
 {
     /**
      * Export content to hugo
-     *
-     * @param int $startPoint Startpoint for tree generation
      */
-    public function exportCommand($startPoint = 1)
+    public function exportCommand()
     {
         $hugoPageService = GeneralUtility::makeInstance(HugoExportService::class);
-        $this->outputLine('Generating hugo pages for TYPO3 pagetree starting at uid: ' . $startPoint);
+        $this->outputLine('Generating hugo pages for all TYPO3 tree roots.');
 
-        if ($hugoPageService->exportTree($startPoint)) {
+        if ($hugoPageService->exportTree()) {
             $this->outputLine('Success.');
         } else {
             $this->outputLine('Fail.');

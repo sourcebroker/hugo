@@ -1,9 +1,10 @@
 tx_hugo {
-    path {
-        content = hugo/content
-        data = hugo/data
-    }
+    enable = 1
     writer {
         class = SourceBroker\Hugo\Writer\YamlWriter
+        path {
+            content = hugo/content
+            data = hugo/data
+        }
     }
 }

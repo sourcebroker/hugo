@@ -48,9 +48,7 @@ class PageTraverser
             return;
         }
 
-        if ($document->isRoot()) {
-            $path[] = $document->getId();
-        } else {
+        if (!$document->isRoot()) {
             $path[] = $document->getSlug();
         }
 

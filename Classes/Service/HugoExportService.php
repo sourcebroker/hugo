@@ -26,15 +26,27 @@ namespace SourceBroker\Hugo\Service;
 
 use SourceBroker\Hugo\Configuration\Configurator;
 use SourceBroker\Hugo\Traversing\PageTraverser;
+use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
+use TYPO3\CMS\Core\Database\Query\Restriction\HiddenRestriction;
 use TYPO3\CMS\Core\Locking\Exception\LockAcquireWouldBlockException;
 use TYPO3\CMS\Core\Locking\LockFactory;
 use TYPO3\CMS\Core\Locking\LockingStrategyInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
+/**
+ * Class HugoExportService
+ * @package SourceBroker\Hugo\Service
+ */
 class HugoExportService
 {
-    public function exportTree(int $entryPoint) : bool
+    /**
+     * @return bool
+     * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
+     * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
+     */
+    public function exportTree(): bool
     {
         $lockFactory = GeneralUtility::makeInstance(LockFactory::class);
         $locker = $lockFactory->createLocker(
@@ -54,21 +66,47 @@ class HugoExportService
         } while (true);
 
         $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        /** @var $config Configurator */
-        $config = $objectManager->get(Configurator::class);
-        $writer = GeneralUtility::makeInstance($config->getOption('writer.class'));
-        $writer->setRootPath($config->getOption('path.content'));
 
-        $pageTraverse = $objectManager->get(PageTraverser::class);
-        $pageTraverse->setWriter($writer);
-        $pageTraverse->start($entryPoint, []);
-
+        foreach ($this->getSiteRoots() as $siteRoot) {
+            $config = $objectManager->get(Configurator::class, null, $siteRoot['uid']);
+            if($config->getOption('enable')) {
+                /** @var $config Configurator */
+                $writer = GeneralUtility::makeInstance($config->getOption('writer.class'));
+                $pageTraverse = $objectManager->get(PageTraverser::class);
+                $writer->setRootPath($config->getOption('writer.path.content'));
+                $pageTraverse->setWriter($writer);
+                $pageTraverse->start($siteRoot['uid'], []);
+            }
+        }
         if ($locked) {
             $locker->release();
             $locker->destroy();
             return true;
         }
-
     }
 
+    /**
+     * @return array
+     */
+    public function getSiteRoots()
+    {
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+            ->getQueryBuilderForTable('pages');
+
+        $queryBuilder
+            ->getRestrictions()
+            ->removeAll()
+            ->add(GeneralUtility::makeInstance(DeletedRestriction::class))
+            ->add(GeneralUtility::makeInstance(HiddenRestriction::class));
+
+        return $queryBuilder
+            ->select('uid')
+            ->from('pages')
+            ->where(
+                $queryBuilder->expr()->eq('is_siteroot', $queryBuilder->createNamedParameter(1, \PDO::PARAM_INT))
+            )
+            ->orderBy('sorting')
+            ->execute()
+            ->fetchAll();
+    }
 }

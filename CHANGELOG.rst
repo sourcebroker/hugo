@@ -5,6 +5,8 @@ Changelog
 ~~~~~
 1) [BUGFIX] Fix lacking YAML "---" separator in md file / fix wrong extension for yaml writer.
 2) [TASK] Remove auto finding for root page in Configurator / refactor Configurator class.
+3) [FEATURE] Introduce support for multi site root. Each of site root should have own configuration of writer pathes
+    to export content to separate folders.
 
 0.0.3
 ~~~~~
@@ -18,3 +20,4 @@ Changelog
 0.0.1
 ~~~~~
 1) Init version.
+d
