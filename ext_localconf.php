@@ -5,13 +5,10 @@ defined('TYPO3_MODE') || die('Access denied.');
 call_user_func(function () {
 
     if (TYPO3_MODE !== 'FE') {
-        $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['extbase']['commandControllers'][]
-            = \SourceBroker\Imageopt\Command\ImageoptCommandController::class;
         \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPageTSConfig(
             '<INCLUDE_TYPOSCRIPT: source="FILE:EXT:hugo/Configuration/TsConfig/Page/tx_hugo.tsconfig">'
         );
     }
-
     $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['extbase']['commandControllers'][]
         = \SourceBroker\Hugo\Command\HugoCommandController::class;
 
