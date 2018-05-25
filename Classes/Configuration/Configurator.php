@@ -25,7 +25,6 @@
 namespace SourceBroker\Hugo\Configuration;
 
 use TYPO3\CMS\Backend\Utility\BackendUtility;
-use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -44,15 +43,15 @@ class Configurator
     /**
      * Configurator constructor.
      * @param null $config
-     * @param $pageIdForConfigurator
+     * @param $pageIdToGetConfig
      * @throws \Exception
      */
-    public function __construct($config = null, $pageIdForConfigurator = null)
+    public function __construct($config = null, $pageIdToGetTsConfig = null)
     {
         if ($config !== null) {
             $this->setConfig($config);
         } else {
-            $this->init($pageIdForConfigurator);
+            $this->getPagesTSconfigForHugo($pageIdToGetTsConfig);
         }
     }
 
@@ -103,36 +102,22 @@ class Configurator
 
 
     /**
-     * Init configurator wiht TSconfig settings from cli params or scheduler parameters.
+     * Load configurator with TSconfig from give page id
      *
-     * @param int $rootPageForTsConfig
+     * @param int $pageIdToGetTsConfig
      * @throws \Exception
      */
-    public function init($rootPageForTsConfig = null)
+    public function getPagesTSconfigForHugo($pageIdToGetTsConfig = null)
     {
-        if ($rootPageForTsConfig === null) {
-
-            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages');
-            $queryBuilder->select('*')->from('pages')->where(
-                $queryBuilder->expr()->eq('pid', 0),
-                $queryBuilder->expr()->eq('deleted', 0)
-            );
-            $rootPageForTsConfigRow = $queryBuilder->execute()->fetchAll();
-            if ($rootPageForTsConfigRow !== null) {
-                $rootPageForTsConfig = $rootPageForTsConfigRow[0]['uid'];
-            }
-        }
-        if ($rootPageForTsConfig !== null) {
-            $serviceConfig = GeneralUtility::makeInstance('TYPO3\\CMS\\Extbase\\Service\\TypoScriptService')
-                ->convertTypoScriptArrayToPlainArray(BackendUtility::getPagesTSconfig($rootPageForTsConfig));
-            if (isset($serviceConfig['tx_hugo'])) {
-                $this->setConfig($serviceConfig['tx_hugo']);
+        if ($pageIdToGetTsConfig !== null) {
+            $config = GeneralUtility::makeInstance('TYPO3\\CMS\\Extbase\\Service\\TypoScriptService')
+                ->convertTypoScriptArrayToPlainArray(BackendUtility::getPagesTSconfig($pageIdToGetTsConfig));
+            if (isset($config['tx_hugo'])) {
+                $this->setConfig($config['tx_hugo']);
             } else {
-                throw new \Exception('There is no TSconfig for tx_hugo in the root page id=' . $rootPageForTsConfig,
+                throw new \Exception('There is no TSconfig for tx_hugo in the page id=' . $pageIdToGetTsConfig,
                     1501692752398);
             }
-        } else {
-            throw new \Exception('Can not detect the root page to generate page TSconfig.', 1501700792654);
         }
     }
 

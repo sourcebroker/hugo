@@ -4,6 +4,7 @@ Changelog
 0.0.4
 ~~~~~
 1) [BUGFIX] Fix lacking YAML "---" separator in md file / fix wrong extension for yaml writer.
+2) [TASK] Remove auto finding for root page in Configurator / refactor Configurator class.
 
 0.0.3
 ~~~~~
