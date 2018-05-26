@@ -5,7 +5,7 @@ Changelog
 ~~~~~
 1) [TASK] Rename PageTraverser to TreeTraverser
 2) [TASK] Rename metaData to frontMatter in Document class.
-
+3) [TASK] Add support to disable tree export - its possible now to now export for some site root trees.
 
 0.0.4
 ~~~~~

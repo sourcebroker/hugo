@@ -69,7 +69,7 @@ class HugoExportService
 
         foreach ($this->getSiteRoots() as $siteRoot) {
             $config = $objectManager->get(Configurator::class, null, $siteRoot['uid']);
-            if($config->getOption('enable')) {
+            if ($config->getOption('enable')) {
                 /** @var $config Configurator */
                 $writer = GeneralUtility::makeInstance($config->getOption('writer.class'));
                 $treeTraverser = $objectManager->get(TreeTraverser::class);
