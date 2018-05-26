@@ -79,7 +79,9 @@ class TreeTraverser
     {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages');
         $queryBuilder->select('uid', 'title')->from('pages')->where(
-            $queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($pid, \PDO::PARAM_INT))
+            $queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($pid, \PDO::PARAM_INT)),
+            $queryBuilder->expr()->in('doktype', $queryBuilder->createNamedParameter('1,2', \PDO::PARAM_INT))
+
         );
 
         return $queryBuilder->execute()->fetchAll();

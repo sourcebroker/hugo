@@ -7,6 +7,7 @@ Changelog
 2) [TASK] Rename metaData to frontMatter in Document class.
 3) [TASK] Add support to disable tree export - its possible now to now export for some site root trees.
 4) [TASK] Rename values of hugo menu identifiers in TYPO3.
+5) [TASK] Add simple support for menu (assign menu, menu identifier, add weight)
 
 0.0.4
 ~~~~~

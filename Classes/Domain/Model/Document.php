@@ -53,6 +53,7 @@ class Document
     protected $frontMatter = [
         'title' => '',
         'draft' => 0,
+        'menu' => []
     ];
 
     /**
@@ -227,6 +228,23 @@ class Document
     public function setLayout(string $layout): self
     {
         $this->frontMatter['layout'] = $layout;
+        return $this;
+    }
+
+    /**
+     * @param string $menuId
+     * @return Document
+     */
+    public function addToMenu(string $menuId, $row): self
+    {
+        if(empty($row['nav_hide'])) {
+            if (!in_array($menuId, $this->frontMatter['menu'])) {
+                $this->frontMatter['menu'][$menuId] = [
+                    'weight' => $row['sorting'],
+                    'identifier' => $row['uid']
+                ];
+            }
+        }
         return $this;
     }
 

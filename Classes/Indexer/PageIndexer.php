@@ -12,8 +12,6 @@ use TYPO3\CMS\Core\Database\DatabaseConnection;
  */
 class PageIndexer extends AbstractIndexer
 {
-
-
     /**
      * @param int $pageUid
      * @param Document $document
@@ -32,6 +30,14 @@ class PageIndexer extends AbstractIndexer
             ->setLayout('main') // Just to test then change with sliding $row['backend_layout'] / $row['backend_layout_next_level']
             ->setRoot(!empty($row['is_siteroot']))
         ;
+
+        if(empty($row['tx_hugo_menuid'])) {
+            $parentRow = $this->getPageByUid($row['pid']);
+            $menuUid = empty($parentRow['tx_hugo_menuid']) ? '' : $parentRow['tx_hugo_menuid'];
+        } else {
+            $menuUid = $row['tx_hugo_menuid'];
+        }
+        $document->addToMenu($menuUid, $row);
 
         return [
             $pageUid,
