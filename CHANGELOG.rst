@@ -4,6 +4,8 @@ Changelog
 0.0.5
 ~~~~~
 1) [TASK] Rename PageTraverser to TreeTraverser
+2) [TASK] Rename metaData to frontMatter in Document class.
+
 
 0.0.4
 ~~~~~

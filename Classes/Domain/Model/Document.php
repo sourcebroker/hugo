@@ -50,7 +50,7 @@ class Document
     /**
      * @var array
      */
-    protected $metaData = [
+    protected $frontMatter = [
         'title' => '',
         'draft' => 0,
     ];
@@ -137,7 +137,7 @@ class Document
      */
     public function setTitle(string $title): self
     {
-        $this->metaData['title'] = $title;
+        $this->frontMatter['title'] = $title;
         return $this;
     }
 
@@ -146,15 +146,15 @@ class Document
      */
     public function getTitle(): string
     {
-        return $this->metaData['title'];
+        return $this->frontMatter['title'];
     }
 
     /**
      * @return array
      */
-    public function getMetaData(): array
+    public function getFrontMatter(): array
     {
-        return $this->metaData;
+        return $this->frontMatter;
     }
 
     /**
@@ -176,9 +176,12 @@ class Document
         return $this;
     }
 
+    /**
+     * @return bool
+     */
     public function getDraft(): bool
     {
-        return (bool)$this->metaData['draft'];
+        return (bool)$this->frontMatter['draft'];
     }
 
     /**
@@ -187,7 +190,7 @@ class Document
      */
     public function setDraft(bool $draft): self
     {
-        $this->metaData['draft'] = $draft;
+        $this->frontMatter['draft'] = $draft;
         return $this;
     }
 
@@ -223,7 +226,7 @@ class Document
      */
     public function setLayout(string $layout): self
     {
-        $this->metaData['layout'] = $layout;
+        $this->frontMatter['layout'] = $layout;
         return $this;
     }
 
