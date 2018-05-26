@@ -10,6 +10,7 @@ Changelog
 5) [TASK] Add simple support for menu (assign menu, menu identifier, add weight)
 6) [TASK] Make YamlWriter->clean() to be more safe in case wrong set of path to store.
 7) [TASK] Exclude media folder from cleaning by Writer calss.
+8) [FEATURE] Add DataHanler support for events in TYPO3 like add / delete / move page to regenerate content.
 
 0.0.4
 ~~~~~
