@@ -9,6 +9,7 @@ Changelog
 4) [TASK] Rename values of hugo menu identifiers in TYPO3.
 5) [TASK] Add simple support for menu (assign menu, menu identifier, add weight)
 6) [TASK] Make YamlWriter->clean() to be more safe in case wrong set of path to store.
+7) [TASK] Exclude media folder from cleaning by Writer calss.
 
 0.0.4
 ~~~~~

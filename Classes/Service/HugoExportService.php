@@ -74,6 +74,7 @@ class HugoExportService
                 $writer = GeneralUtility::makeInstance($config->getOption('writer.class'));
                 $treeTraverser = $objectManager->get(TreeTraverser::class);
                 $writer->setRootPath($config->getOption('writer.path.content'));
+                $writer->setExcludeCleaningFolders([$config->getOption('writer.path.media')]);
                 $treeTraverser->setWriter($writer);
                 $treeTraverser->start($siteRoot['uid'], []);
             }
