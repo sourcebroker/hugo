@@ -28,9 +28,12 @@ class YamlWriter implements WriterInterface
      */
     public function setRootPath(string $path): void
     {
-        $this->rootPath = rtrim($path, DIRECTORY_SEPARATOR) . '/';
+        if (strlen($path) === 0) {
+            new \Exception('$path is empty when setting setRootPath in YamlWriter');
+        } else {
+            $this->rootPath = rtrim($path, DIRECTORY_SEPARATOR) . '/';
+        }
     }
-
 
     /**
      * @param Document $document
@@ -44,7 +47,7 @@ class YamlWriter implements WriterInterface
                 break;
             default:
                 if (empty($document->getId())) {
-                    throw new \RuntimeException('Id of document is misisng', 1693179681746);
+                    throw new \RuntimeException('Id of document is missing', 1693179681746);
                 }
 
                 $documentName = $document->getId() . '_' . ucfirst($document->getSlug());
@@ -77,6 +80,14 @@ class YamlWriter implements WriterInterface
      */
     public function clean(): void
     {
-        GeneralUtility::rmdir($this->rootPath, true);
+        // Kind of protection to not remove too much if $this->rootPath is empty or set for wrong folder.
+        if (strlen($this->rootPath) !== 0 && (
+                file_exists(PATH_site . $this->rootPath . '../config.yml')
+                || file_exists(PATH_site . $this->rootPath . '../config.yaml')
+                || file_exists(PATH_site . $this->rootPath . '../config.toml')
+                || file_exists(PATH_site . $this->rootPath . '../config.json')
+            )) {
+            GeneralUtility::rmdir(PATH_site . $this->rootPath, true);
+        }
     }
 }

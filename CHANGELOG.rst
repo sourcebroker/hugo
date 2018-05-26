@@ -8,6 +8,7 @@ Changelog
 3) [TASK] Add support to disable tree export - its possible now to now export for some site root trees.
 4) [TASK] Rename values of hugo menu identifiers in TYPO3.
 5) [TASK] Add simple support for menu (assign menu, menu identifier, add weight)
+6) [TASK] Make YamlWriter->clean() to be more safe in case wrong set of path to store.
 
 0.0.4
 ~~~~~
