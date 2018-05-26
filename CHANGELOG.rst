@@ -1,6 +1,10 @@
 Changelog
 ---------
 
+0.0.5
+~~~~~
+1) [TASK] Rename PageTraverser to TreeTraverser
+
 0.0.4
 ~~~~~
 1) [BUGFIX] Fix lacking YAML "---" separator in md file / fix wrong extension for yaml writer.

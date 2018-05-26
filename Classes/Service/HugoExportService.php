@@ -25,7 +25,7 @@
 namespace SourceBroker\Hugo\Service;
 
 use SourceBroker\Hugo\Configuration\Configurator;
-use SourceBroker\Hugo\Traversing\PageTraverser;
+use SourceBroker\Hugo\Traversing\TreeTraverser;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Database\Query\Restriction\HiddenRestriction;
@@ -72,10 +72,10 @@ class HugoExportService
             if($config->getOption('enable')) {
                 /** @var $config Configurator */
                 $writer = GeneralUtility::makeInstance($config->getOption('writer.class'));
-                $pageTraverse = $objectManager->get(PageTraverser::class);
+                $treeTraverser = $objectManager->get(TreeTraverser::class);
                 $writer->setRootPath($config->getOption('writer.path.content'));
-                $pageTraverse->setWriter($writer);
-                $pageTraverse->start($siteRoot['uid'], []);
+                $treeTraverser->setWriter($writer);
+                $treeTraverser->start($siteRoot['uid'], []);
             }
         }
         if ($locked) {

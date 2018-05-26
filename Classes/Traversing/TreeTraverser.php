@@ -4,7 +4,6 @@ namespace SourceBroker\Hugo\Traversing;
 
 use SourceBroker\Hugo\Domain\Model\Document;
 use SourceBroker\Hugo\Domain\Model\DocumentCollection;
-use SourceBroker\Hugo\Writer\YamlWriter;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
@@ -14,7 +13,7 @@ use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
  *
  * @package SourceBroker\Hugo\Traversing
  */
-class PageTraverser
+class TreeTraverser
 {
     /**
      * @var \SourceBroker\Hugo\Writer\YamlWriter
@@ -31,6 +30,8 @@ class PageTraverser
     /**
      * @param int $pageUid
      * @param string[] $path
+     * @throws \TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotException
+     * @throws \TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotReturnException
      */
     public function start(int $pageUid, array $path = []): void
     {
