@@ -10,9 +10,9 @@
                 'type' => 'select',
                 'renderType' => 'selectCheckBox',
                 'items' => [
-                    ['Menu main', 'menu-main'],
-                    ['Menu header', 'menu-header'],
-                    ['Menu footer', 'menu-footer'],
+                    ['Menu main', 'main'],
+                    ['Menu header', 'header'],
+                    ['Menu footer', 'footer'],
                 ],
             ],
             'size' => 5,
