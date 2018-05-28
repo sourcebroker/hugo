@@ -1,6 +1,10 @@
 Changelog
 ---------
 
+0.0.6
+~~~~~
+1) [FEATURE] Run hugo build after export tree finish. Init verison to be improved.
+
 0.0.5
 ~~~~~
 1) [TASK] Rename PageTraverser to TreeTraverser
