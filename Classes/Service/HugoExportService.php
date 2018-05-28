@@ -26,7 +26,6 @@ namespace SourceBroker\Hugo\Service;
 
 use SourceBroker\Hugo\Configuration\Configurator;
 use SourceBroker\Hugo\Traversing\TreeTraverser;
-use Symfony\Component\Process\Exception\ProcessFailedException;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Database\Query\Restriction\HiddenRestriction;
@@ -35,7 +34,6 @@ use TYPO3\CMS\Core\Locking\LockFactory;
 use TYPO3\CMS\Core\Locking\LockingStrategyInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
-use Symfony\Component\Process\Process;
 
 /**
  * Class HugoExportService
@@ -73,6 +71,7 @@ class HugoExportService
         foreach ($this->getSiteRoots() as $siteRoot) {
             $config = $objectManager->get(Configurator::class, null, $siteRoot['uid']);
             if ($config->getOption('enable')) {
+                // EXPORT CONTENT FROM TYPO3
                 /** @var $config Configurator */
                 $writer = GeneralUtility::makeInstance($config->getOption('writer.class'));
                 $treeTraverser = $objectManager->get(TreeTraverser::class);
@@ -80,29 +79,23 @@ class HugoExportService
                 $writer->setExcludeCleaningFolders([$config->getOption('writer.path.media')]);
                 $treeTraverser->setWriter($writer);
                 $treeTraverser->start($siteRoot['uid'], []);
+
+                // USE CONTENT EXPORTED FROM TYPO3 TO RUN HUGO BUILD
+                $hugoPathBinary = $config->getOption('hugo.path.binary');
+                if (!empty($hugoPathBinary)) {
+                    exec($hugoPathBinary . ' ' . str_replace(['{PATH_site}'],[PATH_site],$config->getOption('hugo.command')));
+                } else {
+                    throw new \Exception('Can not find hugo binary');
+                }
+
+                if ($locked) {
+                    $locker->release();
+                    $locker->destroy();
+                    return true;
+                }
             }
         }
-        // TODO: make Process working for finding hugo path and then executing hugo itself.
-        // TODO: For now its working only for finding "which hugo". Then error on hugo build.
-        // TODO: Funny is that if Process will get output of "which hugo" then exec() is not working.
-//        $process = new Process('which hugo');
-//        $process->mustRun();
-//        if (!$process->isSuccessful()) {
-//            throw new ProcessFailedException($process);
-//        }
-//        $hugoBinaryPath = $process->getOutput();
-        $hugoBinaryPath = 'hugo';
-        if (!empty($hugoBinaryPath)) {
-            $command = $hugoBinaryPath . ' -s' . PATH_site . 'typo3conf/ext/local/Resources/Private/ClickdummyExport/site/ -d' . PATH_site . 'typo3conf/ext/local/Resources/Private/ClickdummyExport/dist';
-            exec($command);
-        } else {
-            throw new \Exception('Can not find hugo binnary');
-        }
-        if ($locked) {
-            $locker->release();
-            $locker->destroy();
-            return true;
-        }
+
     }
 
     /**

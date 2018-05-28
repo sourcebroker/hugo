@@ -7,4 +7,12 @@ tx_hugo {
             data = hugo/data
         }
     }
+    hugo {
+        path {
+            binary = hugo
+        }
+        // Build command. A marker {PATH_site} can be used
+        // Example -s{PATH_site}typo3conf/ext/myext/Resources/Private/Clickdummy/site/ -d{PATH_site}/dist
+        command =
+    }
 }
