@@ -5,6 +5,7 @@ namespace SourceBroker\Hugo\DataHandling;
 use SourceBroker\Hugo\Service\HugoExportService;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 class DataHandler implements SingletonInterface
 {
@@ -65,7 +66,8 @@ class DataHandler implements SingletonInterface
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
      */
     public function exportHugoPages() {
-        $hugoPageService = GeneralUtility::makeInstance(HugoExportService::class);
+        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+        $hugoPageService = $objectManager->get(HugoExportService::class);
         $hugoPageService->exportTree();
     }
 }

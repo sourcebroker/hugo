@@ -1,6 +1,11 @@
 Changelog
 ---------
 
+master
+~~~~~~
+1) [TASK] Move getSiteRootPages() from service class to Typo3PageRepository.
+   Replace GeneralUtility::makeInstance with ObjectManager->get()
+
 0.0.6
 ~~~~~
 1) [FEATURE] Run hugo build after export tree finish. Init verison to be improved.
