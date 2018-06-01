@@ -5,6 +5,7 @@ master
 ~~~~~~
 1) [TASK] Move getSiteRootPages() from service class to Typo3PageRepository.
    Replace GeneralUtility::makeInstance with ObjectManager->get()
+2) [TASK] Refactor for better naming for future content / media exporters.
 
 0.0.6
 ~~~~~

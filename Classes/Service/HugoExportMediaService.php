@@ -24,20 +24,17 @@
 
 namespace SourceBroker\Hugo\Service;
 
-use SourceBroker\Hugo\Configuration\Configurator;
-use SourceBroker\Hugo\Traversing\TreeTraverser;
 use TYPO3\CMS\Core\Locking\Exception\LockAcquireWouldBlockException;
 use TYPO3\CMS\Core\Locking\LockFactory;
 use TYPO3\CMS\Core\Locking\LockingStrategyInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
-use \SourceBroker\Hugo\Domain\Repository\Typo3PageRepository;
 
 /**
- * Class HugoExportService
+ * Class HugoExportMediaService
  * @package SourceBroker\Hugo\Service
  */
-class HugoExportService
+class HugoExportMediaService
 {
     /**
      * @return bool
@@ -45,12 +42,12 @@ class HugoExportService
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
      * @throws \Exception
      */
-    public function exportTree(): bool
+    public function exportAll(): bool
     {
         $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
         $lockFactory = $objectManager->get(LockFactory::class);
         $locker = $lockFactory->createLocker(
-            'hugo',
+            'hugoExportMedia',
             LockingStrategyInterface::LOCK_CAPABILITY_SHARED | LockingStrategyInterface::LOCK_CAPABILITY_NOBLOCK
         );
         do {
@@ -65,32 +62,13 @@ class HugoExportService
             }
         } while (true);
 
-        foreach (($objectManager->get(Typo3PageRepository::class))->getSiteRootPages() as $siteRoot) {
-            $hugoConfigForRootSite = $objectManager->get(Configurator::class, null, $siteRoot['uid']);
-            if ($hugoConfigForRootSite->getOption('enable')) {
-                // EXPORT CONTENT FROM TYPO3
-                /** @var $hugoConfigForRootSite Configurator */
-                $writer = $objectManager->get($hugoConfigForRootSite->getOption('writer.class'));
-                $treeTraverser = $objectManager->get(TreeTraverser::class);
-                $writer->setRootPath($hugoConfigForRootSite->getOption('writer.path.content'));
-                $writer->setExcludeCleaningFolders([$hugoConfigForRootSite->getOption('writer.path.media')]);
-                $treeTraverser->setWriter($writer);
-                $treeTraverser->start($siteRoot['uid'], []);
+        // EXPORT CONTENT HERE
+        // We assume config for exporting content is the same for all available site roots so take first available config.
 
-                // USE CONTENT EXPORTED FROM TYPO3 TO RUN HUGO BUILD
-                $hugoPathBinary = $hugoConfigForRootSite->getOption('hugo.path.binary');
-                if (!empty($hugoPathBinary)) {
-                    exec($hugoPathBinary . ' ' . str_replace(['{PATH_site}'],[PATH_site],$hugoConfigForRootSite->getOption('hugo.command')));
-                } else {
-                    throw new \Exception('Can not find hugo binary');
-                }
-                if ($locked) {
-                    $locker->release();
-                    $locker->destroy();
-                    return true;
-                }
-            }
+        if ($locked) {
+            $locker->release();
+            $locker->destroy();
+            return true;
         }
-
     }
 }

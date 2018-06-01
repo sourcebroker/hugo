@@ -10,7 +10,7 @@ class Typo3PageRepository {
     /**
      * @return array
      */
-    public function getSiteRootPages()
+    public function getSiteRootPages() : array
     {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
             ->getQueryBuilderForTable('pages');
@@ -30,7 +30,7 @@ class Typo3PageRepository {
     /**
      * @return array
      */
-    public function getPageContentElements($pageUid)
+    public function getPageContentElements(int $pageUid) : array
     {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
             ->getQueryBuilderForTable('tt_content');
