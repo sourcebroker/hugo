@@ -1,8 +1,8 @@
 Changelog
 ---------
 
-master
-~~~~~~
+0.0.8
+~~~~~
 
 1) [BUGFIX] Create directory for data/content if not exists yet.
 2) [BUGFIX] Add missing TsConfig for content elements exporter.
