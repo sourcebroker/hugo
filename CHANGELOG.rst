@@ -1,6 +1,11 @@
 Changelog
 ---------
 
+master
+~~~~~~
+
+1) [BUGFIX] Create directory for data/content if not exists yet.
+
 0.0.7
 ~~~~~
 1) [TASK] Move getSiteRootPages() from service class to Typo3PageRepository.

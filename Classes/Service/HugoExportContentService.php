@@ -93,6 +93,9 @@ class HugoExportContentService
                     $folderToStore = rtrim(PATH_site . $hugoConfigForRootSite->getOption('writer.path.data'),
                             DIRECTORY_SEPARATOR) . '/';
                     $filename = $contentElement['uid'] . '.yaml';
+                    if(!file_exists($folderToStore)) {
+                        GeneralUtility::mkdir_deep($folderToStore);
+                    }
                     file_put_contents(
                         $folderToStore . $filename,
                         Yaml::dump($contentElementObject->getData($contentElement), 100)
