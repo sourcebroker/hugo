@@ -1,14 +1,13 @@
 Changelog
 ---------
 
-master
-~~~~~~
+0.0.7
+~~~~~
 1) [TASK] Move getSiteRootPages() from service class to Typo3PageRepository.
    Replace GeneralUtility::makeInstance with ObjectManager->get()
 2) [TASK] Refactor for better naming for future content / media exporters.
 3) [FEATURE] Init version for content element exporter. So far it works only from
     cli level and for header / text and dce content elements.
-
 
 0.0.6
 ~~~~~
