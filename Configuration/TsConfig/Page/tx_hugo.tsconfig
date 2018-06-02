@@ -5,6 +5,22 @@ tx_hugo {
         path {
             content = hugo/content
             data = hugo/data
+            media = hugo/content/-media
+        }
+    }
+    content {
+        contentToClass {
+            fallbackContentElementClass = SourceBroker\Hugo\ContentElement\FallbackContentElement
+            mapper {
+                10 {
+                    ctype = (Dce).*
+                    class = SourceBroker\Hugo\ContentElement\{1}ContentElement
+                }
+                20 {
+                    ctype = (.*)
+                    class = SourceBroker\Hugo\ContentElement\{1}ContentElement
+                }
+            }
         }
     }
     hugo {

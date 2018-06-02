@@ -5,6 +5,7 @@ master
 ~~~~~~
 
 1) [BUGFIX] Create directory for data/content if not exists yet.
+2) [BUGFIX] Add missing TsConfig for content elements exporter.
 
 0.0.7
 ~~~~~
