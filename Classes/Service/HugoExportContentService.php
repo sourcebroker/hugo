@@ -24,6 +24,10 @@
 
 namespace SourceBroker\Hugo\Service;
 
+use SourceBroker\Hugo\Configuration\Configurator;
+use SourceBroker\Hugo\Domain\Repository\Typo3ContentRepository;
+use SourceBroker\Hugo\Domain\Repository\Typo3PageRepository;
+use Symfony\Component\Yaml\Yaml;
 use TYPO3\CMS\Core\Locking\Exception\LockAcquireWouldBlockException;
 use TYPO3\CMS\Core\Locking\LockFactory;
 use TYPO3\CMS\Core\Locking\LockingStrategyInterface;
@@ -61,10 +65,41 @@ class HugoExportContentService
                 break;
             }
         } while (true);
-
-        // EXPORT CONTENT HERE
-        // We assume config for exporting content is the same for all available site roots so take first available config.
-
+        // We assume config for exporting content is the same for all available site roots so take first available
+        // site root which is enabled for hugo.
+        foreach (($objectManager->get(Typo3PageRepository::class))->getSiteRootPages() as $siteRoot) {
+            /** @var $hugoConfigForRootSite Configurator */
+            $hugoConfigForRootSite = $objectManager->get(Configurator::class, null, $siteRoot['uid']);
+            if ($hugoConfigForRootSite->getOption('enable')) {
+                foreach (($objectManager->get(Typo3ContentRepository::class))->getAll() as $contentElement) {
+                    $camelCaseClass = str_replace('_', '', ucwords($contentElement['CType'], '_'));
+                    $classForCType = null;
+                    foreach ($hugoConfigForRootSite->getOption('content.contentToClass.mapper') as $contentToClassMapper) {
+                        if (preg_match('/' . $contentToClassMapper['ctype'] . '/', $camelCaseClass, $cTypeMateches)) {
+                            $classForCType = preg_replace_callback(
+                                "/\\{([0-9]+)\\}/",
+                                function ($match) use ($cTypeMateches) {
+                                    return $cTypeMateches[$match[1]];
+                                },
+                                $contentToClassMapper['class']
+                            );
+                            break;
+                        }
+                    }
+                    if (!$objectManager->isRegistered($classForCType)) {
+                        $classForCType = $hugoConfigForRootSite->getOption('content.contentToClass.fallbackContentElementClass');
+                    }
+                    $contentElementObject = $objectManager->get($classForCType);
+                    $folderToStore = rtrim(PATH_site . $hugoConfigForRootSite->getOption('writer.path.data'),
+                            DIRECTORY_SEPARATOR) . '/';
+                    $filename = $contentElement['uid'] . '.yaml';
+                    file_put_contents(
+                        $folderToStore . $filename,
+                        Yaml::dump($contentElementObject->getData($contentElement), 100)
+                    );
+                }
+            }
+        }
         if ($locked) {
             $locker->release();
             $locker->destroy();
