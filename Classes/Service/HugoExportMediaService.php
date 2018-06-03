@@ -74,6 +74,12 @@ class HugoExportMediaService
             $hugoConfigForRootSite = $objectManager->get(Configurator::class, null, $siteRoot['uid']);
             if ($hugoConfigForRootSite->getOption('enable')) {
 
+                $folderToStore = rtrim(PATH_site . $hugoConfigForRootSite->getOption('writer.path.media'),
+                    '\\/');
+                if (!file_exists($folderToStore)) {
+                    GeneralUtility::mkdir_deep($folderToStore);
+                }
+
                 /** @var $storageRepository StorageRepository */
                 $storageRepository = GeneralUtility::makeInstance(StorageRepository::class);
                 $allStorages = $storageRepository->findAll();
@@ -86,31 +92,35 @@ class HugoExportMediaService
                         $recursive = true, $sort = 'name');
                     foreach ($files as $file) {
                         if (!$storage->isWithinProcessingFolder($file->getIdentifier())
-                        && $file->getProperty('type') == 2) {
+                            && $file->getProperty('type') == 2) {
                             $filesHugo[] = [
                                 'src' => $file->getPublicUrl(false),
                                 'name' => $file->getUid(),
                             ];
                         }
                     }
-                    // Leave after first hugo enabled site root becase content elements are the same for all root sites.
-                    break;
+                    // TODO - make it relative symlink
+                    $symlinkStorageFolder = PATH_site . rtrim($hugoConfigForRootSite->getOption('writer.path.media'),
+                            '\\/') . '/' . rtrim($storage->getConfiguration()['basePath'], '\\/');
+                    $command = 'ln -s ' . rtrim(PATH_site . $storage->getConfiguration()['basePath'],
+                            '\\/') . ' ' . $symlinkStorageFolder;
+                    if (!file_exists($symlinkStorageFolder)) {
+                        exec($command);
+                    }
                 }
-                $folderToStore = rtrim(PATH_site . $hugoConfigForRootSite->getOption('writer.path.media'),
-                    DIRECTORY_SEPARATOR);
-                if (!file_exists($folderToStore)) {
-                    GeneralUtility::mkdir_deep($folderToStore);
-                }
+
                 file_put_contents(
                     $folderToStore . '/index.md',
-                    Yaml::dump(['resources' => $filesHugo], 100)
+                    "---\n" . Yaml::dump(['resources' => $filesHugo], 100) . "---\n"
                 );
+                // Leave after first hugo enabled site root becase content elements are the same for all root sites.
+                break;
             }
-            if ($locked) {
-                $locker->release();
-                $locker->destroy();
-                return true;
-            }
+        }
+        if ($locked) {
+            $locker->release();
+            $locker->destroy();
+            return true;
         }
     }
 }

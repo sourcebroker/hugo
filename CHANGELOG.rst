@@ -1,6 +1,12 @@
 Changelog
 ---------
 
+0.0.10
+~~~~~~
+
+1) [BUGFIX] Add missing wrappers '---' for yaml -media files.
+2) [FEATURE] Add symlink for storage fodler to hugo media folder.
+
 0.0.9
 ~~~~~
 
