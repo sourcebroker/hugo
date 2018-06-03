@@ -1,6 +1,12 @@
 Changelog
 ---------
 
+master
+~~~~~~
+
+1) [BUGFIX] Leave site roots foreach after first hugo enabled site root because content elements are the same for all
+    root sites.
+
 0.0.8
 ~~~~~
 

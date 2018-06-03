@@ -101,6 +101,8 @@ class HugoExportContentService
                         Yaml::dump($contentElementObject->getData($contentElement), 100)
                     );
                 }
+                // Leave after first hugo enabled site root becase content elements are the same for all root sites.
+                break;
             }
         }
         if ($locked) {
