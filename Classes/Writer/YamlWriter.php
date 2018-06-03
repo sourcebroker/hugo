@@ -70,7 +70,7 @@ class YamlWriter implements WriterInterface
 
         $fullPath = GeneralUtility::getFileAbsFileName($this->rootPath . implode('/', $path)) . '/' . $filename;
 
-        $content = "---\n" . Yaml::dump($document->getFrontMatter()) . "---\n";
+        $content = "---\n" . Yaml::dump($document->getFrontMatter(), 100) . "---\n";
 
         GeneralUtility::mkdir_deep(dirname($fullPath));
 
