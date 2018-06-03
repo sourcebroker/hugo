@@ -24,9 +24,14 @@
 
 namespace SourceBroker\Hugo\Service;
 
+use SourceBroker\Hugo\Configuration\Configurator;
+use SourceBroker\Hugo\Domain\Repository\Typo3PageRepository;
+use Symfony\Component\Yaml\Yaml;
 use TYPO3\CMS\Core\Locking\Exception\LockAcquireWouldBlockException;
 use TYPO3\CMS\Core\Locking\LockFactory;
 use TYPO3\CMS\Core\Locking\LockingStrategyInterface;
+use TYPO3\CMS\Core\Resource\Folder;
+use TYPO3\CMS\Core\Resource\StorageRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
@@ -62,13 +67,50 @@ class HugoExportMediaService
             }
         } while (true);
 
-        // EXPORT CONTENT HERE
-        // We assume config for exporting content is the same for all available site roots so take first available config.
+        // We assume config for exporting content is the same for all available site roots so take first available
+        // site root which is enabled for hugo.
+        foreach (($objectManager->get(Typo3PageRepository::class))->getSiteRootPages() as $siteRoot) {
+            /** @var $hugoConfigForRootSite Configurator */
+            $hugoConfigForRootSite = $objectManager->get(Configurator::class, null, $siteRoot['uid']);
+            if ($hugoConfigForRootSite->getOption('enable')) {
 
-        if ($locked) {
-            $locker->release();
-            $locker->destroy();
-            return true;
+                /** @var $storageRepository StorageRepository */
+                $storageRepository = GeneralUtility::makeInstance(StorageRepository::class);
+                $allStorages = $storageRepository->findAll();
+
+                $filesHugo = [];
+                foreach ($allStorages as $storage) {
+                    $folder = GeneralUtility::makeInstance(Folder::class, $storage, '/', 'All files');
+                    $files = $storage->getFilesInFolder($folder, $start = 0, $maxNumberOfItems = 0,
+                        $useFilters = false,
+                        $recursive = true, $sort = 'name');
+                    foreach ($files as $file) {
+                        if (!$storage->isWithinProcessingFolder($file->getIdentifier())
+                        && $file->getProperty('type') == 2) {
+                            $filesHugo[] = [
+                                'src' => $file->getPublicUrl(false),
+                                'name' => $file->getUid(),
+                            ];
+                        }
+                    }
+                    // Leave after first hugo enabled site root becase content elements are the same for all root sites.
+                    break;
+                }
+                $folderToStore = rtrim(PATH_site . $hugoConfigForRootSite->getOption('writer.path.media'),
+                    DIRECTORY_SEPARATOR);
+                if (!file_exists($folderToStore)) {
+                    GeneralUtility::mkdir_deep($folderToStore);
+                }
+                file_put_contents(
+                    $folderToStore . '/index.md',
+                    Yaml::dump(['resources' => $filesHugo], 100)
+                );
+            }
+            if ($locked) {
+                $locker->release();
+                $locker->destroy();
+                return true;
+            }
         }
     }
 }
