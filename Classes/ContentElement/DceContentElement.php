@@ -2,6 +2,8 @@
 
 namespace SourceBroker\Hugo\ContentElement;
 
+use TYPO3\CMS\Backend\Utility\BackendUtility;
+
 class DceContentElement extends AbstractContentElement
 {
     /**
@@ -50,6 +52,11 @@ class DceContentElement extends AbstractContentElement
                 }
             }
         }
+        $dceRaw = BackendUtility::getRecord('tx_dce_domain_model_dce', $dce->getUid());
+        if (!empty($dceRaw['tx_hugo_typename'])) {
+            $fields['type'] = $dceRaw['tx_hugo_typename'];
+        }
+
         return $fields;
     }
 

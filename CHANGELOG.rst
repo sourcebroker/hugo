@@ -7,6 +7,8 @@ master
 1) [BUGFIX] Leave site roots foreach after first hugo enabled site root because content elements are the same for all
     root sites.
 2) [FEATURE] Initial implementation for media export.
+3) [FEATURE] Add possibility to overwrite DCE elements default CType namings in hugo export to have more meaning
+   in partial namings.
 
 0.0.8
 ~~~~~
