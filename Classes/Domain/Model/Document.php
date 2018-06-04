@@ -232,6 +232,21 @@ class Document
     }
 
     /**
+     * @param array $contentElements
+     * @return Document
+     */
+    public function setContent(array $contentElements): self
+    {
+        foreach ((array)$contentElements as $contentElement) {
+            $this->frontMatter['columns']['col' . $contentElement['colPos']][$contentElement['sorting']] = $contentElement['uid'];
+        }
+        foreach ((array)$this->frontMatter['columns'] as $key => $values) {
+            $this->frontMatter['columns'][$key] = array_values($values);
+        }
+        return $this;
+    }
+
+    /**
      * @param string $menuId
      * @return Document
      */

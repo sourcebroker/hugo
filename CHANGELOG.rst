@@ -1,6 +1,11 @@
 Changelog
 ---------
 
+0.0.11
+~~~~~~
+
+1) [FEATURE] Add info about content elements in each column.
+
 0.0.10
 ~~~~~~
 

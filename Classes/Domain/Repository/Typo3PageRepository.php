@@ -5,12 +5,32 @@ namespace SourceBroker\Hugo\Domain\Repository;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
-class Typo3PageRepository {
+class Typo3PageRepository
+{
+    /**
+     * @param int $uid
+     * @return array
+     */
+    public function getByUid(int $uid): array
+    {
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+            ->getQueryBuilderForTable('pages');
+        return $queryBuilder
+            ->select('*')
+            ->from('pages')
+            ->where(
+                $queryBuilder->expr()->eq('uid',
+                    $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+                )
+            )
+            ->execute()
+            ->fetch();
+    }
 
     /**
      * @return array
      */
-    public function getSiteRootPages() : array
+    public function getSiteRootPages(): array
     {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
             ->getQueryBuilderForTable('pages');
@@ -30,7 +50,7 @@ class Typo3PageRepository {
     /**
      * @return array
      */
-    public function getPageContentElements(int $pageUid) : array
+    public function getPageContentElements(int $pageUid): array
     {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
             ->getQueryBuilderForTable('tt_content');
@@ -40,6 +60,9 @@ class Typo3PageRepository {
             ->where(
                 $queryBuilder->expr()->eq('pid',
                     $queryBuilder->createNamedParameter($pageUid, \PDO::PARAM_INT)
+                ),
+                $queryBuilder->expr()->eq('sys_language_uid',
+                    $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)
                 )
             )
             ->orderBy('sorting')

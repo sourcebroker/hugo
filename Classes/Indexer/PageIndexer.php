@@ -1,9 +1,12 @@
 <?php
+
 namespace SourceBroker\Hugo\Indexer;
 
 use SourceBroker\Hugo\Domain\Model\Document;
 use SourceBroker\Hugo\Domain\Model\DocumentCollection;
-use TYPO3\CMS\Core\Database\DatabaseConnection;
+use SourceBroker\Hugo\Domain\Repository\Typo3PageRepository;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /**
  * Class PageIndexer
@@ -20,24 +23,28 @@ class PageIndexer extends AbstractIndexer
      */
     public function run(int $pageUid, Document $document): array
     {
-        $row = $this->getPageByUid($pageUid);
-
-        $document->setId($row['uid'])
-            ->setTitle($row['title'])
-            ->setSlug($this->slugify($row['nav_title'] ?: $row['title']))
-            ->setDraft(!empty($row['hidden']))
-            ->setDeleted(!empty($row['deleted']))
-            ->setLayout('main') // Just to test then change with sliding $row['backend_layout'] / $row['backend_layout_next_level']
-            ->setRoot(!empty($row['is_siteroot']))
-        ;
-
-        if(empty($row['tx_hugo_menuid'])) {
-            $parentRow = $this->getPageByUid($row['pid']);
-            $menuUid = empty($parentRow['tx_hugo_menuid']) ? '' : $parentRow['tx_hugo_menuid'];
-        } else {
-            $menuUid = $row['tx_hugo_menuid'];
+        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+        $typo3PageRepository = $objectManager->get(Typo3PageRepository::class);
+        $page = $typo3PageRepository->getByUid($pageUid);
+        if ($page['pid']) {
+            $parentPage = $typo3PageRepository->getByUid($page['pid']);
         }
-        $document->addToMenu($menuUid, $row);
+
+        $document->setId($page['uid'])
+            ->setTitle($page['title'])
+            ->setSlug($this->slugify($page['nav_title'] ?: $page['title']))
+            ->setDraft(!empty($page['hidden']))
+            ->setDeleted(!empty($page['deleted']))
+            ->setLayout(strtolower(str_replace('pagets__', '', empty($page['backend_layout']) ? $parentPage['backend_layout'] : $page['backend_layout'])))
+            ->setRoot(!empty($page['is_siteroot']))
+            ->setContent($typo3PageRepository->getPageContentElements($pageUid));
+
+        if (empty($page['tx_hugo_menuid'])) {
+            $menuUid = empty($parentPage['tx_hugo_menuid']) ? '' : $parentPage['tx_hugo_menuid'];
+        } else {
+            $menuUid = $page['tx_hugo_menuid'];
+        }
+        $document->addToMenu($menuUid, $page);
 
         return [
             $pageUid,
@@ -48,28 +55,6 @@ class PageIndexer extends AbstractIndexer
     public function runCollection(int $pageUid, DocumentCollection $documentCollection): array
     {
 
-    }
-
-    /**
-     * @param int $uid
-     *
-     * @return array
-     */
-    protected function getPageByUid(int $uid): array
-    {
-        return $this->getDatabaseConnection()->exec_SELECTgetSingleRow(
-            '*',
-            'pages',
-            'uid = '.(int)$uid
-        );
-    }
-
-    /**
-     * @return DatabaseConnection
-     */
-    protected function getDatabaseConnection()
-    {
-        return $GLOBALS['TYPO3_DB'];
     }
 
 }
