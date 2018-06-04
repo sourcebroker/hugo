@@ -1,6 +1,11 @@
 Changelog
 ---------
 
+0.0.12
+~~~~~~
+
+1) [FEATURE] Add special "warning" content element to pass some info from exporter.
+
 0.0.11
 ~~~~~~
 

@@ -11,6 +11,7 @@ class FallbackContentElement extends AbstractContentElement
     public function getSpecificContentElementData(array $contentElementRawData): array
     {
         return [
+            'type' => 'warning',
             'warningNote' => 'No exporter for content element with CType: ' . $contentElementRawData['CType']
         ];
     }
