@@ -1,6 +1,12 @@
 Changelog
 ---------
 
+0.0.13
+~~~~~~
+
+1) [FEATURE] Add "parent" property to menus.
+
+
 0.0.12
 ~~~~~~
 

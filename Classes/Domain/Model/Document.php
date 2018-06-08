@@ -248,20 +248,24 @@ class Document
 
     /**
      * @param string $menuId
+     * @param $page
+     * @param $parentPage
      * @return Document
      */
-    public function addToMenu(string $menuId, $row): self
+    public function addToMenu(string $menuId, $page, $parentPage): self
     {
-        if(empty($row['nav_hide'])) {
-            if (!in_array($menuId, $this->frontMatter['menu'])) {
-                $this->frontMatter['menu'][$menuId] = [
-                    'weight' => $row['sorting'],
-                    'identifier' => $row['uid']
+        if (empty($page['nav_hide'])) {
+            if (!in_array($menuId, $this->frontMatter['menu']) && !$page['is_siteroot']) {
+                $menu = [
+                    'weight' => $page['sorting'],
+                    'identifier' => $page['uid']
                 ];
+                if (!$parentPage['is_siteroot'] && $page['pid']) {
+                    $menu = array_merge($menu, ['parent' => $page['pid']]);
+                }
+                $this->frontMatter['menu'][$menuId] = $menu;
             }
         }
         return $this;
     }
-
-
 }
