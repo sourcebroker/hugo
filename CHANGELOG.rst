@@ -6,6 +6,7 @@ Changelog
 
 1) [FEATURE] Add "parent" property to menus.
 2) [FEATURE] Extend DataHanlder to react on tt_content changes.
+3) [TASK] Extend the way backend_layout / backend_layout_next_level is choosen. (pull request #1 from netfarma)
 
 0.0.12
 ~~~~~~
