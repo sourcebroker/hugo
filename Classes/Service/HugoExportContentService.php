@@ -41,6 +41,7 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
 class HugoExportContentService
 {
     /**
+     * TODO - optimize use of locker. Make service a singleton with common lock state.
      * @return bool
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
@@ -102,6 +103,79 @@ class HugoExportContentService
                     );
                 }
                 // Leave after first hugo enabled site root becase content elements are the same for all root sites.
+                break;
+            }
+        }
+        if ($locked) {
+            $locker->release();
+            $locker->destroy();
+            return true;
+        }
+    }
+
+    /**
+     * TODO - optimize use of locker. Make service a singleton with common lock state.
+     * @param $contentElementUid
+     * @return bool
+     * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
+     * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
+     */
+    public function exportSingle(int $contentElementUid): bool
+    {
+        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+        $lockFactory = $objectManager->get(LockFactory::class);
+        $locker = $lockFactory->createLocker(
+            'hugoExportContent',
+            LockingStrategyInterface::LOCK_CAPABILITY_SHARED | LockingStrategyInterface::LOCK_CAPABILITY_NOBLOCK
+        );
+        do {
+            try {
+                $locked = $locker->acquire(LockingStrategyInterface::LOCK_CAPABILITY_SHARED | LockingStrategyInterface::LOCK_CAPABILITY_NOBLOCK);
+            } catch (LockAcquireWouldBlockException $e) {
+                usleep(100000); //100ms
+                continue;
+            }
+            if ($locked) {
+                break;
+            }
+        } while (true);
+        // We assume config for exporting content is the same for all available site roots so take first available
+        // site root which is enabled for hugo.
+        foreach (($objectManager->get(Typo3PageRepository::class))->getSiteRootPages() as $siteRoot) {
+            /** @var $hugoConfigForRootSite Configurator */
+            $hugoConfigForRootSite = $objectManager->get(Configurator::class, null, $siteRoot['uid']);
+            if ($hugoConfigForRootSite->getOption('enable')) {
+                $contentElement = $objectManager->get(Typo3ContentRepository::class)->getByUid($contentElementUid);
+                $camelCaseClass = str_replace('_', '', ucwords($contentElement['CType'], '_'));
+                $classForCType = null;
+                foreach ($hugoConfigForRootSite->getOption('content.contentToClass.mapper') as $contentToClassMapper) {
+                    if (preg_match('/' . $contentToClassMapper['ctype'] . '/', $camelCaseClass, $cTypeMateches)) {
+                        $classForCType = preg_replace_callback(
+                            "/\\{([0-9]+)\\}/",
+                            function ($match) use ($cTypeMateches) {
+                                return $cTypeMateches[$match[1]];
+                            },
+                            $contentToClassMapper['class']
+                        );
+                        break;
+                    }
+                }
+                if (!$objectManager->isRegistered($classForCType)) {
+                    $classForCType = $hugoConfigForRootSite->getOption('content.contentToClass.fallbackContentElementClass');
+                }
+                $contentElementObject = $objectManager->get($classForCType);
+                $folderToStore = rtrim(PATH_site . $hugoConfigForRootSite->getOption('writer.path.data'),
+                        DIRECTORY_SEPARATOR) . '/';
+                $filename = $contentElement['uid'] . '.yaml';
+                if(!file_exists($folderToStore)) {
+                    GeneralUtility::mkdir_deep($folderToStore);
+                }
+                file_put_contents(
+                    $folderToStore . $filename,
+                    Yaml::dump($contentElementObject->getData($contentElement), 100)
+                );
+
+                // Leave after first hugo enabled site root because content elements are the same for all root sites.
                 break;
             }
         }
