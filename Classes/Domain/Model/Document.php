@@ -18,6 +18,11 @@ class Document
     protected $id;
 
     /**
+     * @var int
+     */
+    protected $pid;
+
+    /**
      * @var array
      */
     protected $path;
@@ -41,6 +46,11 @@ class Document
      * @var bool
      */
     protected $root = false;
+
+    /**
+     * @var int
+     */
+    protected $weight = 0;
 
     /**
      * @var string
@@ -71,9 +81,49 @@ class Document
      */
     public function setId(int $id): self
     {
+        $this->frontMatter['id'] = $id;
         $this->id = $id;
         return $this;
     }
+
+    /**
+     * @return int
+     */
+    public function getPid()
+    {
+        return $this->pid;
+    }
+
+    /**
+     * @param int $pid
+     * @return Document
+     */
+    public function setPid(int $pid): self
+    {
+        $this->frontMatter['pid'] = $pid;
+        $this->pid = $pid;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getWeight()
+    {
+        return $this->weight;
+    }
+
+    /**
+     * @param int $weight
+     * @return Document
+     */
+    public function setWeight(int $weight): self
+    {
+        $this->frontMatter['weight'] = $weight;
+        $this->weight = $weight;
+        return $this;
+    }
+
 
     /**
      * @return array
@@ -252,7 +302,7 @@ class Document
      * @param $parentPage
      * @return Document
      */
-    public function addToMenu(string $menuId, $page, $parentPage): self
+    public function addToMenu(string $menuId, $page, $parentPage = null): self
     {
         if (empty($page['nav_hide'])) {
             if (!in_array($menuId, $this->frontMatter['menu']) && !$page['is_siteroot']) {
@@ -260,7 +310,7 @@ class Document
                     'weight' => $page['sorting'],
                     'identifier' => $page['uid']
                 ];
-                if (!$parentPage['is_siteroot'] && $page['pid']) {
+                if (empty($parentPage['is_siteroot']) && $page['pid']) {
                     $menu = array_merge($menu, ['parent' => $page['pid']]);
                 }
                 $this->frontMatter['menu'][$menuId] = $menu;

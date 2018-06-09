@@ -8,6 +8,7 @@ Changelog
 2) [FEATURE] Extend DataHanlder to react on tt_content changes.
 3) [TASK] Extend the way backend_layout / backend_layout_next_level is choosen. (pull request #1 from netfarma)
 4) [TASK] Simplify class mapper for DCE content elements.
+5) [FEATURE] Add id, pid, weight to Hugo frontmatter to have ability to more easily query for subpages and pages.
 
 0.0.12
 ~~~~~~

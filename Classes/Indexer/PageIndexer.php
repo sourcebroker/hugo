@@ -41,9 +41,11 @@ class PageIndexer extends AbstractIndexer
         }
 
         $document->setId($page['uid'])
+            ->setPid($page['pid'])
             ->setTitle($page['title'])
             ->setSlug($this->slugify($page['nav_title'] ?: $page['title']))
             ->setDraft(!empty($page['hidden']))
+            ->setWeight($page['sorting'])
             ->setDeleted(!empty($page['deleted']))
             ->setLayout(strtolower(str_replace('pagets__', '', $layout)))
             ->setRoot(!empty($page['is_siteroot']))
