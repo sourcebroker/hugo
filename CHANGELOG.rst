@@ -5,7 +5,7 @@ Changelog
 ~~~~~~
 
 1) [FEATURE] Add "parent" property to menus.
-
+2) [FEATURE] Extend DataHanlder to react on tt_content changes.
 
 0.0.12
 ~~~~~~

@@ -2,9 +2,11 @@
 
 namespace SourceBroker\Hugo\DataHandling;
 
+use SourceBroker\Hugo\Service\HugoExportContentService;
 use SourceBroker\Hugo\Service\HugoExportPageService;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\MathUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 class DataHandler implements SingletonInterface
@@ -12,16 +14,15 @@ class DataHandler implements SingletonInterface
     /**
      * Clears path and URL caches if the page was deleted.
      *
-     * @param string $table
+     * @param string $tableName
      * @param string|int $id
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
      */
-    public function processCmdmap_deleteAction($table, $id)
+    public function processCmdmap_deleteAction($tableName, $id)
     {
-        if (($table === 'pages' || $table === 'pages_language_overlay')) {
-            $this->exportHugoPages();
-        }
+        // TODO: optimize later
+        $this->exportHugoPages();
     }
 
     /**
@@ -34,9 +35,8 @@ class DataHandler implements SingletonInterface
      */
     public function processCmdmap_postProcess($command, $table)
     {
-        if ($command === 'move' && $table === 'pages') {
-            $this->exportHugoPages();
-        }
+        // TODO: optimize later
+        $this->exportHugoPages();
     }
 
     /**
@@ -54,10 +54,23 @@ class DataHandler implements SingletonInterface
     public function processDatamap_afterDatabaseOperations(
         /** @noinspection PhpUnusedParameterInspection */
         $status,
-        $tableName
+        $tableName,
+        $recordId,
+        array $databaseData,
+        /** @noinspection PhpUnusedParameterInspection */
+        \TYPO3\CMS\Core\DataHandling\DataHandler $dataHandler
     ) {
-        if ($tableName === 'pages') {
-            $this->exportHugoPages();
+        if (!MathUtility::canBeInterpretedAsInteger($recordId)) {
+            $recordId = (int)$dataHandler->substNEWwithIDs[$recordId];
+        }
+        switch ($tableName) {
+            case 'pages':
+                $this->exportHugoPages();
+                break;
+            case 'tt_content':
+                $this->exportHugoContentElements($recordId);
+                $this->exportHugoPages();
+                break;
         }
     }
 
@@ -65,9 +78,21 @@ class DataHandler implements SingletonInterface
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
      */
-    public function exportHugoPages() {
+    public function exportHugoPages()
+    {
         $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
         $hugoExportPageService = $objectManager->get(HugoExportPageService::class);
         $hugoExportPageService->exportAll();
+    }
+
+    public function exportHugoContentElements($contentRecordUid = null)
+    {
+        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+        $hugoExportContentService = $objectManager->get(HugoExportContentService::class);
+        if ($contentRecordUid === null) {
+            $hugoExportContentService->exportAll();
+        } else {
+            $hugoExportContentService->exportSingle($contentRecordUid);
+        }
     }
 }
