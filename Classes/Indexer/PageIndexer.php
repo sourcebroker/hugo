@@ -26,8 +26,18 @@ class PageIndexer extends AbstractIndexer
         $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
         $typo3PageRepository = $objectManager->get(Typo3PageRepository::class);
         $page = $typo3PageRepository->getByUid($pageUid);
+        $layout = $page['backend_layout'];
+
+        $parentPage = null;
         if ($page['pid']) {
             $parentPage = $typo3PageRepository->getByUid($page['pid']);
+        }
+
+        if (empty($layout)) {
+            /** @var \TYPO3\CMS\Core\Utility\RootlineUtility $rootLineUtility */
+            $rootLineUtility = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Utility\\RootlineUtility', $pageUid);
+            $pages = $rootLineUtility->get();
+            $layout = $this->resolveLayoutForPage($pages, $pageUid);
         }
 
         $document->setId($page['uid'])
@@ -35,7 +45,7 @@ class PageIndexer extends AbstractIndexer
             ->setSlug($this->slugify($page['nav_title'] ?: $page['title']))
             ->setDraft(!empty($page['hidden']))
             ->setDeleted(!empty($page['deleted']))
-            ->setLayout(strtolower(str_replace('pagets__', '', empty($page['backend_layout']) ? $parentPage['backend_layout'] : $page['backend_layout'])))
+            ->setLayout(strtolower(str_replace('pagets__', '', $layout)))
             ->setRoot(!empty($page['is_siteroot']))
             ->setContent($typo3PageRepository->getPageContentElements($pageUid));
 
@@ -44,7 +54,7 @@ class PageIndexer extends AbstractIndexer
         } else {
             $menuUid = $page['tx_hugo_menuid'];
         }
-        $document->addToMenu($menuUid, $page);
+        $document->addToMenu($menuUid, $page, $parentPage);
 
         return [
             $pageUid,
@@ -57,4 +67,26 @@ class PageIndexer extends AbstractIndexer
 
     }
 
+    /**
+     * @param array $tree
+     * @param int $pageUid
+     * @return string
+     */
+    private function resolveLayoutForPage(array $tree, int $pageUid)
+    {
+        krsort($tree);
+
+        foreach ($tree as $key => $page) {
+
+            if ($pageUid == $page['uid'] && !empty($page['backend_layout'])) {
+                return $page['backend_layout'];
+            }
+
+            if(!empty($page['backend_layout_next_level'])) {
+                return $page['backend_layout_next_level'];
+            }
+        }
+
+        return '';
+    }
 }
