@@ -9,6 +9,8 @@ Changelog
 3) [TASK] Extend the way backend_layout / backend_layout_next_level is choosen. (pull request #1 from netfarma)
 4) [TASK] Simplify class mapper for DCE content elements.
 5) [FEATURE] Add id, pid, weight to Hugo frontmatter to have ability to more easily query for subpages and pages.
+6) [FEATURE] Prepare class for implementing exporter for gridelements CE.
+
 
 0.0.12
 ~~~~~~
