@@ -13,8 +13,8 @@ tx_hugo {
             fallbackContentElementClass = SourceBroker\Hugo\ContentElement\FallbackContentElement
             mapper {
                 10 {
-                    ctype = (Dce).*
-                    class = SourceBroker\Hugo\ContentElement\{1}ContentElement
+                    ctype = Dce.*
+                    class = SourceBroker\Hugo\ContentElement\DceContentElement
                 }
                 20 {
                     ctype = (.*)
