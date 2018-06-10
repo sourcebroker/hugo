@@ -1,7 +1,7 @@
 Changelog
 ---------
 
-master
+0.0.14
 ~~~~~~
 
 1) [TASK] Refactor slot dispatcher to have only one method to collect documents instead of single Document and DocumentCollection.
