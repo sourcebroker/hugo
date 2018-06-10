@@ -16,22 +16,20 @@ call_user_func(function () {
     $signalSlotDispatcher = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Extbase\SignalSlot\Dispatcher::class);
     $signalSlotDispatcher->connect(
         \SourceBroker\Hugo\Traversing\TreeTraverser::class,
-        'document',
+        'getDocumentsForPage',
         \SourceBroker\Hugo\Indexer\PageIndexer::class,
-        'run'
+        'getDocumentsForPage'
+    );
+
+    $signalSlotDispatcher->connect(
+        \SourceBroker\Hugo\Traversing\TreeTraverser::class,
+        'getDocumentsForPage',
+        \SourceBroker\Hugo\Indexer\RecordIndexer::class,
+        'getDocumentsForPage'
     );
 
     $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processDatamapClass']['hugo'] = 'SourceBroker\\Hugo\\DataHandling\\DataHandler';
     $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processCmdmapClass']['hugo'] = 'SourceBroker\\Hugo\\DataHandling\\DataHandler';
-
-
-//    Plugin indexer - TODO
-//    $signalSlotDispatcher->connect(
-//        \SourceBroker\Hugo\Traversing\PageTraverser::class,
-//        'extractDocuments',
-//        \SourceBroker\Hugo\Indexer\RecordIndexer::class,
-//        'runCollection'
-//    );
 });
 
 

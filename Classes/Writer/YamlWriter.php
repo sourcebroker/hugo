@@ -54,26 +54,10 @@ class YamlWriter implements WriterInterface
      */
     public function save(Document $document, array $path): void
     {
-        switch ($document->getType()) {
-            case Document::TYPE_PAGE:
-                $documentName = '_index';
-                break;
-            default:
-                if (empty($document->getId())) {
-                    throw new \RuntimeException('Id of document is missing', 1693179681746);
-                }
-
-                $documentName = $document->getId() . '_' . ucfirst($document->getSlug());
-        }
-
-        $filename = $documentName . '.' . $this->ext;
-
+        $filename = $document->getStoreFilename() . '.' . $this->ext;
         $fullPath = GeneralUtility::getFileAbsFileName($this->rootPath . implode('/', $path)) . '/' . $filename;
-
         $content = "---\n" . Yaml::dump($document->getFrontMatter(), 100) . "---\n";
-
         GeneralUtility::mkdir_deep(dirname($fullPath));
-
         file_put_contents($fullPath, $content);
     }
 

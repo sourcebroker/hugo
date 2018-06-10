@@ -2,6 +2,8 @@
 
 namespace SourceBroker\Hugo\Domain\Model;
 
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
 
 /**
@@ -11,15 +13,14 @@ use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
  */
 class DocumentCollection extends ObjectStorage
 {
-
     /**
      * @return Document
      */
     public function create()
     {
-        $document = new Document();
+        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+        $document = $objectManager->get(Document::class);
         $this->attach($document);
-
         return $document;
     }
 }

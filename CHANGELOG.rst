@@ -1,6 +1,14 @@
 Changelog
 ---------
 
+master
+~~~~~~
+
+1) [TASK] Refactor slot dispatcher to have only one method to collect documents instead of single Document and DocumentCollection.
+2) [TASK] Remove single Document and move all into DocumentCollection.
+3) [TASK] Make Traverser class decide about path to store files and not read that from Document.
+4) [TASK] Make Document class to decide about filename instead of Writer class.
+
 0.0.13
 ~~~~~~
 

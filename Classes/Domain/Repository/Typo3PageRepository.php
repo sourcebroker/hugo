@@ -2,6 +2,7 @@
 
 namespace SourceBroker\Hugo\Domain\Repository;
 
+use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -68,6 +69,23 @@ class Typo3PageRepository
             ->orderBy('sorting')
             ->execute()
             ->fetchAll();
+    }
+
+
+    /**
+     * @param int $pid
+     * @param array $doktypes
+     * @return array
+     */
+    public function getPagesByPidAndDoktype(int $pid, array $doktypes)
+    {
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages');
+        $queryBuilder->select('uid', 'title')->from('pages')->where(
+            $queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($pid, \PDO::PARAM_INT)),
+            $queryBuilder->expr()->in('doktype',
+                $queryBuilder->createNamedParameter($doktypes, Connection::PARAM_INT_ARRAY))
+        );
+        return $queryBuilder->execute()->fetchAll();
     }
 
 }

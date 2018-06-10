@@ -38,16 +38,6 @@ class Document
     protected $type = self::TYPE_NODE;
 
     /**
-     * @var bool
-     */
-    protected $deleted = false;
-
-    /**
-     * @var bool
-     */
-    protected $root = false;
-
-    /**
      * @var int
      */
     protected $weight = 0;
@@ -65,6 +55,12 @@ class Document
         'draft' => 0,
         'menu' => []
     ];
+
+
+    /**
+     * @var null
+     */
+    protected $storeFilename = null;
 
     /**
      * @return int
@@ -104,6 +100,25 @@ class Document
         $this->pid = $pid;
         return $this;
     }
+
+    /**
+     * @return null
+     */
+    public function getStoreFilename()
+    {
+        return $this->storeFilename;
+    }
+
+    /**
+     * @param null $storeFilename
+     * @return Document
+     */
+    public function setStoreFilename($storeFilename): Document
+    {
+        $this->storeFilename = $storeFilename;
+        return $this;
+    }
+
 
     /**
      * @return int
@@ -211,25 +226,6 @@ class Document
     /**
      * @return bool
      */
-    public function getDeleted(): bool
-    {
-        return $this->deleted;
-    }
-
-    /**
-     * @param bool $deleted
-     *
-     * @return self
-     */
-    public function setDeleted(bool $deleted): self
-    {
-        $this->deleted = $deleted;
-        return $this;
-    }
-
-    /**
-     * @return bool
-     */
     public function getDraft(): bool
     {
         return (bool)$this->frontMatter['draft'];
@@ -242,24 +238,6 @@ class Document
     public function setDraft(bool $draft): self
     {
         $this->frontMatter['draft'] = $draft;
-        return $this;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isRoot(): bool
-    {
-        return $this->root;
-    }
-
-    /**
-     * @param bool $root
-     * @return Document
-     */
-    public function setRoot(bool $root): self
-    {
-        $this->root = $root;
         return $this;
     }
 
