@@ -17,11 +17,11 @@ class PageIndexer extends AbstractIndexer
 {
     /**
      * @param int $pageUid
-     * @param Document $document
+     * @param DocumentCollection $documentCollection
      *
      * @return array
      */
-    public function run(int $pageUid, Document $document): array
+    public function getDocumentsForPage(int $pageUid, DocumentCollection $documentCollection): array
     {
         $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
         $typo3PageRepository = $objectManager->get(Typo3PageRepository::class);
@@ -39,16 +39,17 @@ class PageIndexer extends AbstractIndexer
             $pages = $rootLineUtility->get();
             $layout = $this->resolveLayoutForPage($pages, $pageUid);
         }
+        $document = $documentCollection->create();
 
-        $document->setId($page['uid'])
+        $document->setStoreFilename('_index')
+            ->setId($page['uid'])
+            ->setType(Document::TYPE_PAGE)
             ->setPid($page['pid'])
             ->setTitle($page['title'])
             ->setSlug($this->slugify($page['nav_title'] ?: $page['title']))
             ->setDraft(!empty($page['hidden']))
             ->setWeight($page['sorting'])
-            ->setDeleted(!empty($page['deleted']))
-            ->setLayout(strtolower(str_replace('pagets__', '', $layout)))
-            ->setRoot(!empty($page['is_siteroot']))
+            ->setLayout(str_replace('pagets__', '', $layout))
             ->setContent($typo3PageRepository->getPageContentElements($pageUid));
 
         if (empty($page['tx_hugo_menuid'])) {
@@ -60,13 +61,8 @@ class PageIndexer extends AbstractIndexer
 
         return [
             $pageUid,
-            $document,
+            $documentCollection,
         ];
-    }
-
-    public function runCollection(int $pageUid, DocumentCollection $documentCollection): array
-    {
-
     }
 
     /**
