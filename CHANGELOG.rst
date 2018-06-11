@@ -1,6 +1,12 @@
 Changelog
 ---------
 
+master
+~~~~~~
+
+1) [TASK] [!!!BREAKING] Change namesppace from indexer.records.exporter to page.indexer.records.exporter
+2) [TASK] Protect have ing empty $hugoConfig->getOption('page.indexer.records.exporter')
+
 0.0.14
 ~~~~~~
 
