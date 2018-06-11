@@ -9,9 +9,6 @@ namespace SourceBroker\Hugo\Domain\Model;
  */
 class Document
 {
-    const TYPE_NODE = 0;
-    const TYPE_PAGE = 10;
-
     /**
      * @var int
      */
@@ -23,19 +20,9 @@ class Document
     protected $pid;
 
     /**
-     * @var array
-     */
-    protected $path;
-
-    /**
      * @var string
      */
     protected $slug = '';
-
-    /**
-     * @var int
-     */
-    protected $type = self::TYPE_NODE;
 
     /**
      * @var int
@@ -119,7 +106,6 @@ class Document
         return $this;
     }
 
-
     /**
      * @return int
      */
@@ -139,26 +125,6 @@ class Document
         return $this;
     }
 
-
-    /**
-     * @return array
-     */
-    public function getPath(): array
-    {
-        return $this->path;
-    }
-
-    /**
-     * @param array $path
-     *
-     * @return self
-     */
-    public function setPath(array $path): self
-    {
-        $this->path = $path;
-        return $this;
-    }
-
     /**
      * @return string
      */
@@ -175,25 +141,6 @@ class Document
     public function setSlug(string $slug): self
     {
         $this->slug = $slug;
-        return $this;
-    }
-
-    /**
-     * @return int
-     */
-    public function getType(): int
-    {
-        return $this->type;
-    }
-
-    /**
-     * @param int $type
-     *
-     * @return self
-     */
-    public function setType(int $type): self
-    {
-        $this->type = $type;
         return $this;
     }
 
