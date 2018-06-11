@@ -19,41 +19,40 @@ class RecordIndexer extends AbstractIndexer
     {
         $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
         $hugoConfig = $objectManager->get(Configurator::class, null, $pageUid);
+        if (!empty($hugoConfig->getOption('page.indexer.records.exporter'))) {
+            foreach ($hugoConfig->getOption('page.indexer.records.exporter') as $exporterConfig) {
+                if ($pageUid == $exporterConfig['pageUid']) {
+                    $table = $exporterConfig['table'];
+                    $recordsPid = $exporterConfig['recordsPid'];
+                    $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
+                    $queryBuilder->select('*')->from($table)->where(
+                        $queryBuilder->expr()->eq('pid',
+                            $queryBuilder->createNamedParameter($recordsPid, \PDO::PARAM_INT))
+                    );
+                    $recordRows = $queryBuilder->execute()->fetchAll();
 
-        foreach($hugoConfig->getOption('indexer.records.exporter') as $exporterConfig) {
-            if ($pageUid == $exporterConfig['pageUid']) {
-                $table = $exporterConfig['table'];
-                $recordsPid = $exporterConfig['recordsPid'];
-                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
-                $queryBuilder->select('*')->from($table)->where(
-                    $queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($recordsPid, \PDO::PARAM_INT))
-                );
-                $recordRows = $queryBuilder->execute()->fetchAll();
+                    foreach ($recordRows as $record) {
+                        $slug = $this->slugify($record['title']);
+                        $document = $documentCollection->create();
+                        $document->setStoreFilename($record['uid'] . '_' . ucfirst($slug))
+                            ->setId($record['uid'])
+                            ->setTitle($record['title'])
+                            ->setSlug($slug);
 
-                foreach ($recordRows as $record) {
-                    $slug = $this->slugify($record['title']);
-                    $document = $documentCollection->create();
-                    $document->setStoreFilename($record['uid'] . '_' . ucfirst($slug))
-                        ->setId($record['uid'])
-                        ->setTitle($record['title'])
-                        ->setSlug($slug);
-
-                    //$document->setDescription($record['description']);
-                    //$document->setKeywords($record['keywords']);
-                    //$document->setDate($record['datetime']);
-                    //$document->setTeaser($record['teaser']);
-                    //$document->setBodytext($record['bodytext']);
-                    //$document->setDraft($record['hidden']);
-                    //$document->setEndtime($record['expirydate']);
+                        //$document->setDescription($record['description']);
+                        //$document->setKeywords($record['keywords']);
+                        //$document->setDate($record['datetime']);
+                        //$document->setTeaser($record['teaser']);
+                        //$document->setBodytext($record['bodytext']);
+                        //$document->setDraft($record['hidden']);
+                        //$document->setEndtime($record['expirydate']);
+                    }
                 }
             }
         }
-
         return [
             $pageUid,
             $documentCollection
         ];
-
     }
-
 }
