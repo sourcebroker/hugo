@@ -75,7 +75,7 @@ class HugoExportPageService
                 $writer->setRootPath($hugoConfigForRootSite->getOption('writer.path.content'));
                 $writer->setExcludeCleaningFolders([$hugoConfigForRootSite->getOption('writer.path.media')]);
                 $treeTraverser->setWriter($writer);
-                $treeTraverser->start($siteRoot['uid'], []);
+                $treeTraverser->start($siteRoot['uid'], [], 'getDocumentsForPage');
 
                 // USE CONTENT EXPORTED FROM TYPO3 TO RUN HUGO BUILD
                 $hugoPathBinary = $hugoConfigForRootSite->getOption('hugo.path.binary');
