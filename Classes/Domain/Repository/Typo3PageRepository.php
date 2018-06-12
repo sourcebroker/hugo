@@ -49,6 +49,7 @@ class Typo3PageRepository
     }
 
     /**
+     * @param int $pageUid
      * @return array
      */
     public function getPageContentElements(int $pageUid): array
@@ -64,6 +65,27 @@ class Typo3PageRepository
                 ),
                 $queryBuilder->expr()->eq('sys_language_uid',
                     $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)
+                )
+            )
+            ->orderBy('sorting')
+            ->execute()
+            ->fetchAll();
+    }
+
+    /**
+     * @param int $pageUid
+     * @return array
+     */
+    public function getShortcutsPointingToPage(int $pageUid): array
+    {
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+            ->getQueryBuilderForTable('pages');
+        return $queryBuilder
+            ->select('*')
+            ->from('pages')
+            ->where(
+                $queryBuilder->expr()->eq('shortcut',
+                    $queryBuilder->createNamedParameter($pageUid, \PDO::PARAM_INT)
                 )
             )
             ->orderBy('sorting')

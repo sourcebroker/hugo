@@ -2,11 +2,11 @@
 
 namespace SourceBroker\Hugo\Indexer;
 
-use SourceBroker\Hugo\Domain\Model\Document;
 use SourceBroker\Hugo\Domain\Model\DocumentCollection;
 use SourceBroker\Hugo\Domain\Repository\Typo3PageRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
+use TYPO3\CMS\Frontend\Page\PageRepository;
 
 /**
  * Class PageIndexer
@@ -26,39 +26,26 @@ class PageIndexer extends AbstractIndexer
         $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
         $typo3PageRepository = $objectManager->get(Typo3PageRepository::class);
         $page = $typo3PageRepository->getByUid($pageUid);
-        $layout = $page['backend_layout'];
+        $rootline = ($objectManager->get(\TYPO3\CMS\Core\Utility\RootlineUtility::class, $pageUid))->get();
+        $layout = $page['backend_layout'] ? $page['backend_layout'] : $this->resolveLayoutForPage($rootline, $pageUid);
 
-        $parentPage = null;
-        if ($page['pid']) {
-            $parentPage = $typo3PageRepository->getByUid($page['pid']);
+        if (!in_array($page['doktype'], [
+                PageRepository::DOKTYPE_SYSFOLDER,
+                PageRepository::DOKTYPE_SHORTCUT
+            ]
+        )) {
+            $document = $documentCollection->create();
+            $document->setStoreFilename('_index')
+                ->setId($page['uid'])
+                ->setPid($page['pid'])
+                ->setTitle($page['title'])
+                ->setSlug($this->slugify($page['nav_title'] ?: $page['title']))
+                ->setDraft(!empty($page['hidden']))
+                ->setWeight($page['sorting'])
+                ->setLayout(str_replace('pagets__', '', $layout))
+                ->setContent($typo3PageRepository->getPageContentElements($pageUid))
+                ->setMenu($page);
         }
-
-        if (empty($layout)) {
-            /** @var \TYPO3\CMS\Core\Utility\RootlineUtility $rootLineUtility */
-            $rootLineUtility = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Utility\\RootlineUtility', $pageUid);
-            $pages = $rootLineUtility->get();
-            $layout = $this->resolveLayoutForPage($pages, $pageUid);
-        }
-        $document = $documentCollection->create();
-
-        $document->setStoreFilename('_index')
-            ->setId($page['uid'])
-            ->setType(Document::TYPE_PAGE)
-            ->setPid($page['pid'])
-            ->setTitle($page['title'])
-            ->setSlug($this->slugify($page['nav_title'] ?: $page['title']))
-            ->setDraft(!empty($page['hidden']))
-            ->setWeight($page['sorting'])
-            ->setLayout(str_replace('pagets__', '', $layout))
-            ->setContent($typo3PageRepository->getPageContentElements($pageUid));
-
-        if (empty($page['tx_hugo_menuid'])) {
-            $menuUid = empty($parentPage['tx_hugo_menuid']) ? '' : $parentPage['tx_hugo_menuid'];
-        } else {
-            $menuUid = $page['tx_hugo_menuid'];
-        }
-        $document->addToMenu($menuUid, $page, $parentPage);
-
         return [
             $pageUid,
             $documentCollection,
@@ -80,7 +67,7 @@ class PageIndexer extends AbstractIndexer
                 return $page['backend_layout'];
             }
 
-            if(!empty($page['backend_layout_next_level'])) {
+            if (!empty($page['backend_layout_next_level'])) {
                 return $page['backend_layout_next_level'];
             }
         }

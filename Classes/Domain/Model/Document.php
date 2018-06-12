@@ -2,6 +2,12 @@
 
 namespace SourceBroker\Hugo\Domain\Model;
 
+use SourceBroker\Hugo\Configuration\Configurator;
+use SourceBroker\Hugo\Domain\Repository\Typo3PageRepository;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
+use TYPO3\CMS\Frontend\Page\PageRepository;
+
 /**
  * Class Document
  *
@@ -222,23 +228,52 @@ class Document
     }
 
     /**
-     * @param string $menuId
      * @param $page
-     * @param $parentPage
      * @return Document
      */
-    public function addToMenu(string $menuId, $page, $parentPage = null): self
+    public function setMenu($page): self
     {
-        if (empty($page['nav_hide'])) {
-            if (!in_array($menuId, $this->frontMatter['menu']) && !$page['is_siteroot']) {
-                $menu = [
-                    'weight' => $page['sorting'],
-                    'identifier' => $page['uid']
-                ];
-                if (empty($parentPage['is_siteroot']) && $page['pid']) {
-                    $menu = array_merge($menu, ['parent' => $page['pid']]);
+        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+        $hugoConfig = $objectManager->get(Configurator::class, null, $page['uid']);
+        if (!empty($hugoConfig->getOption('page.indexer.menu'))) {
+            foreach ($hugoConfig->getOption('page.indexer.menu') as $menuIdentifier => $menuConfig) {
+                $typo3PageRepository = $objectManager->get(Typo3PageRepository::class);
+                $shortcuts = $typo3PageRepository->getShortcutsPointingToPage($page['uid']);
+                $checkPages = array_merge($shortcuts, [$page]);
+                foreach ($checkPages as $checkPage) {
+                    $rootline = ($objectManager->get(\TYPO3\CMS\Core\Utility\RootlineUtility::class,
+                        $checkPage['uid']))->get();
+                    krsort($rootline);
+                    foreach ($rootline as $key => $rootlinePage) {
+                        $pageBelongsToMenuAndIsNotBelowSysfolder = true;
+                        $doktypeInRootline = false;
+                        foreach ($rootline as $rootlinePageBelongs) {
+                            if ($doktypeInRootline == true && $rootlinePageBelongs['uid'] == $menuConfig['entryUid']) {
+                                $pageBelongsToMenuAndIsNotBelowSysfolder = false;
+                            }
+                            if ($rootlinePageBelongs['doktype'] == PageRepository::DOKTYPE_SYSFOLDER) {
+                                $doktypeInRootline = true;
+                            }
+                        }
+                        if ($page['uid'] != $menuConfig['entryUid'] &&
+                            $rootlinePage['uid'] == $menuConfig['entryUid']
+                            && $pageBelongsToMenuAndIsNotBelowSysfolder) {
+                            $menu = [
+                                'weight' => $checkPage['sorting'],
+                                'identifier' => $checkPage['uid'],
+                                'name' => $checkPage['title'],
+                                'pre' => $checkPage['nav_hide'] // TODO move it to .Params of page to not misuse .Pre
+                            ];
+                            if ($checkPage['title'] !== $page['title']) {
+                                $menu = array_merge($menu, ['name' => $checkPage['title']]);
+                            }
+                            if ($checkPage['pid'] && $checkPage['pid'] !== (int)$menuConfig['entryUid']) {
+                                $menu = array_merge($menu, ['parent' => $checkPage['pid']]);
+                            }
+                            $this->frontMatter['menu'][$menuIdentifier] = $menu;
+                        }
+                    }
                 }
-                $this->frontMatter['menu'][$menuId] = $menu;
             }
         }
         return $this;

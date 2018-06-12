@@ -7,6 +7,7 @@ master
 1) [TASK] [!!!BREAKING] Change namesppace from indexer.records.exporter to page.indexer.records.exporter
 2) [TASK] Protect have ing empty $hugoConfig->getOption('page.indexer.records.exporter')
 3) [TASK] Remove unneeded fields from Documents class.
+4) [TASK] Implement new way to generate menu data based on settings in TSConfig.
 
 0.0.14
 ~~~~~~
