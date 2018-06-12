@@ -1,6 +1,11 @@
 Changelog
 ---------
 
+0.0.16
+~~~~~~
+
+1) [TASK] Remove not longer needed "page" table override for menu (tx_hugo_menuid)
+
 0.0.15
 ~~~~~~
 

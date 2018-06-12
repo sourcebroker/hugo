@@ -3,9 +3,6 @@
 	<file source-language="en" datatype="plaintext" original="messages" date="2018-03-22T13:12:02Z" product-name="hugo">
 		<header/>
 		<body>
-			<trans-unit id="pages.tx_hugo_menuid">
-				<source>Hugo menu identifier</source>
-			</trans-unit>
 			<trans-unit id="pages.tx_hugo_typename">
 				<source>Type name used in hugo exporter (if wou will not fill this field you will have content elements like "ce_dceuid3" instead some meaningful names.</source>
 			</trans-unit>
