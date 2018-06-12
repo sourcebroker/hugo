@@ -1,7 +1,7 @@
 Changelog
 ---------
 
-master
+0.0.15
 ~~~~~~
 
 1) [TASK] [!!!BREAKING] Change namesppace from indexer.records.exporter to page.indexer.records.exporter
