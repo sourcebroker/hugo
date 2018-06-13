@@ -213,6 +213,16 @@ class Document
     }
 
     /**
+     * @param $customFields
+     * @return Document
+     */
+    public function setCustomFields($customFields): self
+    {
+        $this->frontMatter = array_replace_recursive($this->frontMatter, $customFields);
+        return $this;
+    }
+
+    /**
      * @param array $contentElements
      * @return Document
      */
