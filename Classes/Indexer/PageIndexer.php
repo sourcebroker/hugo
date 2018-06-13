@@ -2,6 +2,7 @@
 
 namespace SourceBroker\Hugo\Indexer;
 
+use SourceBroker\Hugo\Configuration\Configurator;
 use SourceBroker\Hugo\Domain\Model\DocumentCollection;
 use SourceBroker\Hugo\Domain\Repository\Typo3PageRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -44,7 +45,8 @@ class PageIndexer extends AbstractIndexer
                 ->setWeight($page['sorting'])
                 ->setLayout(str_replace('pagets__', '', $layout))
                 ->setContent($typo3PageRepository->getPageContentElements($pageUid))
-                ->setMenu($page);
+                ->setMenu($page)
+                ->setCustomFields($this->resolveCustomeFields($page));
         }
         return [
             $pageUid,
@@ -73,5 +75,19 @@ class PageIndexer extends AbstractIndexer
         }
 
         return '';
+    }
+
+    private function resolveCustomeFields(array $page) {
+        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+        $config = $objectManager->get(Configurator::class, null, $page['uid']);
+        $customFields = [];
+        foreach ($config->getOption('page.indexer.customFields.fieldMapper') as $fieldToMap => $fieldOptions) {
+            $type = empty($fieldOptions['type']) ? null : $fieldOptions['type'];
+            switch ($type) {
+                default:
+                    $customFields[$fieldOptions['name']] = $page[$fieldToMap];
+            }
+        }
+        return $customFields;
     }
 }

@@ -1,6 +1,11 @@
 Changelog
 ---------
 
+master
+~~~~~~
+
+1) [FEATURE] Implement way to put custom fields into hugo document.
+
 0.0.16
 ~~~~~~
 
