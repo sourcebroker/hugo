@@ -1,7 +1,7 @@
 Changelog
 ---------
 
-master
+0.0.18
 ~~~~~~
 1) [BUGFIX] Add cast to array if option is not set.
 
