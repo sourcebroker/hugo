@@ -5,6 +5,7 @@ namespace SourceBroker\Hugo\Domain\Model;
 use SourceBroker\Hugo\Configuration\Configurator;
 use SourceBroker\Hugo\Domain\Repository\Typo3PageRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\RootlineUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Frontend\Page\PageRepository;
 
@@ -251,11 +252,11 @@ class Document
                 $shortcuts = $typo3PageRepository->getShortcutsPointingToPage($page['uid']);
                 $checkPages = array_merge($shortcuts, [$page]);
                 foreach ($checkPages as $checkPage) {
-                    $rootline = ($objectManager->get(\TYPO3\CMS\Core\Utility\RootlineUtility::class,
-                        $checkPage['uid']))->get();
+                    $rootline = ($objectManager->get(RootlineUtility::class, $checkPage['uid']))->get();
                     krsort($rootline);
                     foreach ($rootline as $key => $rootlinePage) {
                         $pageBelongsToMenuAndIsNotBelowSysfolder = true;
+                        $pageBelongsToMenuAndIsNotBelowHiddenInNavigation = true;
                         $doktypeInRootline = false;
                         foreach ($rootline as $rootlinePageBelongs) {
                             if ($doktypeInRootline == true && $rootlinePageBelongs['uid'] == $menuConfig['entryUid']) {
@@ -264,10 +265,15 @@ class Document
                             if ($rootlinePageBelongs['doktype'] == PageRepository::DOKTYPE_SYSFOLDER) {
                                 $doktypeInRootline = true;
                             }
+                            if ($rootlinePageBelongs['nav_hide'] && empty($menuConfig['showHiddenInMenu'])) {
+                                $pageBelongsToMenuAndIsNotBelowHiddenInNavigation = false;
+                            }
                         }
-                        if ($page['uid'] != $menuConfig['entryUid'] &&
+                        if (empty($page['nav_hide']) &&
+                            $page['uid'] != $menuConfig['entryUid'] &&
                             $rootlinePage['uid'] == $menuConfig['entryUid']
-                            && $pageBelongsToMenuAndIsNotBelowSysfolder) {
+                            && $pageBelongsToMenuAndIsNotBelowSysfolder
+                            && $pageBelongsToMenuAndIsNotBelowHiddenInNavigation) {
 
                             if(!empty($pageTranslation['sys_language_uid'])) {
                                 $rootlinePageTranslation = $typo3PageRepository->getPageTranslation($checkPage['uid'],
@@ -281,7 +287,6 @@ class Document
                                 'weight' => $checkPage['sorting'],
                                 'identifier' => $checkPage['uid'],
                                 'name' => $title,
-                                'pre' => $checkPage['nav_hide'] // TODO move it to .Params of page to not misuse .Pre
                             ];
                             if ($title !== $page['title']) {
                                 $menu = array_merge($menu, ['name' => $title]);
