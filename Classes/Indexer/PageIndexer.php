@@ -34,6 +34,11 @@ class PageIndexer extends AbstractIndexer
         $rootline = ($objectManager->get(\TYPO3\CMS\Core\Utility\RootlineUtility::class, $pageUid))->get();
         $layout = $page['backend_layout'] ? $page['backend_layout'] : $this->resolveLayoutForPage($rootline, $pageUid);
 
+        switch ($hugoConfig->getOption('page.indexer.layout.nameTransform')) {
+            default:
+                $layout = strtolower(preg_replace('/([a-zA-Z])(?=[A-Z])/', '$1-', $layout));
+        }
+
         if (!in_array($page['doktype'], [
                 PageRepository::DOKTYPE_SYSFOLDER,
                 PageRepository::DOKTYPE_SHORTCUT
