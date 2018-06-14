@@ -241,7 +241,7 @@ class Document
      * @param $page
      * @return Document
      */
-    public function setMenu($page): self
+    public function setMenu($page, $pageTranslation = null): self
     {
         $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
         $hugoConfig = $objectManager->get(Configurator::class, null, $page['uid']);
@@ -268,14 +268,23 @@ class Document
                         if ($page['uid'] != $menuConfig['entryUid'] &&
                             $rootlinePage['uid'] == $menuConfig['entryUid']
                             && $pageBelongsToMenuAndIsNotBelowSysfolder) {
+
+                            if(!empty($pageTranslation['sys_language_uid'])) {
+                                $rootlinePageTranslation = $typo3PageRepository->getPageTranslation($checkPage['uid'],
+                                    $pageTranslation['sys_language_uid']);
+                                $title = $rootlinePageTranslation[0]['title'];
+                            } else {
+                                $title = $checkPage['title'];
+                            }
+
                             $menu = [
                                 'weight' => $checkPage['sorting'],
                                 'identifier' => $checkPage['uid'],
-                                'name' => $checkPage['title'],
+                                'name' => $title,
                                 'pre' => $checkPage['nav_hide'] // TODO move it to .Params of page to not misuse .Pre
                             ];
-                            if ($checkPage['title'] !== $page['title']) {
-                                $menu = array_merge($menu, ['name' => $checkPage['title']]);
+                            if ($title !== $page['title']) {
+                                $menu = array_merge($menu, ['name' => $title]);
                             }
                             if ($checkPage['pid'] && $checkPage['pid'] !== (int)$menuConfig['entryUid']) {
                                 $menu = array_merge($menu, ['parent' => $checkPage['pid']]);

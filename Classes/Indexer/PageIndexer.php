@@ -16,6 +16,9 @@ use TYPO3\CMS\Frontend\Page\PageRepository;
  */
 class PageIndexer extends AbstractIndexer
 {
+    /** @var Typo3PageRepository */
+    private $typo3PageRepository;
+
     /**
      * @param int $pageUid
      * @param DocumentCollection $documentCollection
@@ -25,8 +28,9 @@ class PageIndexer extends AbstractIndexer
     public function getDocumentsForPage(int $pageUid, DocumentCollection $documentCollection): array
     {
         $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        $typo3PageRepository = $objectManager->get(Typo3PageRepository::class);
-        $page = $typo3PageRepository->getByUid($pageUid);
+        $hugoConfig = $objectManager->get(Configurator::class, null, $pageUid);
+        $this->typo3PageRepository = $objectManager->get(Typo3PageRepository::class);
+        $page = $this->typo3PageRepository->getByUid($pageUid);
         $rootline = ($objectManager->get(\TYPO3\CMS\Core\Utility\RootlineUtility::class, $pageUid))->get();
         $layout = $page['backend_layout'] ? $page['backend_layout'] : $this->resolveLayoutForPage($rootline, $pageUid);
 
@@ -40,13 +44,36 @@ class PageIndexer extends AbstractIndexer
                 ->setId($page['uid'])
                 ->setPid($page['pid'])
                 ->setTitle($page['title'])
-                ->setSlug($this->slugify($page['nav_title'] ?: $page['title']))
                 ->setDraft(!empty($page['hidden']))
                 ->setWeight($page['sorting'])
                 ->setLayout(str_replace('pagets__', '', $layout))
-                ->setContent($typo3PageRepository->getPageContentElements($pageUid))
+                ->setContent($this->typo3PageRepository->getPageContentElements($pageUid))
                 ->setMenu($page)
                 ->setCustomFields($this->resolveCustomeFields($page));
+
+            $languages = $hugoConfig->getOption('languages');
+            $translations = $this->typo3PageRepository->getPageTranslations($page['uid']);
+            if (!empty($translations)) {
+                foreach ($translations as $translation) {
+                    $document = $documentCollection->create();
+                    $document->setStoreFilename('_index.' . $languages[$translation['sys_language_uid']])
+                        ->setId($page['uid'])
+                        ->setPid($page['pid'])
+                        ->setTitle($translation['title'])
+                        ->setDraft(!empty($page['hidden']))
+                        ->setWeight($page['sorting'])
+                        ->setLayout(str_replace('pagets__', '', $layout))
+                        ->setContent($this->typo3PageRepository->getPageContentElements($pageUid))
+                        ->setMenu($page, $translation)
+                        ->setCustomFields($this->resolveCustomeFields($page));
+                    if (!$page['is_siteroot']) {
+                        $document->setCustomFields([
+                            'url' => $languages[$translation['sys_language_uid']] . '/' . $this->resolveFullLangPath($rootline,
+                                    $translation['sys_language_uid'])
+                        ]);
+                    }
+                }
+            }
         }
         return [
             $pageUid,
@@ -55,29 +82,49 @@ class PageIndexer extends AbstractIndexer
     }
 
     /**
+     * @param array $rootline
+     * @param int $sysLangugeUid
+     * @return string
+     */
+    private function resolveFullLangPath(array $rootline, int $sysLangugeUid) : string
+    {
+        array_pop($rootline);
+        $rootline = array_reverse($rootline);
+        $pathParts = [];
+        foreach ($rootline as $key => $page) {
+            $translation = $this->typo3PageRepository->getPageTranslation($page['uid'], $sysLangugeUid);
+            if (!empty($translation[0]['title'])) {
+                $pathParts[] = $this->slugify(!empty($translation[0]['nav_title']) ? $translation[0]['nav_title'] : $translation[0]['title']);
+            }
+        }
+        return implode('/', $pathParts);
+    }
+
+    /**
      * @param array $tree
      * @param int $pageUid
      * @return string
      */
-    private function resolveLayoutForPage(array $tree, int $pageUid)
+    private function resolveLayoutForPage(array $tree, int $pageUid) : string
     {
         krsort($tree);
-
         foreach ($tree as $key => $page) {
-
             if ($pageUid == $page['uid'] && !empty($page['backend_layout'])) {
                 return $page['backend_layout'];
             }
-
             if (!empty($page['backend_layout_next_level'])) {
                 return $page['backend_layout_next_level'];
             }
         }
-
         return '';
     }
 
-    private function resolveCustomeFields(array $page) {
+    /**
+     * @param array $page
+     * @return array
+     */
+    private function resolveCustomeFields(array $page) : array
+    {
         $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
         $config = $objectManager->get(Configurator::class, null, $page['uid']);
         $customFields = [];

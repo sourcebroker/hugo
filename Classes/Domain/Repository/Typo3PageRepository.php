@@ -4,6 +4,8 @@ namespace SourceBroker\Hugo\Domain\Repository;
 
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Database\Query\Restriction\BackendWorkspaceRestriction;
+use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class Typo3PageRepository
@@ -110,4 +112,50 @@ class Typo3PageRepository
         return $queryBuilder->execute()->fetchAll();
     }
 
+
+    /**
+     * @param int $pid
+     * @return array
+     */
+    public function getPageTranslations(int $defaultLangPageUid): array
+    {
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+            ->getQueryBuilderForTable('pages_language_overlay');
+        $queryBuilder->getRestrictions()
+            ->removeAll()
+            ->add(GeneralUtility::makeInstance(DeletedRestriction::class))
+            ->add(GeneralUtility::makeInstance(BackendWorkspaceRestriction::class));
+
+        $rows = $queryBuilder->select('*')
+            ->from('pages_language_overlay')
+            ->where($queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($defaultLangPageUid, \PDO::PARAM_INT)))
+            ->execute()
+            ->fetchAll();
+
+        return $rows;
+    }
+
+    /**
+     * @param int $pid
+     * @return array
+     */
+    public function getPageTranslation(int $defaultLangPageUid, int $sysLanguageUid): array
+    {
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+            ->getQueryBuilderForTable('pages_language_overlay');
+        $queryBuilder->getRestrictions()
+            ->removeAll()
+            ->add(GeneralUtility::makeInstance(DeletedRestriction::class))
+            ->add(GeneralUtility::makeInstance(BackendWorkspaceRestriction::class));
+
+        $rows = $queryBuilder->select('*')
+            ->from('pages_language_overlay')
+            ->where(
+                $queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($defaultLangPageUid, \PDO::PARAM_INT)),
+                $queryBuilder->expr()->eq('sys_language_uid', $queryBuilder->createNamedParameter($sysLanguageUid, \PDO::PARAM_INT))
+            )
+            ->execute()
+            ->fetchAll();
+        return $rows;
+    }
 }
