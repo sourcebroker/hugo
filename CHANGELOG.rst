@@ -6,6 +6,8 @@ master
 
 1) [FEATURE] Implement way to put custom fields into hugo document.
 2) [FEATURE] Implement init version for page translations. For media only a copy of indexes.
+3) [FEATURE] Implement way to change how TYPO3 backend_layout name is transformed to Hugo so different filenames (case
+sensitivity, dashes etc) can be used on both TYPo3 and Hugo.
 
 0.0.16
 ~~~~~~
