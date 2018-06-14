@@ -133,7 +133,7 @@ class PageIndexer extends AbstractIndexer
         $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
         $config = $objectManager->get(Configurator::class, null, $page['uid']);
         $customFields = [];
-        foreach ($config->getOption('page.indexer.customFields.fieldMapper') as $fieldToMap => $fieldOptions) {
+        foreach ((array)$config->getOption('page.indexer.customFields.fieldMapper') as $fieldToMap => $fieldOptions) {
             $type = empty($fieldOptions['type']) ? null : $fieldOptions['type'];
             switch ($type) {
                 default:

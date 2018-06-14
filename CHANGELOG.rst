@@ -1,6 +1,10 @@
 Changelog
 ---------
 
+master
+~~~~~~
+1) [BUGFIX] Add cast to array if option is not set.
+
 0.0.17
 ~~~~~~
 
