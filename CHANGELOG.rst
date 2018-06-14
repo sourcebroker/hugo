@@ -1,6 +1,11 @@
 Changelog
 ---------
 
+0.0.19
+~~~~~~
+1) [BUGFIX] Fix multilang menu taking folders and shortcuts to path.
+2) [BUGFIX] Typo in function name.
+
 0.0.18
 ~~~~~~
 1) [BUGFIX] Add cast to array if option is not set.

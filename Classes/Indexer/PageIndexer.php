@@ -54,7 +54,7 @@ class PageIndexer extends AbstractIndexer
                 ->setLayout(str_replace('pagets__', '', $layout))
                 ->setContent($this->typo3PageRepository->getPageContentElements($pageUid))
                 ->setMenu($page)
-                ->setCustomFields($this->resolveCustomeFields($page));
+                ->setCustomFields($this->resolveCustomFields($page));
 
             $languages = $hugoConfig->getOption('languages');
             $translations = $this->typo3PageRepository->getPageTranslations($page['uid']);
@@ -70,7 +70,7 @@ class PageIndexer extends AbstractIndexer
                         ->setLayout(str_replace('pagets__', '', $layout))
                         ->setContent($this->typo3PageRepository->getPageContentElements($pageUid))
                         ->setMenu($page, $translation)
-                        ->setCustomFields($this->resolveCustomeFields($page));
+                        ->setCustomFields($this->resolveCustomFields($page));
                     if (!$page['is_siteroot']) {
                         $document->setCustomFields([
                             'url' => $languages[$translation['sys_language_uid']] . '/' . $this->resolveFullLangPath($rootline,
@@ -91,15 +91,21 @@ class PageIndexer extends AbstractIndexer
      * @param int $sysLangugeUid
      * @return string
      */
-    private function resolveFullLangPath(array $rootline, int $sysLangugeUid) : string
+    private function resolveFullLangPath(array $rootline, int $sysLangugeUid): string
     {
         array_pop($rootline);
         $rootline = array_reverse($rootline);
         $pathParts = [];
         foreach ($rootline as $key => $page) {
-            $translation = $this->typo3PageRepository->getPageTranslation($page['uid'], $sysLangugeUid);
-            if (!empty($translation[0]['title'])) {
-                $pathParts[] = $this->slugify(!empty($translation[0]['nav_title']) ? $translation[0]['nav_title'] : $translation[0]['title']);
+            if (!in_array($page['doktype'], [
+                    PageRepository::DOKTYPE_SYSFOLDER,
+                    PageRepository::DOKTYPE_SHORTCUT
+                ]
+            )) {
+                $translation = $this->typo3PageRepository->getPageTranslation($page['uid'], $sysLangugeUid);
+                if (!empty($translation[0]['title'])) {
+                    $pathParts[] = $this->slugify(!empty($translation[0]['nav_title']) ? $translation[0]['nav_title'] : $translation[0]['title']);
+                }
             }
         }
         return implode('/', $pathParts);
@@ -110,7 +116,7 @@ class PageIndexer extends AbstractIndexer
      * @param int $pageUid
      * @return string
      */
-    private function resolveLayoutForPage(array $tree, int $pageUid) : string
+    private function resolveLayoutForPage(array $tree, int $pageUid): string
     {
         krsort($tree);
         foreach ($tree as $key => $page) {
@@ -128,7 +134,7 @@ class PageIndexer extends AbstractIndexer
      * @param array $page
      * @return array
      */
-    private function resolveCustomeFields(array $page) : array
+    private function resolveCustomFields(array $page): array
     {
         $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
         $config = $objectManager->get(Configurator::class, null, $page['uid']);
