@@ -5,6 +5,7 @@ Changelog
 ~~~~~~
 1) [BUGFIX] Fix multilang menu taking folders and shortcuts to path.
 2) [BUGFIX] Typo in function name.
+3) [TASK] Disable menu generation for Hugo page below hidden page in TYPO3.
 
 0.0.18
 ~~~~~~
