@@ -109,10 +109,14 @@ class HugoExportMediaService
                     }
                 }
 
-                file_put_contents(
-                    $folderToStore . '/index.md',
-                    "---\n" . Yaml::dump(['resources' => $filesHugo], 100) . "---\n"
-                );
+                $languages = $hugoConfigForRootSite->getOption('languages');
+                $languages = !is_array($languages) ? [0 => ''] : array_merge([0 => ''], $languages);
+                foreach ($languages as $lang) {
+                    file_put_contents(
+                        $folderToStore . '/index' . (!empty($lang) ? '.' . $lang : '') . '.md',
+                        "---\n" . Yaml::dump(['resources' => $filesHugo], 100) . "---\n"
+                    );
+                }
                 // Leave after first hugo enabled site root becase content elements are the same for all root sites.
                 break;
             }

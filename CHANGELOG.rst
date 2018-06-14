@@ -5,6 +5,7 @@ master
 ~~~~~~
 
 1) [FEATURE] Implement way to put custom fields into hugo document.
+2) [FEATURE] Implement init version for page translations. For media only a copy of indexes.
 
 0.0.16
 ~~~~~~
