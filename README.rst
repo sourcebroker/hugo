@@ -11,7 +11,8 @@ Installation
 ************
 
 Use composer:
- ::
+
+::
 
   composer require sourcebroker/hugo
 
@@ -19,7 +20,8 @@ Usage
 *****
 
 Use CLI command:
- ::
+
+::
 
   typo3cms hugo:export
 
@@ -35,14 +37,16 @@ Hugo binary path
 On each page or content editing in TYPO3 a special hook is used to update Hugo files and make a fresh build of
 all pages. For this to happen you must have Hugo binary available in your $PATH. If you do not have hugo in your $PATH
 then you can set the exact path with this TsConfig:
- ::
+
+::
 
   tx_hugo {
       hugo.path.binary = /my/path/hugo
   }
 
 If you have different path to hugo on different instances of application (beta / live) then you can use TYPO3 conditions:
- ::
+
+::
 
   [applicationContext = */*/Live]
     tx_hugo {
