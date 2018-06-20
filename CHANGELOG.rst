@@ -1,6 +1,11 @@
 Changelog
 ---------
 
+master
+~~~~~~
+1) [DOC] Update docs.
+
+
 0.0.19
 ~~~~~~
 1) [BUGFIX] Fix multilang menu taking folders and shortcuts to path.
