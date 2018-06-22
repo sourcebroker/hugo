@@ -2,7 +2,7 @@
 
 defined('TYPO3_MODE') || die('Access denied.');
 
-call_user_func(function () {
+call_user_func(function () use ($_EXTKEY) {
 
     if (TYPO3_MODE !== 'FE') {
         \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPageTSConfig(
@@ -30,6 +30,30 @@ call_user_func(function () {
 
     $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processDatamapClass']['hugo'] = 'SourceBroker\\Hugo\\DataHandling\\DataHandler';
     $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processCmdmapClass']['hugo'] = 'SourceBroker\\Hugo\\DataHandling\\DataHandler';
+
+    $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['scheduler']['tasks'][\SourceBroker\Hugo\Task\ExportTask::class] = [
+        'extension' => $_EXTKEY,
+        'title' => 'LLL:EXT:' . $_EXTKEY . '/Resources/Private/Language/locallang_db.xlf:task.export.title',
+        'description' => 'LLL:EXT:' . $_EXTKEY . '/Resources/Private/Language/locallang_db.xlf:task.export.description',
+    ];
+
+    $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['scheduler']['tasks'][\SourceBroker\Hugo\Task\ExportPagesTask::class] = [
+        'extension' => $_EXTKEY,
+        'title' => 'LLL:EXT:' . $_EXTKEY . '/Resources/Private/Language/locallang_db.xlf:task.exportPages.title',
+        'description' => 'LLL:EXT:' . $_EXTKEY . '/Resources/Private/Language/locallang_db.xlf:task.exportPages.description',
+    ];
+
+    $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['scheduler']['tasks'][\SourceBroker\Hugo\Task\ExportMediaTask::class] = [
+        'extension' => $_EXTKEY,
+        'title' => 'LLL:EXT:' . $_EXTKEY . '/Resources/Private/Language/locallang_db.xlf:task.exportMedia.title',
+        'description' => 'LLL:EXT:' . $_EXTKEY . '/Resources/Private/Language/locallang_db.xlf:task.exportMedia.description',
+    ];
+
+    $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['scheduler']['tasks'][\SourceBroker\Hugo\Task\ExportContentTask::class] = [
+        'extension' => $_EXTKEY,
+        'title' => 'LLL:EXT:' . $_EXTKEY . '/Resources/Private/Language/locallang_db.xlf:task.exportContent.title',
+        'description' => 'LLL:EXT:' . $_EXTKEY . '/Resources/Private/Language/locallang_db.xlf:task.exportContent.description',
+    ];
 });
 
 
