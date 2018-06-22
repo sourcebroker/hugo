@@ -3,6 +3,8 @@
 namespace SourceBroker\Hugo\ContentElement;
 
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Resource\File;
+use TYPO3\CMS\Core\Resource\FileReference;
 
 class DceContentElement extends AbstractContentElement
 {
@@ -27,10 +29,7 @@ class DceContentElement extends AbstractContentElement
                     if (is_array($sectionFieldValues)) {
                         foreach ($sectionFieldValues as $i => $value) {
                             if (!empty($value[0]) && is_object($value[0]) && get_class($value[0]) == \TYPO3\CMS\Core\Resource\File::class) {
-                                // TODO: Make support for more that one image.
-                                /* @var $file \TYPO3\CMS\Core\Resource\File */
-                                $file = $value[0];
-                                $fields[$field->getVariable()][$i][$sectionField->getVariable()] = $file->getProperty('uid');
+                                $fields[$field->getVariable()][$i][$sectionField->getVariable()] = $this->getSysFileIds($value);
                             } elseif ($this->fieldIsLink($sectionField)) {
                                 // TODO: Parse for links. Hugo must have final links.
                                 $fields[$field->getVariable()][$i][$sectionField->getVariable()] = $value;
@@ -41,9 +40,19 @@ class DceContentElement extends AbstractContentElement
                     }
                 }
             } else {
-                if (!empty($value[0]) && is_object($value[0]) && get_class($value[0]) == \TYPO3\CMS\Core\Resource\File::class) {
-                    // TODO: Make support for more that one image.
-                    $fields[$field->getVariable()] = $value[0]->getProperty('uid');
+                $value = $field->getValue();
+                if (
+                    !empty($value[0]) &&
+                    is_object($value[0]) &&
+                    in_array(
+                        get_class($value[0]),
+                        [
+                            \TYPO3\CMS\Core\Resource\FileReference::class,
+                            \TYPO3\CMS\Core\Resource\File::class
+                        ]
+                    )
+                ) {
+                    $fields[$field->getVariable()] = $this->getSysFileIds((array)$value);
                 } elseif ($this->fieldIsLink($field)) {
                     // TODO: Parse for links. Hugo must have final links.
                     $fields[$field->getVariable()] = $field->getValue();
@@ -74,8 +83,24 @@ class DceContentElement extends AbstractContentElement
             && strpos($configuration['softref'], 'typolink') >= 0
             && !empty($configuration['wizards']['link'])) {
             $isFieldLink = true;
-        };
+        }
         return $isFieldLink;
     }
 
+    /**
+     * @param array $values
+     * @return array
+     */
+    protected function getSysFileIds($values): array
+    {
+        return array_filter(array_map(function ($object) {
+            if ($object instanceof File) {
+                return $object->getProperty('uid');
+            } elseif ($object instanceof FileReference) {
+                return $object->getOriginalFile()->getProperty('uid');
+            } else {
+                return false;
+            }
+        }, $values));
+    }
 }
