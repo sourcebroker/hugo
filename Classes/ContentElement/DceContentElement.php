@@ -2,7 +2,10 @@
 
 namespace SourceBroker\Hugo\ContentElement;
 
+use SourceBroker\Hugo\Service\Typo3UrlService;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\FileReference;
 
@@ -10,10 +13,12 @@ class DceContentElement extends AbstractContentElement
 {
     /**
      * @param array $contentElementRawData
+     *
      * @return array
      */
     public function getSpecificContentElementData(array $contentElementRawData): array
     {
+        $languageUid = (int)$contentElementRawData['sys_language_uid'];
         /* @var $dce \ArminVieweg\Dce\Domain\Model\Dce */
         $dce = \ArminVieweg\Dce\Utility\DatabaseUtility::getDceObjectForContentElement($contentElementRawData['uid']);
         $fields = [];
@@ -28,11 +33,12 @@ class DceContentElement extends AbstractContentElement
                     $sectionFieldValues = $sectionField->getValue();
                     if (is_array($sectionFieldValues)) {
                         foreach ($sectionFieldValues as $i => $value) {
-                            if (!empty($value[0]) && is_object($value[0]) && get_class($value[0]) == \TYPO3\CMS\Core\Resource\File::class) {
+                            if ( ! empty($value[0]) && is_object($value[0]) && get_class($value[0]) == \TYPO3\CMS\Core\Resource\File::class) {
                                 $fields[$field->getVariable()][$i][$sectionField->getVariable()] = $this->getSysFileIds($value);
                             } elseif ($this->fieldIsLink($sectionField)) {
-                                // TODO: Parse for links. Hugo must have final links.
-                                $fields[$field->getVariable()][$i][$sectionField->getVariable()] = $value;
+                                $linkArray                                                       = $this->convertTypolinkToLinkArray($value,
+                                    $languageUid);
+                                $fields[$field->getVariable()][$i][$sectionField->getVariable()] = $linkArray;
                             } else {
                                 $fields[$field->getVariable()][$i][$sectionField->getVariable()] = $value;
                             }
@@ -42,7 +48,7 @@ class DceContentElement extends AbstractContentElement
             } else {
                 $value = $field->getValue();
                 if (
-                    !empty($value[0]) &&
+                    ! empty($value[0]) &&
                     is_object($value[0]) &&
                     in_array(
                         get_class($value[0]),
@@ -62,7 +68,7 @@ class DceContentElement extends AbstractContentElement
             }
         }
         $dceRaw = BackendUtility::getRecord('tx_dce_domain_model_dce', $dce->getUid());
-        if (!empty($dceRaw['tx_hugo_typename'])) {
+        if ( ! empty($dceRaw['tx_hugo_typename'])) {
             $fields['type'] = $dceRaw['tx_hugo_typename'];
         }
 
@@ -72,23 +78,38 @@ class DceContentElement extends AbstractContentElement
     /**
      *
      * @param $field
+     *
      * @return bool
      */
     protected function fieldIsLink(\ArminVieweg\Dce\Domain\Model\DceField $field): bool
     {
-        $isFieldLink = false;
+        $isFieldLink   = false;
         $configuration = $field->getConfigurationAsArray();
         $configuration = $configuration['config'];
         if ($configuration['type'] === 'input'
             && strpos($configuration['softref'], 'typolink') >= 0
-            && !empty($configuration['wizards']['link'])) {
+            && ! empty($configuration['wizards']['link'])) {
             $isFieldLink = true;
         }
+
         return $isFieldLink;
     }
 
     /**
+     * @param string $value
+     * @param int    $languageUid
+     *
+     * @return array
+     */
+    protected function convertTypolinkToLinkArray(string $value, int $languageUid): array
+    {
+        return GeneralUtility::makeInstance(ObjectManager::class)->get(Typo3UrlService::class)->linkArray($value,
+            $languageUid);
+    }
+
+    /**
      * @param array $values
+     *
      * @return array
      */
     protected function getSysFileIds($values): array
@@ -102,7 +123,7 @@ class DceContentElement extends AbstractContentElement
                     'caption' => $object->getProperty('description') ?: ''
                 ];
             } elseif ($object instanceof FileReference) {
-                $originalFile = $object->getOriginalFile();
+                $originalFile                            = $object->getOriginalFile();
                 $data[$originalFile->getProperty('uid')] = [
                     'title' => $object->getTitle() ?: ($originalFile->getProperty('title') ?: ''),
                     'alt' => $object->getAlternative() ?: ($originalFile->getProperty('alternative') ?: ''),
@@ -110,6 +131,7 @@ class DceContentElement extends AbstractContentElement
                 ];
             }
         }
+
         return $data;
     }
 }
