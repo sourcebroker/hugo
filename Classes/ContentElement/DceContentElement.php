@@ -2,7 +2,10 @@
 
 namespace SourceBroker\Hugo\ContentElement;
 
+use SourceBroker\Hugo\Service\Typo3UrlService;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 class DceContentElement extends AbstractContentElement
 {
@@ -12,6 +15,7 @@ class DceContentElement extends AbstractContentElement
      */
     public function getSpecificContentElementData(array $contentElementRawData): array
     {
+        $languageUid = (int)$contentElementRawData['sys_language_uid'];
         /* @var $dce \ArminVieweg\Dce\Domain\Model\Dce */
         $dce = \ArminVieweg\Dce\Utility\DatabaseUtility::getDceObjectForContentElement($contentElementRawData['uid']);
         $fields = [];
@@ -32,8 +36,8 @@ class DceContentElement extends AbstractContentElement
                                 $file = $value[0];
                                 $fields[$field->getVariable()][$i][$sectionField->getVariable()] = $file->getProperty('uid');
                             } elseif ($this->fieldIsLink($sectionField)) {
-                                // TODO: Parse for links. Hugo must have final links.
-                                $fields[$field->getVariable()][$i][$sectionField->getVariable()] = $value;
+                                $linkArray = $this->convertTypolinkToLinkArray($value, $languageUid);
+                                $fields[$field->getVariable()][$i][$sectionField->getVariable()] = $linkArray;
                             } else {
                                 $fields[$field->getVariable()][$i][$sectionField->getVariable()] = $value;
                             }
@@ -76,6 +80,17 @@ class DceContentElement extends AbstractContentElement
             $isFieldLink = true;
         };
         return $isFieldLink;
+    }
+
+    /**
+     * @param string $value
+     * @param int   $languageUid
+     *
+     * @return array
+     */
+    protected function convertTypolinkToLinkArray(string $value, int $languageUid): array
+    {
+        return GeneralUtility::makeInstance(ObjectManager::class)->get(Typo3UrlService::class)->linkArray($value, $languageUid);
     }
 
 }
