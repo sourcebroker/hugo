@@ -4,7 +4,17 @@ Changelog
 master
 ~~~~~~
 1) [DOC] Update docs.
-
+2) [FEATURE] Implement the scheduler tasks.
+3) [FEATURE] add new content element: html.
+4) [FEATURE] Make support for more that one image in DCE element
+5) [TASK] Rename the name of command controller; rename the services.
+6) [FEATURE] Return metadata for images in DCE element.
+7) [FEATURE] Run media sync after every file processing.
+8) [FEATURE] Use getRecordOverlay function to get translated content.
+9) [FEATURE] Service for generating links based on typolink configuration.
+10) [FEATURE] Create Field Transformer Class to modify content fields.
+11) [FEATURE] Implement records indexer properties mapper.
+12) [BUGFIX] convertTypolinkToLinkArray can return array of bool.
 
 0.0.19
 ~~~~~~

@@ -33,10 +33,10 @@ class DceContentElement extends AbstractContentElement
                     $sectionFieldValues = $sectionField->getValue();
                     if (is_array($sectionFieldValues)) {
                         foreach ($sectionFieldValues as $i => $value) {
-                            if ( ! empty($value[0]) && is_object($value[0]) && get_class($value[0]) == \TYPO3\CMS\Core\Resource\File::class) {
+                            if (!empty($value[0]) && is_object($value[0]) && get_class($value[0]) == \TYPO3\CMS\Core\Resource\File::class) {
                                 $fields[$field->getVariable()][$i][$sectionField->getVariable()] = $this->getSysFileIds($value);
                             } elseif ($this->fieldIsLink($sectionField)) {
-                                $linkArray                                                       = $this->convertTypolinkToLinkArray($value,
+                                $linkArray = $this->convertTypolinkToLinkArray($value,
                                     $languageUid);
                                 $fields[$field->getVariable()][$i][$sectionField->getVariable()] = $linkArray;
                             } else {
@@ -48,7 +48,7 @@ class DceContentElement extends AbstractContentElement
             } else {
                 $value = $field->getValue();
                 if (
-                    ! empty($value[0]) &&
+                    !empty($value[0]) &&
                     is_object($value[0]) &&
                     in_array(
                         get_class($value[0]),
@@ -68,7 +68,7 @@ class DceContentElement extends AbstractContentElement
             }
         }
         $dceRaw = BackendUtility::getRecord('tx_dce_domain_model_dce', $dce->getUid());
-        if ( ! empty($dceRaw['tx_hugo_typename'])) {
+        if (!empty($dceRaw['tx_hugo_typename'])) {
             $fields['type'] = $dceRaw['tx_hugo_typename'];
         }
 
@@ -83,12 +83,12 @@ class DceContentElement extends AbstractContentElement
      */
     protected function fieldIsLink(\ArminVieweg\Dce\Domain\Model\DceField $field): bool
     {
-        $isFieldLink   = false;
+        $isFieldLink = false;
         $configuration = $field->getConfigurationAsArray();
         $configuration = $configuration['config'];
         if ($configuration['type'] === 'input'
             && strpos($configuration['softref'], 'typolink') >= 0
-            && ! empty($configuration['wizards']['link'])) {
+            && !empty($configuration['wizards']['link'])) {
             $isFieldLink = true;
         }
 
@@ -97,11 +97,11 @@ class DceContentElement extends AbstractContentElement
 
     /**
      * @param string $value
-     * @param int    $languageUid
+     * @param int $languageUid
      *
      * @return array
      */
-    protected function convertTypolinkToLinkArray(string $value, int $languageUid): array
+    protected function convertTypolinkToLinkArray(string $value, int $languageUid): ?array
     {
         return GeneralUtility::makeInstance(ObjectManager::class)->get(Typo3UrlService::class)->linkArray($value,
             $languageUid);
@@ -123,7 +123,7 @@ class DceContentElement extends AbstractContentElement
                     'caption' => $object->getProperty('description') ?: ''
                 ];
             } elseif ($object instanceof FileReference) {
-                $originalFile                            = $object->getOriginalFile();
+                $originalFile = $object->getOriginalFile();
                 $data[$originalFile->getProperty('uid')] = [
                     'title' => $object->getTitle() ?: ($originalFile->getProperty('title') ?: ''),
                     'alt' => $object->getAlternative() ?: ($originalFile->getProperty('alternative') ?: ''),
