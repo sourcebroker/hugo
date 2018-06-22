@@ -20,7 +20,7 @@ class DceContentElement extends AbstractContentElement
     {
         $languageUid = (int)$contentElementRawData['sys_language_uid'];
         /* @var $dce \ArminVieweg\Dce\Domain\Model\Dce */
-        $dce    = \ArminVieweg\Dce\Utility\DatabaseUtility::getDceObjectForContentElement($contentElementRawData['uid']);
+        $dce = \ArminVieweg\Dce\Utility\DatabaseUtility::getDceObjectForContentElement($contentElementRawData['uid']);
         $fields = [];
         /** @var $field \ArminVieweg\Dce\Domain\Model\DceField */
         foreach ($dce->getFields() as $field) {
