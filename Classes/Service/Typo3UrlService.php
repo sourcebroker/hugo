@@ -42,12 +42,6 @@ class Typo3UrlService
     protected $csConvertor;
 
     /**
-     * @var PageRepository
-     *
-     */
-    protected $pageRepository;
-
-    /**
      * @param \TYPO3\CMS\Core\Charset\CharsetConverter $csConvertor
      */
     public function injectCsConvertor(\TYPO3\CMS\Core\Charset\CharsetConverter $csConvertor)
