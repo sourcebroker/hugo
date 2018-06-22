@@ -33,6 +33,7 @@ use TYPO3\CMS\Core\Locking\LockFactory;
 use TYPO3\CMS\Core\Locking\LockingStrategyInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
+use TYPO3\CMS\Frontend\Page\PageRepository;
 
 /**
  * Class HugoExportContentService
@@ -66,6 +67,7 @@ class HugoExportContentService
                 break;
             }
         } while (true);
+        $pageRepository = GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\Page\PageRepository::class);
         // We assume config for exporting content is the same for all available site roots so take first available
         // site root which is enabled for hugo.
         foreach (($objectManager->get(Typo3PageRepository::class))->getSiteRootPages() as $siteRoot) {
@@ -73,6 +75,13 @@ class HugoExportContentService
             $hugoConfigForRootSite = $objectManager->get(Configurator::class, null, $siteRoot['uid']);
             if ($hugoConfigForRootSite->getOption('enable')) {
                 foreach (($objectManager->get(Typo3ContentRepository::class))->getAll() as $contentElement) {
+                    if ($contentElement['sys_language_uid'] > 0) {
+                        $contentElement =
+                            $pageRepository->getRecordOverlay(
+                                'tt_content', $contentElement, $contentElement['sys_language_uid'],
+                                $hugoConfigForRootSite->getOption('sys_language_overlay')
+                            );
+                    }
                     $camelCaseClass = str_replace('_', '', ucwords($contentElement['CType'], '_'));
                     $classForCType = null;
                     foreach ($hugoConfigForRootSite->getOption('content.contentToClass.mapper') as $contentToClassMapper) {
@@ -141,11 +150,21 @@ class HugoExportContentService
         } while (true);
         // We assume config for exporting content is the same for all available site roots so take first available
         // site root which is enabled for hugo.
+        /** @var PageRepository $pageRepository */
+        $pageRepository = GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\Page\PageRepository::class);
         foreach (($objectManager->get(Typo3PageRepository::class))->getSiteRootPages() as $siteRoot) {
             /** @var $hugoConfigForRootSite Configurator */
             $hugoConfigForRootSite = $objectManager->get(Configurator::class, null, $siteRoot['uid']);
             if ($hugoConfigForRootSite->getOption('enable')) {
                 $contentElement = $objectManager->get(Typo3ContentRepository::class)->getByUid($contentElementUid);
+                if ($contentElement['sys_language_uid'] > 0) {
+                    $contentElement =
+                        $pageRepository->getRecordOverlay(
+                            'tt_content', $contentElement, $contentElement['sys_language_uid'],
+                            $hugoConfigForRootSite->getOption('sys_language_overlay')
+                        );
+                }
+                //$row = $this->sys_page->getRecordOverlay('tt_content', $row, $basePageRow['_PAGES_OVERLAY_LANGUAGE'], $tsfe->sys_language_contentOL);
                 $camelCaseClass = str_replace('_', '', ucwords($contentElement['CType'], '_'));
                 $classForCType = null;
                 foreach ($hugoConfigForRootSite->getOption('content.contentToClass.mapper') as $contentToClassMapper) {
