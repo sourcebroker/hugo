@@ -1,5 +1,6 @@
 tx_hugo {
     enable = 1
+    sys_language_overlay = 1
     writer {
         class = SourceBroker\Hugo\Writer\YamlWriter
         path {
