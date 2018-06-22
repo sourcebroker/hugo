@@ -35,10 +35,10 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /**
- * Class HugoExportContentService
+ * Class ExportContentService
  * @package SourceBroker\Hugo\Service
  */
-class HugoExportContentService
+class ExportContentService
 {
     /**
      * TODO - optimize use of locker. Make service a singleton with common lock state.

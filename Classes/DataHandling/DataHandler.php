@@ -2,8 +2,8 @@
 
 namespace SourceBroker\Hugo\DataHandling;
 
-use SourceBroker\Hugo\Service\HugoExportContentService;
-use SourceBroker\Hugo\Service\HugoExportPageService;
+use SourceBroker\Hugo\Service\ExportContentService;
+use SourceBroker\Hugo\Service\ExportPageService;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
@@ -81,14 +81,14 @@ class DataHandler implements SingletonInterface
     public function exportHugoPages()
     {
         $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        $hugoExportPageService = $objectManager->get(HugoExportPageService::class);
+        $hugoExportPageService = $objectManager->get(ExportPageService::class);
         $hugoExportPageService->exportAll();
     }
 
     public function exportHugoContentElements($contentRecordUid = null)
     {
         $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        $hugoExportContentService = $objectManager->get(HugoExportContentService::class);
+        $hugoExportContentService = $objectManager->get(ExportContentService::class);
         if ($contentRecordUid === null) {
             $hugoExportContentService->exportAll();
         } else {
