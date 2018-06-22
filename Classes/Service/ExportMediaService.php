@@ -36,10 +36,10 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /**
- * Class HugoExportMediaService
+ * Class ExportMediaService
  * @package SourceBroker\Hugo\Service
  */
-class HugoExportMediaService
+class ExportMediaService
 {
     /**
      * @return bool
