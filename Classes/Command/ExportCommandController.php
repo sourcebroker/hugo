@@ -22,9 +22,11 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\CommandController;
 
 /**
- * Class HugoCommandController
+ * Class ExportCommandController
+ *
+ * @package SourceBroker\Hugo\Command
  */
-class HugoCommandController extends CommandController
+class ExportCommandController extends CommandController
 {
 
     /**
@@ -71,7 +73,6 @@ class HugoCommandController extends CommandController
             $this->outputLine('Fail.');
         }
     }
-
 
     /**
      * Export media
