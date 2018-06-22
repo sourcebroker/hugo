@@ -2,7 +2,7 @@
 
 namespace SourceBroker\Hugo\Task;
 
-use SourceBroker\Hugo\Service\HugoExportContentService;
+use SourceBroker\Hugo\Service\ExportContentService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -18,7 +18,7 @@ class ExportContentTask extends \TYPO3\CMS\Scheduler\Task\AbstractTask
      */
     public function execute()
     {
-        return GeneralUtility::makeInstance(HugoExportContentService::class)
+        return GeneralUtility::makeInstance(ExportContentService::class)
             ->exportAll();
     }
 }

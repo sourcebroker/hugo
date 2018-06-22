@@ -15,14 +15,16 @@ namespace SourceBroker\Hugo\Command;
  * The TYPO3 project - inspiring people to share!
  */
 
-use SourceBroker\Hugo\Service\HugoExportContentService;
-use SourceBroker\Hugo\Service\HugoExportMediaService;
-use SourceBroker\Hugo\Service\HugoExportPageService;
+use SourceBroker\Hugo\Service\ExportContentService;
+use SourceBroker\Hugo\Service\ExportMediaService;
+use SourceBroker\Hugo\Service\ExportPageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\CommandController;
 
 /**
  * Class HugoCommandController
+ *
+ * @package SourceBroker\Hugo\Command
  */
 class HugoCommandController extends CommandController
 {
@@ -34,9 +36,9 @@ class HugoCommandController extends CommandController
     {
         $this->outputLine('Generating pages / content / media for all TYPO3 tree roots.');
         if (
-            (GeneralUtility::makeInstance(HugoExportContentService::class))->exportAll()
-            && (GeneralUtility::makeInstance(HugoExportMediaService::class))->exportAll()
-            && (GeneralUtility::makeInstance(HugoExportPageService::class))->exportAll()
+            (GeneralUtility::makeInstance(ExportContentService::class))->exportAll()
+            && (GeneralUtility::makeInstance(ExportMediaService::class))->exportAll()
+            && (GeneralUtility::makeInstance(ExportPageService::class))->exportAll()
         ) {
             $this->outputLine('Success.');
         } else {
@@ -50,7 +52,7 @@ class HugoCommandController extends CommandController
     public function exportPagesCommand()
     {
         $this->outputLine('Generating Hugo pages for all TYPO3 tree roots.');
-        if ((GeneralUtility::makeInstance(HugoExportPageService::class))->exportAll()) {
+        if ((GeneralUtility::makeInstance(ExportPageService::class))->exportAll()) {
             $this->outputLine('Success.');
         } else {
             $this->outputLine('Fail.');
@@ -62,7 +64,7 @@ class HugoCommandController extends CommandController
      */
     public function exportContentCommand()
     {
-        $hugoExportContentService = GeneralUtility::makeInstance(HugoExportContentService::class);
+        $hugoExportContentService = GeneralUtility::makeInstance(ExportContentService::class);
         $this->outputLine('Generating Hugo content for all TYPO3 tree roots.');
 
         if ($hugoExportContentService->exportAll()) {
@@ -72,13 +74,12 @@ class HugoCommandController extends CommandController
         }
     }
 
-
     /**
      * Export media
      */
     public function exportMediaCommand()
     {
-        $hugoExportMediaService = GeneralUtility::makeInstance(HugoExportMediaService::class);
+        $hugoExportMediaService = GeneralUtility::makeInstance(ExportMediaService::class);
         $this->outputLine('Generating Hugo media for all TYPO3 tree roots.');
 
         if ($hugoExportMediaService->exportAll()) {
