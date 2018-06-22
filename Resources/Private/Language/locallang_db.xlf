@@ -6,6 +6,30 @@
 			<trans-unit id="pages.tx_hugo_typename">
 				<source>Type name used in hugo exporter (if wou will not fill this field you will have content elements like "ce_dceuid3" instead some meaningful names.</source>
 			</trans-unit>
+			<trans-unit id="task.export.title">
+                <source>Generating pages / content / media for all TYPO3 tree roots.</source>
+            </trans-unit>
+			<trans-unit id="task.export.description">
+                <source></source>
+            </trans-unit>
+			<trans-unit id="task.exportPages.title">
+                <source>Generating Hugo pages for all TYPO3 tree roots.</source>
+            </trans-unit>
+			<trans-unit id="task.exportPages.description">
+                <source></source>
+            </trans-unit>
+			<trans-unit id="task.exportMedia.title">
+                <source>Generating Hugo media for all TYPO3 tree roots.</source>
+            </trans-unit>
+			<trans-unit id="task.exportMedia.description">
+                <source></source>
+            </trans-unit>
+			<trans-unit id="task.exportContent.title">
+                <source>Generating Hugo content for all TYPO3 tree roots.</source>
+            </trans-unit>
+			<trans-unit id="task.exportContent.description">
+                <source></source>
+            </trans-unit>
         </body>
 	</file>
 </xliff>
