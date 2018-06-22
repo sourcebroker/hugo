@@ -2,9 +2,9 @@
 
 namespace SourceBroker\Hugo\Task;
 
-use SourceBroker\Hugo\Service\HugoExportContentService;
-use SourceBroker\Hugo\Service\HugoExportMediaService;
-use SourceBroker\Hugo\Service\HugoExportPageService;
+use SourceBroker\Hugo\Service\ExportContentService;
+use SourceBroker\Hugo\Service\ExportMediaService;
+use SourceBroker\Hugo\Service\ExportPageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -21,9 +21,9 @@ class ExportTask extends \TYPO3\CMS\Scheduler\Task\AbstractTask
     public function execute()
     {
         if (
-            (GeneralUtility::makeInstance(HugoExportContentService::class))->exportAll()
-            && (GeneralUtility::makeInstance(HugoExportMediaService::class))->exportAll()
-            && (GeneralUtility::makeInstance(HugoExportPageService::class))->exportAll()
+            (GeneralUtility::makeInstance(ExportContentService::class))->exportAll()
+            && (GeneralUtility::makeInstance(ExportMediaService::class))->exportAll()
+            && (GeneralUtility::makeInstance(ExportPageService::class))->exportAll()
         ) {
             return true;
         } else {

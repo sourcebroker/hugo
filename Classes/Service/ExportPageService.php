@@ -34,10 +34,10 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
 use \SourceBroker\Hugo\Domain\Repository\Typo3PageRepository;
 
 /**
- * Class HugoExportService
+ * Class ExportPageService
  * @package SourceBroker\Hugo\Service
  */
-class HugoExportPageService
+class ExportPageService
 {
     /**
      * @return bool
