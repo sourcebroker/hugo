@@ -9,8 +9,10 @@ call_user_func(function () use ($_EXTKEY) {
             '<INCLUDE_TYPOSCRIPT: source="FILE:EXT:hugo/Configuration/TsConfig/Page/tx_hugo.tsconfig">'
         );
     }
-    $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['extbase']['commandControllers'][]
-        = \SourceBroker\Hugo\Command\HugoCommandController::class;
+
+    if (TYPO3_MODE === 'BE') {
+        $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['extbase']['commandControllers'][] = \SourceBroker\Hugo\Command\HugoCommandController::class;
+    }
 
     /** @var \TYPO3\CMS\Extbase\SignalSlot\Dispatcher $signalSlotDispatcher */
     $signalSlotDispatcher = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Extbase\SignalSlot\Dispatcher::class);
@@ -54,6 +56,8 @@ call_user_func(function () use ($_EXTKEY) {
         'title' => 'LLL:EXT:' . $_EXTKEY . '/Resources/Private/Language/locallang_db.xlf:task.exportContent.title',
         'description' => 'LLL:EXT:' . $_EXTKEY . '/Resources/Private/Language/locallang_db.xlf:task.exportContent.description',
     ];
+
+    $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_extfilefunc.php']['processData'][] = \SourceBroker\Hugo\Hooks\ProcessHook::class;
 });
 
 
