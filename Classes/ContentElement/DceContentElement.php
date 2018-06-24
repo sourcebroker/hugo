@@ -88,7 +88,7 @@ class DceContentElement extends AbstractContentElement
         $configuration = $configuration['config'];
         if ($configuration['type'] === 'input'
             && strpos($configuration['softref'], 'typolink') >= 0
-            && !empty($configuration['wizards']['link'])) {
+            && (!empty($configuration['wizards']['link']) || !empty($configuration['fieldControl']['linkPopup']))) {
             $isFieldLink = true;
         }
 
