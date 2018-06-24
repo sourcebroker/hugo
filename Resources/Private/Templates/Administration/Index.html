@@ -1,0 +1,66 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      data-namespace-typo3-fluid="true"
+>
+
+<f:layout name="Backend/Default"/>
+
+<f:section name="content">
+	<h3>Configuration</h3>
+	<table class="table-bordered table-condensed table-responsive table-striped">
+		<thead>
+		<tr>
+			<th>Configuration</th>
+			<th>Value</th>
+		</tr>
+		</thead>
+		<tbody>
+		<f:for each="{mainConfiguration}" key="key" as="value">
+			<tr>
+				<td>{key}</td>
+				<td>{value}</td>
+			</tr>
+		</f:for>
+		</tbody>
+	</table>
+
+	<h3>Page Indexer Field Mapper</h3>
+	<table class="table-bordered table-condensed table-responsive table-striped">
+		<thead>
+		<tr>
+			<th>TYPO3 Field</th>
+			<th>Hugo Field</th>
+		</tr>
+		</thead>
+		<tbody>
+		<f:for each="{pageTsConfig.page.indexer.customFields.fieldMapper}" key="typo3Field" as="hugoField">
+			<tr>
+				<td>{typo3Field}</td>
+				<td>{hugoField.name}</td>
+			</tr>
+		</f:for>
+		</tbody>
+	</table>
+
+	<h3>Record Indexers</h3>
+	<table class="table-bordered table-condensed table-responsive table-striped">
+		<tbody>
+		<f:for each="{pageTsConfig.indexer.records.exporter}" key="key" as="indexerData">
+			<tr>
+				<th colspan="2">{key}</th>
+			</tr>
+			<f:for each="{indexerData}" key="dataKey" as="dataValue">
+				<tr>
+					<td>{dataKey}</td>
+					<td>{dataValue}</td>
+				</tr>
+			</f:for>
+		</f:for>
+		</tbody>
+	</table>
+
+	<h3>Actions</h3>
+	<p>
+		<a class="btn btn-default" href="{f:uri.action(action: 'export')}">Export All</a>
+	</p>
+</f:section>
+</html>
