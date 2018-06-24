@@ -36,8 +36,7 @@ class DceContentElement extends AbstractContentElement
                             if (!empty($value[0]) && is_object($value[0]) && get_class($value[0]) == \TYPO3\CMS\Core\Resource\File::class) {
                                 $fields[$field->getVariable()][$i][$sectionField->getVariable()] = $this->getSysFileIds($value);
                             } elseif ($this->fieldIsLink($sectionField)) {
-                                $linkArray = $this->convertTypolinkToLinkArray($value,
-                                    $languageUid);
+                                $linkArray = $this->convertTypolinkToLinkArray($value, $languageUid);
                                 $fields[$field->getVariable()][$i][$sectionField->getVariable()] = $linkArray;
                             } else {
                                 $fields[$field->getVariable()][$i][$sectionField->getVariable()] = $value;
@@ -60,10 +59,9 @@ class DceContentElement extends AbstractContentElement
                 ) {
                     $fields[$field->getVariable()] = $this->getSysFileIds((array)$value);
                 } elseif ($this->fieldIsLink($field)) {
-                    // TODO: Parse for links. Hugo must have final links.
-                    $fields[$field->getVariable()] = $field->getValue();
+                    $fields[$field->getVariable()] = $this->convertTypolinkToLinkArray($value, $languageUid);
                 } else {
-                    $fields[$field->getVariable()] = $field->getValue();
+                    $fields[$field->getVariable()] = $field->getValue() ;
                 }
             }
         }
