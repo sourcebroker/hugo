@@ -15,6 +15,8 @@ master
 10) [FEATURE] Create Field Transformer Class to modify content fields.
 11) [FEATURE] Implement records indexer properties mapper.
 12) [BUGFIX] convertTypolinkToLinkArray can return array of bool.
+13) [FEATURE] Implement very basic version of Hugo Control Center BE module
+14) [BUGFIX] Fix not sufficient check for fieldIsLink() in DCE exporter.
 
 0.0.19
 ~~~~~~
