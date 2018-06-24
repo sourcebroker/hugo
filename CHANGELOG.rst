@@ -17,6 +17,7 @@ master
 12) [BUGFIX] convertTypolinkToLinkArray can return array of bool.
 13) [FEATURE] Implement very basic version of Hugo Control Center BE module
 14) [BUGFIX] Fix not sufficient check for fieldIsLink() in DCE exporter.
+15) [TASK] Add link converter also for non section links.
 
 0.0.19
 ~~~~~~
