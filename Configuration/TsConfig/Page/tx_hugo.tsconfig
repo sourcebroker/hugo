@@ -23,7 +23,63 @@ tx_hugo {
                 }
             }
         }
+        indexer {
+            commonFields {
+                class =
+                fieldMapper {
+                    type {
+                        from = CType
+                    }
+                    draft {
+                        from = hidden
+                    }
+                    publishDate {
+                        from = starttime
+                        transforms {
+                            10 {
+                                type = convertDate
+                            }
+                        }
+                    }
+                    expireDate {
+                        from = endtime
+                        transforms {
+                            10 {
+                                type = convertDate
+                            }
+                        }
+                    }
+                    sectionClasses {
+                        from = space_before_class,space_after_class
+                        transforms {
+                            10 {
+                                type = commaToSpace
+                            }
+                            20 {
+                                type = removeDuplicateClasses
+                            }
+                        }
+                    }
+                    sectionTitle {
+                        from = header
+                    }
+                    sectionTitleSub {
+                        from = subheader
+                    }
+                    sectionTitleLayout {
+                        from = header_layout
+                        transforms {
+                            10 {
+                                type = toInteger
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
+
+
     hugo {
         path {
             binary = hugo
