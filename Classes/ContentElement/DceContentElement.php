@@ -115,17 +115,19 @@ class DceContentElement extends AbstractContentElement
         $data = [];
         foreach ($values as $object) {
             if ($object instanceof File) {
-                $data[$object->getProperty('uid')] = [
+                $data[] = [
+                    'uid' => $object->getProperty('uid'),
                     'title' => $object->getProperty('title') ?: '',
-                    'alt' => $object->getProperty('alternative') ?: '',
-                    'caption' => $object->getProperty('description') ?: ''
+                    'alternative' => $object->getProperty('alternative') ?: '',
+                    'description' => $object->getProperty('description') ?: ''
                 ];
             } elseif ($object instanceof FileReference) {
                 $originalFile = $object->getOriginalFile();
-                $data[$originalFile->getProperty('uid')] = [
+                $data[] = [
+                    'uid' => $originalFile->getProperty('uid'),
                     'title' => $object->getTitle() ?: ($originalFile->getProperty('title') ?: ''),
-                    'alt' => $object->getAlternative() ?: ($originalFile->getProperty('alternative') ?: ''),
-                    'caption' => $object->getDescription() ?: ($originalFile->getProperty('description') ?: ''),
+                    'alternative' => $object->getAlternative() ?: ($originalFile->getProperty('alternative') ?: ''),
+                    'description' => $object->getDescription() ?: ($originalFile->getProperty('description') ?: ''),
                 ];
             }
         }
