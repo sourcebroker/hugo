@@ -24,187 +24,68 @@
 
 namespace SourceBroker\Hugo\Service;
 
-use Cocur\Slugify\Slugify;
-use TYPO3\CMS\Core\Database\ConnectionPool;
+use SourceBroker\Hugo\Typolink\UnableToLinkException;
 use TYPO3\CMS\Core\LinkHandling\LinkService;
-use TYPO3\CMS\Core\Resource\Exception\InvalidPathException;
+use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Core\Utility\RootlineUtility;
+use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use TYPO3\CMS\Frontend\Service\TypoLinkCodecService;
+use TYPO3\CMS\Core\LinkHandling\Exception\UnknownUrnException;
 
 class Typo3UrlService
 {
-
     /**
-     * @var \TYPO3\CMS\Core\Charset\CharsetConverter
-     */
-    protected $csConvertor;
-
-    /**
-     * @param \TYPO3\CMS\Core\Charset\CharsetConverter $csConvertor
-     */
-    public function injectCsConvertor(\TYPO3\CMS\Core\Charset\CharsetConverter $csConvertor)
-    {
-        $this->csConvertor = $csConvertor;
-    }
-
-    /**
-     * @param     $config
+     * TODO: implement support for multilang
+     *
+     * @param string $linkText
+     * @param $linkParameter
      * @param int $pageLanguageUid
      *
      * @return array|null
      */
-    public function linkArray($config, int $pageLanguageUid): ?array
+    public function linkArray($linkText = '', $linkParameter, int $pageLanguageUid = null): ?array
     {
-        if (is_string($config)) {
-            $config = $this->buildTypolinkParams($config);
+        // $pageLanguageUid TODO: implement support for multilang
+
+        $linkData = GeneralUtility::makeInstance(TypoLinkCodecService::class)->decode($linkParameter);
+        if (!is_array($linkData)) {
+            return $linkData;
         }
+        $linkParameter = $linkData['url'];
 
-        if (!is_array($config) || !$config) {
-            return null;
-        }
-
-        $additionalParams = $config['additionalParams'] ?? '';
-
-        parse_str(ltrim($additionalParams, '&'), $queryParts);
-
-        if (!$queryParts['L']) {
-            $queryParts['L'] = $pageLanguageUid;
-        }
-
-        $config['additionalParams'] = '&'.http_build_query($queryParts);
-
-        $linkService = GeneralUtility::makeInstance(LinkService::class);
-
-        try {
-            $linkDetails = $linkService->resolve($config['href']);
-        } catch (InvalidPathException $exception) {
-            return null;
-        }
-
-        list($href, $linkText) = $this->buildLink($linkDetails, $config);
-
-        $config['href'] = $href;
-        $config['tag'] = $this->buildTag($config, $linkText);
-
-        return $config;
-    }
-
-    protected function buildTypolinkParams(string $link): array
-    {
-        $config = [];
-        if ( ! empty($link)) {
-            $linkParameterParts = GeneralUtility::makeInstance(TypoLinkCodecService::class)->decode($link);
-
-            list($linkHandlerKeyword, $linkHandlerValue) = explode(':', $linkParameterParts['url'], 2);
-            $linkParameter = $linkParameterParts['url'];
-
-            $config = [
-                'href' => $linkParameter,
-                'target' => $linkParameterParts['target'],
-                'class' => $linkParameterParts['class'],
-                'title' => $linkParameterParts['title'],
-            ];
-
-            // additional parameters that need to be set
-            if ($linkParameterParts['additionalParams'] !== '') {
-                $forceParams = $linkParameterParts['additionalParams'];
-                // params value
-                $config['additionalParams'] .= $forceParams[0] === '&' ? $forceParams : '&' . $forceParams;
+        if (!empty($linkParameter)) {
+            $linkService = GeneralUtility::makeInstance(LinkService::class);
+            try {
+                $linkDetails = $linkService->resolve($linkParameter);
+            } catch (UnknownUrnException $exception) {
+                $logger = GeneralUtility::makeInstance(LogManager::class)->getLogger(__CLASS__);
+                $logger->warning('The link could not be generated', ['exception' => $exception]);
             }
-        }
 
-        return $config;
-    }
-
-    /**
-     * @param array $linkDetails
-     * @param array $config
-     *
-     * @return array
-     */
-    protected function buildLink(array $linkDetails, array $config): array
-    {
-        $linkType = $linkDetails['type'];
-
-        switch ($linkType) {
-            case 'page':
-                return $this->buildPageLink($linkDetails, $config);
-        }
-
-        return [];
-    }
-
-    /**
-     * @param array $linkDetails
-     * @param array $config
-     *
-     * @return array
-     */
-    protected function buildPageLink(array $linkDetails, array $config): array
-    {
-        $pageUid = $linkDetails['pageuid'];
-
-        $rootline = GeneralUtility::makeInstance(RootlineUtility::class, $pageUid)->get();
-        $page = current($rootline);
-        $additionalParams = $config['additionalParams'];
-        parse_str($additionalParams, $additionalParamsParts);
-        $languageUid = $additionalParamsParts['L'] ?? $page['sys_language_uid'];
-
-        $aliases = array_map(function (array $page) use ($languageUid) {
-            if (!$page['is_siteroot']) {
-                return $this->slug($page['title']);
+            $linkDetails['typoLinkParameter'] = $linkParameter;
+            if (isset($linkDetails['type']) && isset($GLOBALS['TYPO3_CONF_VARS']['EXT']['EXTCONF']['typolinkBuilder'][$linkDetails['type']])) {
+                $linkBuilder = GeneralUtility::makeInstance(
+                    $GLOBALS['TYPO3_CONF_VARS']['EXT']['EXTCONF']['typolinkBuilder'][$linkDetails['type']],
+                    GeneralUtility::makeInstance(ContentObjectRenderer::class)
+                );
+                try {
+                    list($url, $linkText) = $linkBuilder->build($linkDetails, $linkText, $linkData['target'], []);
+                } catch (UnableToLinkException $e) {
+                    $logger = GeneralUtility::makeInstance(LogManager::class)->getLogger(__CLASS__);
+                    $logger->debug(sprintf('Unable to link "%s": %s', $e->getLinkText(), $e->getMessage()),
+                        ['exception' => $e]);
+                    $url = $e->getLinkText();
+                }
+            } elseif (isset($linkDetails['url'])) {
+                $url = $linkDetails['url'];
+            } else {
+                $url = $linkText;
             }
-        }, array_reverse($rootline));
-
-        $url = '//'.$this->getDomainFor((int)$rootline[0]['uid']).'/'.implode('/', array_filter($aliases)).'/';
-
-        return [$url, $page['title']];
-    }
-
-    /**
-     * @param array       $config
-     * @param string|null $linkText
-     *
-     * @return string
-     */
-    protected function buildTag(array $config, string $linkText = null): string
-    {
-        return '<a ' . GeneralUtility::implodeAttributes($config) . '>'.$linkText.'</a>';
-    }
-
-    /**
-     * @param int $pageUid
-     *
-     * @return string
-     */
-    protected function getDomainFor(int $pageUid) : string
-    {
-        $qb = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_domain');
-
-        $domain = $qb->select('domainName')
-            ->from('sys_domain')
-            ->andWhere(
-                $qb->expr()->eq('pid', $qb->createNamedParameter($pageUid))
-            )
-            ->orderBy('sorting', 'ASC')
-            ->execute()
-            ->fetch();
-
-        if (!$domain) {
-            throw new \RuntimeException('Missing domain for root page "'.$pageUid.'" ');
+            $linkData['href'] = $url;
+            unset($linkData['additionalParams']);
+            unset($linkData['url']);
+            $linkData['tag'] = '<a ' . GeneralUtility::implodeAttributes($linkData) . '>' . $linkText . '</a>';
         }
-
-        return $domain['domainName'];
-    }
-
-    /**
-     * @param string $title
-     *
-     * @return string
-     */
-    protected function slug(string $title)
-    {
-        return Slugify::create()->slugify($title);
+        return $linkData;
     }
 }
