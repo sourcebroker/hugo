@@ -19,6 +19,7 @@ master
 14) [BUGFIX] Fix not sufficient check for fieldIsLink() in DCE exporter.
 15) [TASK] Add link converter also for non section links.
 16) [TASK] Add uid to image record instead of key value.
+17) [TASK] Refactor support for links. Add initial support for all TYPO3 linktypes. [TODO - remove need of TSFE]
 
 0.0.19
 ~~~~~~
