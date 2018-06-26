@@ -58,6 +58,17 @@ call_user_func(function () use ($_EXTKEY) {
     ];
 
     $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_extfilefunc.php']['processData'][] = \SourceBroker\Hugo\Hooks\ProcessHook::class;
+
+    $GLOBALS['TYPO3_CONF_VARS']['EXT']['EXTCONF']['typolinkBuilder'] = [
+        'page' => \SourceBroker\Hugo\Typolink\PageLinkBuilder::class,
+        'file' => \SourceBroker\Hugo\Typolink\FileOrFolderLinkBuilder::class,
+        'folder' => \SourceBroker\Hugo\Typolink\FileOrFolderLinkBuilder::class,
+        'url' => \SourceBroker\Hugo\Typolink\ExternalUrlLinkBuilder::class,
+        'email' => \SourceBroker\Hugo\Typolink\EmailLinkBuilder::class,
+        'record' => \SourceBroker\Hugo\Typolink\DatabaseRecordLinkBuilder::class,
+        'unknown' => \SourceBroker\Hugo\Typolink\LegacyLinkBuilder::class,
+    ];
+
 });
 
 
