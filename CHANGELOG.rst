@@ -1,7 +1,7 @@
 Changelog
 ---------
 
-master
+0.1.0
 ~~~~~~
 1) [DOC] Update docs.
 2) [FEATURE] Implement the scheduler tasks.
