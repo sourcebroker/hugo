@@ -25,21 +25,14 @@ abstract class AbstractContentElement implements ContentElementInterface
         /** @var \SourceBroker\Hugo\Configuration\Configurator $config */
         $config = $objectManager->get(Configurator::class, null, $contentElementRawData['pid']);
         $fieldTransformer = $objectManager->get(FieldTransformer::class);
-
         foreach ((array)$config->getOption('content.indexer.commonFields.fieldMapper') as $fieldToMap => $fieldOptions) {
-            $fromFields = preg_split('/,[\s]*/', $fieldOptions['from']);
-
-            if (count($fromFields) == 1 && isset($contentElementRawData[$fieldOptions['from']])) {
-                $content[$fieldToMap] = $contentElementRawData[$fieldOptions['from']];
-            } else if (count($fromFields) > 1) {
-                $fields = [];
-                foreach ($fromFields as $fieldName) {
-                    if (isset($contentElementRawData[$fieldName]) && $contentElementRawData[$fieldName] != '') {
-                        $fields[] = $contentElementRawData[$fieldName];
-                    }
+            $fields = [];
+            foreach (GeneralUtility::trimExplode(',', $fieldOptions['from']) as &$fieldName) {
+                if (!empty($contentElementRawData[$fieldName])) {
+                    $fields[] = $contentElementRawData[$fieldName];
                 }
-                $content[$fieldToMap] = implode(',', $fields);
             }
+            $content[$fieldToMap] = implode(',', $fields);
 
             if (!empty($content[$fieldToMap])) {
                 if (isset($fieldOptions['transforms']) && is_array($fieldOptions['transforms'])) {
@@ -56,7 +49,6 @@ abstract class AbstractContentElement implements ContentElementInterface
                 }
             }
         }
-
         return $content;
     }
 

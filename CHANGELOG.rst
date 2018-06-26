@@ -20,6 +20,7 @@ master
 15) [TASK] Add link converter also for non section links.
 16) [TASK] Add uid to image record instead of key value.
 17) [TASK] Refactor support for links. Add initial support for all TYPO3 linktypes. [TODO - remove need of TSFE]
+18) [TASK] Refactor getCommonContentElementData()
 
 0.0.19
 ~~~~~~
