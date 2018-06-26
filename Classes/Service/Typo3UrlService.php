@@ -30,7 +30,6 @@ use TYPO3\CMS\Core\LinkHandling\LinkService;
 use TYPO3\CMS\Core\Resource\Exception\InvalidPathException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\RootlineUtility;
-use TYPO3\CMS\Frontend\Page\PageRepository;
 use TYPO3\CMS\Frontend\Service\TypoLinkCodecService;
 
 class Typo3UrlService
@@ -47,14 +46,6 @@ class Typo3UrlService
     public function injectCsConvertor(\TYPO3\CMS\Core\Charset\CharsetConverter $csConvertor)
     {
         $this->csConvertor = $csConvertor;
-    }
-
-    /**
-     * @param PageRepository $pageRepository
-     */
-    public function injectPageRepository(\TYPO3\CMS\Frontend\Page\PageRepository $pageRepository)
-    {
-        $this->pageRepository = $pageRepository;
     }
 
     /**
@@ -164,7 +155,7 @@ class Typo3UrlService
             if (!$page['is_siteroot']) {
                 return $this->slug($page['title']);
             }
-        }, array_reverse($this->pageRepository->getPagesOverlay($rootline, $languageUid)));
+        }, array_reverse($rootline, $languageUid));
 
         $url = '//'.$this->getDomainFor((int)$rootline[0]['uid']).'/'.implode('/', array_filter($aliases)).'/';
 
