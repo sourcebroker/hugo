@@ -155,7 +155,7 @@ class Typo3UrlService
             if (!$page['is_siteroot']) {
                 return $this->slug($page['title']);
             }
-        }, array_reverse($rootline, $languageUid));
+        }, array_reverse($rootline));
 
         $url = '//'.$this->getDomainFor((int)$rootline[0]['uid']).'/'.implode('/', array_filter($aliases)).'/';
 
