@@ -129,6 +129,7 @@ class DceContentElement extends AbstractContentElement
                     'title' => $object->getTitle() ?: ($originalFile->getProperty('title') ?: ''),
                     'alternative' => $object->getAlternative() ?: ($originalFile->getProperty('alternative') ?: ''),
                     'description' => $object->getDescription() ?: ($originalFile->getProperty('description') ?: ''),
+                    'link' => $object->getLink() ? $this->convertTypolinkToLinkArray('', $object->getLink(), 0) : [],
                 ];
             }
         }

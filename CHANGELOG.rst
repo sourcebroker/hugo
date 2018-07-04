@@ -1,6 +1,10 @@
 Changelog
 ---------
 
+master
+~~~~~~
+1) [FEATURE] Extend sys_fie_reference export in DCE with standard link field.
+
 0.1.0
 ~~~~~~
 1) [DOC] Update docs.
