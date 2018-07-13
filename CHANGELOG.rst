@@ -6,6 +6,7 @@ master
 1) [FEATURE] Extend sys_fie_reference export in DCE with standard link field.
 2) [FEATURE] Add new backend and ext icon.
 3) [FEATURE] Add Hugo build service and cli build task.
+4) [TASK] Change module name.
 
 0.1.0
 ~~~~~~
