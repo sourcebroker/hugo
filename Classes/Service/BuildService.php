@@ -25,32 +25,39 @@
 namespace SourceBroker\Hugo\Service;
 
 use SourceBroker\Hugo\Configuration\Configurator;
-use SourceBroker\Hugo\Traversing\TreeTraverser;
+use SourceBroker\Hugo\Domain\Repository\Typo3PageRepository;
 use TYPO3\CMS\Core\Locking\Exception\LockAcquireWouldBlockException;
 use TYPO3\CMS\Core\Locking\LockFactory;
 use TYPO3\CMS\Core\Locking\LockingStrategyInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
-use \SourceBroker\Hugo\Domain\Repository\Typo3PageRepository;
 
 /**
- * Class ExportPageService
+ * Class ExportContentService
  * @package SourceBroker\Hugo\Service
  */
-class ExportPageService
+class BuildService
 {
     /**
      * @return bool
-     * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
-     * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
      * @throws \Exception
      */
-    public function exportAll(): bool
+    public function buildAll(): bool
+    {
+        $results = [];
+        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+        foreach (($objectManager->get(Typo3PageRepository::class))->getSiteRootPages() as $siteRoot) {
+            $results[] = $this->buildSingle($siteRoot['uid']);
+        }
+        return count(array_unique($results)) === 1 && end($results) === true;
+    }
+
+    public function buildSingle(int $rootPageUid): bool
     {
         $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
         $lockFactory = $objectManager->get(LockFactory::class);
         $locker = $lockFactory->createLocker(
-            'hugoExportPages',
+            'hugoBuildDist',
             LockingStrategyInterface::LOCK_CAPABILITY_SHARED | LockingStrategyInterface::LOCK_CAPABILITY_NOBLOCK
         );
         do {
@@ -65,20 +72,19 @@ class ExportPageService
             }
         } while (true);
 
-        foreach (($objectManager->get(Typo3PageRepository::class))->getSiteRootPages() as $siteRoot) {
-            $hugoConfigForRootSite = $objectManager->get(Configurator::class, null, $siteRoot['uid']);
-            if ($hugoConfigForRootSite->getOption('enable')) {
-                /** @var $hugoConfigForRootSite Configurator */
-                $writer = $objectManager->get($hugoConfigForRootSite->getOption('writer.class'));
-                $treeTraverser = $objectManager->get(TreeTraverser::class);
-                $writer->setRootPath($hugoConfigForRootSite->getOption('writer.path.content'));
-                $writer->setExcludeCleaningFolders([$hugoConfigForRootSite->getOption('writer.path.media')]);
-                $treeTraverser->setWriter($writer);
-                $treeTraverser->start($siteRoot['uid'], [], 'getDocumentsForPage');
-                $buildService = GeneralUtility::makeInstance(\SourceBroker\Hugo\Service\BuildService::class);
-                $buildService->buildSingle($siteRoot['uid']);
+        /** @var $hugoConfigForRootSite Configurator */
+        $hugoConfigForRootSite = $objectManager->get(Configurator::class, null, $rootPageUid);
+        if ($hugoConfigForRootSite->getOption('enable')) {
+            $hugoPathBinary = $hugoConfigForRootSite->getOption('hugo.path.binary');
+            if (!empty($hugoPathBinary)) {
+                exec($hugoPathBinary . ' ' . str_replace(['{PATH_site}'], [PATH_site],
+                        $hugoConfigForRootSite->getOption('hugo.command')), $output, $return);
+
+            } else {
+                throw new \Exception('Can not find hugo binary');
             }
         }
+
         if ($locked) {
             $locker->release();
             $locker->destroy();
