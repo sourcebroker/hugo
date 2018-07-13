@@ -15,6 +15,7 @@ namespace SourceBroker\Hugo\Command;
  * The TYPO3 project - inspiring people to share!
  */
 
+use SourceBroker\Hugo\Service\BuildService;
 use SourceBroker\Hugo\Service\ExportContentService;
 use SourceBroker\Hugo\Service\ExportMediaService;
 use SourceBroker\Hugo\Service\ExportPageService;
@@ -30,7 +31,7 @@ class HugoCommandController extends CommandController
 {
 
     /**
-     * Export all
+     * Export TYPO3 media / content / pages
      */
     public function exportCommand()
     {
@@ -47,7 +48,7 @@ class HugoCommandController extends CommandController
     }
 
     /**
-     * Export pages
+     * Export TYPO3 pages
      */
     public function exportPagesCommand()
     {
@@ -60,7 +61,7 @@ class HugoCommandController extends CommandController
     }
 
     /**
-     * Export content
+     * Export TYPO3 content
      */
     public function exportContentCommand()
     {
@@ -75,7 +76,7 @@ class HugoCommandController extends CommandController
     }
 
     /**
-     * Export media
+     * Export TYPO3 media
      */
     public function exportMediaCommand()
     {
@@ -83,6 +84,21 @@ class HugoCommandController extends CommandController
         $this->outputLine('Generating Hugo media for all TYPO3 tree roots.');
 
         if ($hugoExportMediaService->exportAll()) {
+            $this->outputLine('Success.');
+        } else {
+            $this->outputLine('Fail.');
+        }
+    }
+
+    /**
+     * Build dist
+     */
+    public function buildCommand()
+    {
+        $buildService = GeneralUtility::makeInstance(BuildService::class);
+        $this->outputLine('Generating Hugo build for all TYPO3 tree roots.');
+
+        if ($buildService->buildAll()) {
             $this->outputLine('Success.');
         } else {
             $this->outputLine('Fail.');
