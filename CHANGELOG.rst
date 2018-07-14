@@ -7,6 +7,7 @@ master
 2) [FEATURE] Add new backend and ext icon.
 3) [FEATURE] Add Hugo build service and cli build task.
 4) [TASK] Change module name.
+4) [FEATURE] Show generated Hugo FrontMatter in Pages and Content editing forms.
 
 0.1.0
 ~~~~~~
