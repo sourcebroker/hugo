@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
+
 namespace SourceBroker\Hugo\Typolink;
 
 /*
@@ -31,15 +32,19 @@ class PageLinkBuilder extends AbstractTypolinkBuilder
     {
         $rootline = GeneralUtility::makeInstance(RootlineUtility::class, $linkDetails['pageuid'])->get();
         $page = current($rootline);
-        parse_str($conf['additionalParams'] ?? '', $additionalParamsParts);
-        $languageUid = $additionalParamsParts['L'] ?? $page['sys_language_uid'];
-        $aliases = array_map(function (array $page) use ($languageUid) {
-            if (!$page['is_siteroot']) {
-                // TODO: use $languageUid to make translated path
-                return Slugify::create()->slugify($page['title']);
-            }
-        }, array_reverse($rootline));
-        $url = '/' . implode('/', array_filter($aliases)) . '/';
-        return [$url, $page['title']];
+        if (empty($page['hidden'])) {
+            parse_str($conf['additionalParams'] ?? '', $additionalParamsParts);
+            $languageUid = $additionalParamsParts['L'] ?? $page['sys_language_uid'];
+            $aliases = array_map(function (array $page) use ($languageUid) {
+                if (!$page['is_siteroot']) {
+                    // TODO: use $languageUid to make translated path
+                    return Slugify::create()->slugify($page['title']);
+                }
+            }, array_reverse($rootline));
+            $url = '/' . implode('/', array_filter($aliases)) . '/';
+        } else {
+            $url = null;
+        }
+        return [$url, empty($linkText) ? $page['title'] : $linkText, $target];
     }
 }
