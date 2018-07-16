@@ -69,7 +69,7 @@ class Typo3UrlService
                     GeneralUtility::makeInstance(ContentObjectRenderer::class)
                 );
                 try {
-                    list($url, $linkText) = $linkBuilder->build($linkDetails, $linkText, $linkData['target'], []);
+                    list($url, $linkData['linkText'], $linkData['target']) = $linkBuilder->build($linkDetails, $linkText, $linkData['target'], []);
                 } catch (UnableToLinkException $e) {
                     $logger = GeneralUtility::makeInstance(LogManager::class)->getLogger(__CLASS__);
                     $logger->debug(sprintf('Unable to link "%s": %s', $e->getLinkText(), $e->getMessage()),
@@ -86,6 +86,6 @@ class Typo3UrlService
             unset($linkData['url']);
             $linkData['tag'] = '<a ' . GeneralUtility::implodeAttributes($linkData) . '>' . $linkText . '</a>';
         }
-        return $linkData;
+        return empty($url) ? [] : $linkData;
     }
 }
