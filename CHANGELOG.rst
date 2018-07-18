@@ -1,7 +1,7 @@
 Changelog
 ---------
 
-master
+0.2.0
 ~~~~~~
 1) [FEATURE] Extend sys_fie_reference export in DCE with standard link field.
 2) [FEATURE] Add new backend and ext icon.
