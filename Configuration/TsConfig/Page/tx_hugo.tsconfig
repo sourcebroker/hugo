@@ -27,6 +27,9 @@ tx_hugo {
             commonFields {
                 class =
                 fieldMapper {
+                    id {
+                        from = uid
+                    }
                     type {
                         from = CType
                     }

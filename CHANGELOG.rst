@@ -9,6 +9,7 @@ master
 4) [TASK] Change module name.
 5) [FEATURE] Show generated Hugo FrontMatter in Pages and Content editing forms.
 6) [FEATURE] Do not create link if page is hidden.
+7) [FEATURE] Add content element uid as default export field.
 
 0.1.0
 ~~~~~~
