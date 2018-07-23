@@ -80,6 +80,20 @@ tx_hugo {
                 }
             }
         }
+        link {
+            # equivalent to config.absRefPrefix
+            absRefPrefix = /
+            # equivalent to config.fileTarget
+            fileTarget =
+            # equivalent to config.extTarget
+            extTarget = _top
+            # equivalent to config.spamProtectEmailAddresses
+            spamProtectEmailAddresses = 0
+            # equivalent to config.spamProtectEmailAddresses_atSubst
+            spamProtectEmailAddresses_atSubst = (at)
+            # equivalent to config.spamProtectEmailAddresses_lastDotSubst
+            spamProtectEmailAddresses_lastDotSubst = (dot)
+        }
     }
 
 
