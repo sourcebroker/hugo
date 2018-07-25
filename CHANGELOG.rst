@@ -6,6 +6,7 @@ master
 1) [TASK] Optimize getSlugifiedRootline / add two more methods for slugified rootline: getSlugifiedRootlineForUrl
     getSlugifiedRootlineForFilePath
 2) [TASK] Optimize PageLinkBuilder to use SourceBroker\Hugo\Typolink. Do nto try to make link for deleted page.
+2) [BUGFIX] Normalize usage of languageUid vs sysLanguageUid in RootlineUtility class.
 
 0.2.0
 ~~~~~~

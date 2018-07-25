@@ -15,7 +15,6 @@ namespace SourceBroker\Hugo\Utility;
  * The TYPO3 project - inspiring people to share!
  */
 
-use Doctrine\DBAL\DBALException;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Database\Query\Restriction\HiddenRestriction;
@@ -37,7 +36,7 @@ class RootlineUtility
      * /**
      * @var int
      */
-    protected $sysLanguageUid = 0;
+    protected $languageUid = 0;
 
     /**
      * @var array
@@ -96,10 +95,10 @@ class RootlineUtility
      * @param int $uid
      * @throws \RuntimeException
      */
-    public function __construct($uid, $sysLanguageUid)
+    public function __construct($uid, $languageUid = 0)
     {
         $this->pageUid = (int)$uid;
-        $this->sysLanguageUid = (int)$sysLanguageUid;
+        $this->languageUid = (int)$languageUid;
         $this->pageContext = GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\Page\PageRepository::class);
         self::$rootlineFields = array_merge(self::$rootlineFields,
             GeneralUtility::trimExplode(',', $GLOBALS['TYPO3_CONF_VARS']['FE']['addRootLineFields'], true));
@@ -136,7 +135,7 @@ class RootlineUtility
             if ($parentUid > 0) {
                 /** @var $rootline \TYPO3\CMS\Core\Utility\RootlineUtility */
                 $rootline = GeneralUtility::makeInstance(\SourceBroker\Hugo\Utility\RootlineUtility::class, $parentUid,
-                    $this->sysLanguageUid);
+                    $this->languageUid);
                 $rootline = $rootline->get();
                 // retrieve cache tags of parent rootline
                 foreach ($rootline as $entry) {
@@ -275,7 +274,7 @@ class RootlineUtility
                     }
                     try {
                         $statement = $queryBuilder->execute();
-                    } catch (DBALException $e) {
+                    } catch (\Exception $e) {
                         throw new \RuntimeException('Could to resolve related records for page ' . $uid . ' and foreign_table ' . htmlspecialchars($table),
                             1343589452);
                     }
