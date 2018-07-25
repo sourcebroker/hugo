@@ -4,6 +4,7 @@ namespace SourceBroker\Hugo\ContentElement;
 
 use ArminVieweg\Dce\Domain\Model\Dce;
 use ArminVieweg\Dce\Domain\Model\DceField;
+use SourceBroker\Hugo\Configuration\Configurator;
 use SourceBroker\Hugo\Service\Typo3UrlService;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -130,8 +131,13 @@ class DceContentElement extends AbstractContentElement
     ): ?array
     {
         return GeneralUtility::makeInstance(ObjectManager::class)
-            ->get(Typo3UrlService::class, $pid)
-            ->linkArray($linkText, $linkParameters, $languageUid);
+            ->get(Typo3UrlService::class)
+            ->linkArray(
+                $linkText,
+                $linkParameters,
+                $languageUid,
+                GeneralUtility::makeInstance(Configurator::class, null, $pid)
+            );
     }
 
     /**

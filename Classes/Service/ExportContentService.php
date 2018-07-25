@@ -99,7 +99,7 @@ class ExportContentService
                     if (!$objectManager->isRegistered($classForCType)) {
                         $classForCType = $hugoConfigForRootSite->getOption('content.contentToClass.fallbackContentElementClass');
                     }
-                    $contentElementObject = $objectManager->get($classForCType);
+                    $contentElementObject = $objectManager->get($classForCType, $hugoConfigForRootSite);
                     $folderToStore = rtrim(PATH_site . $hugoConfigForRootSite->getOption('writer.path.data'),
                             DIRECTORY_SEPARATOR) . '/';
                     $filename = $contentElement['uid'] . '.yaml';
@@ -182,7 +182,7 @@ class ExportContentService
                 if (!$objectManager->isRegistered($classForCType)) {
                     $classForCType = $hugoConfigForRootSite->getOption('content.contentToClass.fallbackContentElementClass');
                 }
-                $contentElementObject = $objectManager->get($classForCType);
+                $contentElementObject = $objectManager->get($classForCType, $hugoConfigForRootSite);
                 $folderToStore = rtrim(PATH_site . $hugoConfigForRootSite->getOption('writer.path.data'),
                         DIRECTORY_SEPARATOR) . '/';
                 $filename = $contentElement['uid'] . '.yaml';

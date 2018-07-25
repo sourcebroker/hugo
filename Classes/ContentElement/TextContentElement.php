@@ -10,9 +10,8 @@ class TextContentElement extends AbstractContentElement
      */
     public function getSpecificContentElementData(array $contentElementRawData): array
     {
-        // TODO: parse links
         return [
-            'text' => $contentElementRawData['bodytext'],
+            'text' => $this->getRteService()->parse($contentElementRawData['bodytext'], $this->configurator),
         ];
     }
 }
