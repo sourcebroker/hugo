@@ -20,10 +20,10 @@ class Pages
 
             $sysLanguageUid = 0; // TODO - do support for multilang
             $slugifiedRootline = GeneralUtility::makeInstance(\SourceBroker\Hugo\Utility\RootlineUtility::class,
-                $data['row']['uid'], $sysLanguageUid)->getSlugifiedRootline();
+                $data['row']['uid'], $sysLanguageUid)->getSlugifiedRootlineForFilePath();
 
             $filename = PATH_site . rtrim($configurator->getOption('writer.path.content'), '/') .
-                '/' . $slugifiedRootline . '/_index.md';
+                '/' . $slugifiedRootline . '_index.md';
 
             if (file_exists($filename)) {
                 $content = '<pre style="line-height: 0.85em">'
