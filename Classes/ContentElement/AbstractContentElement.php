@@ -4,6 +4,7 @@ namespace SourceBroker\Hugo\ContentElement;
 
 use SourceBroker\Hugo\Configuration\Configurator;
 use SourceBroker\Hugo\Indexer\FieldTransformer;
+use SourceBroker\Hugo\Service\RteService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
@@ -13,6 +14,26 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
  */
 abstract class AbstractContentElement implements ContentElementInterface
 {
+    /**
+     * @var RteService
+     */
+    protected $rteService;
+
+    /**
+     * @var Configurator
+     */
+    protected $configurator;
+
+    /**
+     * AbstractContentElement constructor.
+     *
+     * @param Configurator $configurator
+     */
+    public function __construct(Configurator $configurator)
+    {
+        $this->configurator = $configurator;
+    }
+
     /**
      * @param array $contentElementRawData
      * @return array
@@ -71,5 +92,17 @@ abstract class AbstractContentElement implements ContentElementInterface
             $this->getCommonContentElementData($contentElementRawData),
             $this->getSpecificContentElementData($contentElementRawData)
         );
+    }
+
+    /**
+     * @return RteService
+     */
+    protected function getRteService()
+    {
+        if (!$this->rteService instanceof RteService) {
+            $this->rteService = GeneralUtility::makeInstance(RteService::class);
+        }
+
+        return $this->rteService;
     }
 }

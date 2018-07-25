@@ -41,21 +41,6 @@ use TYPO3\CMS\Core\LinkHandling\Exception\UnknownUrnException;
 class Typo3UrlService
 {
     /**
-     * @var int
-     */
-    protected $pid;
-
-    /**
-     * Typo3UrlService constructor.
-     *
-     * @param int $pid
-     */
-    public function __construct(int $pid)
-    {
-        $this->pid = $pid;
-    }
-
-    /**
      * TODO: implement support for multilang
      *
      * @param string $linkText
@@ -64,7 +49,12 @@ class Typo3UrlService
      *
      * @return array
      */
-    public function linkArray(string $linkText = '', string $linkParameter, int $pageLanguageUid = null): array
+    public function linkArray(
+        string $linkText = '',
+        string $linkParameter,
+        int $pageLanguageUid = null,
+        Configurator $configurator
+    ): array
     {
         // $pageLanguageUid TODO: implement support for multilang
 
@@ -85,7 +75,7 @@ class Typo3UrlService
                 $linkBuilder = GeneralUtility::makeInstance(
                     $GLOBALS['TYPO3_CONF_VARS']['EXT']['EXTCONF']['typolinkBuilder'][$linkDetails['type']],
                     GeneralUtility::makeInstance(ContentObjectRenderer::class),
-                    GeneralUtility::makeInstance(Configurator::class, null, $this->pid)
+                    $configurator
                 );
                 try {
                     list($url, $linkData['linkText'], $linkData['target']) = $linkBuilder->build($linkDetails, $linkText, $linkData['target'], []);
