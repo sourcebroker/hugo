@@ -16,9 +16,10 @@ namespace SourceBroker\Hugo\Typolink;
  * The TYPO3 project - inspiring people to share!
  */
 
-use Cocur\Slugify\Slugify;
+use SourceBroker\Hugo\Domain\Repository\Typo3PageRepository;
+use SourceBroker\Hugo\Utility\RootlineUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Core\Utility\RootlineUtility;
+use TYPO3\CMS\Core\Utility\MathUtility;
 
 /**
  * Builds a TypoLink to a certain page
@@ -28,22 +29,15 @@ class PageLinkBuilder extends AbstractTypolinkBuilder
     /**
      * @inheritdoc
      */
-    public function build(array &$linkDetails, string $linkText, string $target, array $conf): array
+    public function build(array &$linkData, string $linkText, string $target, array $conf): array
     {
-        $rootline = GeneralUtility::makeInstance(RootlineUtility::class, $linkDetails['pageuid'])->get();
-        $page = current($rootline);
-        if (empty($page['hidden'])) {
-            parse_str($conf['additionalParams'] ?? '', $additionalParamsParts);
-            $languageUid = $additionalParamsParts['L'] ?? $page['sys_language_uid'];
-            $aliases = array_map(function (array $page) use ($languageUid) {
-                if (!$page['is_siteroot']) {
-                    // TODO: use $languageUid to make translated path
-                    return Slugify::create()->slugify($page['title']);
-                }
-            }, array_reverse($rootline));
-            $url = '/' . implode('/', array_filter($aliases)) . '/';
-        } else {
-            $url = null;
+        $url = null;
+        $pageUid = $linkData['pageuid'];
+        if (MathUtility::canBeInterpretedAsInteger($pageUid)) {
+            $page = GeneralUtility::makeInstance(Typo3PageRepository::class)->getByUid((int)$pageUid);
+            if ($page['hidden'] === 0 && $page['deleted'] === 0) {
+                $url = GeneralUtility::makeInstance(RootlineUtility::class, $pageUid)->getSlugifiedRootlineForUrl();
+            }
         }
         return [$url, empty($linkText) ? $page['title'] : $linkText, $target];
     }
