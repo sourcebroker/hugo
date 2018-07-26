@@ -33,7 +33,7 @@ class ExternalUrlLinkBuilder extends AbstractTypolinkBuilder
                 $conf,
                 'extTarget',
                 true,
-                $this->txHugoConfigurator->getOption('content.link.extTarget')
+                $this->txHugoConfigurator->getOption('link.extTarget')
             )
         ];
     }

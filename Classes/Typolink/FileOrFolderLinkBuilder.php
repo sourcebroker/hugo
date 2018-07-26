@@ -50,7 +50,7 @@ class FileOrFolderLinkBuilder extends AbstractTypolinkBuilder
         if (strpos($linkLocation, '/') !== 0
             && parse_url($linkLocation, PHP_URL_SCHEME) === null
         ) {
-            $linkLocation = $this->txHugoConfigurator->getOption('content.link.absRefPrefix') . $linkLocation;
+            $linkLocation = $this->txHugoConfigurator->getOption('link.absRefPrefix') . $linkLocation;
         }
         $url = $this->processUrl(UrlProcessorInterface::CONTEXT_FILE, $linkLocation, $conf);
         return [
@@ -60,7 +60,7 @@ class FileOrFolderLinkBuilder extends AbstractTypolinkBuilder
                 $conf,
                 'fileTarget',
                 false,
-                $this->txHugoConfigurator->getOption('content.link.fileTarget')
+                $this->txHugoConfigurator->getOption('link.fileTarget')
             )
         ];
     }
