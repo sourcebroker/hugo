@@ -44,7 +44,7 @@ class AdministrationController extends ActionController
     public function indexAction(): void
     {
         try {
-            $configurator = GeneralUtility::makeInstance(Configurator::class, null, $this->pageUid);
+            $configurator = Configurator::getByPid($this->pageUid);
             $pageTsConfig = $configurator->getConfig();
 
             $this->view->assignMultiple([

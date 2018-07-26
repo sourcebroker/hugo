@@ -25,6 +25,7 @@
 namespace SourceBroker\Hugo\Configuration;
 
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -33,17 +34,35 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 class Configurator
 {
     /**
+     * @var Configurator[]
+     */
+    protected static $instances = [];
+
+    /**
      * Configuration of module set as array
      *
      * @var null|array
      */
     protected $config = null;
 
+    /**
+     * @param int $pid
+     *
+     * @return Configurator
+     */
+    public static function getByPid(int $pid)
+    {
+        if (!isset(self::$instances[$pid])) {
+            self::$instances[$pid] = GeneralUtility::makeInstance(self::class, null, $pid);
+        }
+
+        return self::$instances[$pid];
+    }
 
     /**
      * Configurator constructor.
      * @param null $config
-     * @param $pageIdToGetConfig
+     * @param int $pageIdToGetTsConfig
      * @throws \Exception
      */
     public function __construct($config = null, $pageIdToGetTsConfig = null)
@@ -51,7 +70,7 @@ class Configurator
         if ($config !== null) {
             $this->setConfig($config);
         } else {
-            $this->getPagesTSconfigForHugo($pageIdToGetTsConfig);
+            $this->getPagesTSconfigForHugo((int)$pageIdToGetTsConfig);
         }
     }
 
@@ -107,18 +126,21 @@ class Configurator
      * @param int $pageIdToGetTsConfig
      * @throws \Exception
      */
-    public function getPagesTSconfigForHugo($pageIdToGetTsConfig = null)
+    protected function getPagesTSconfigForHugo(int $pageIdToGetTsConfig)
     {
-        if ($pageIdToGetTsConfig !== null) {
-            $config = GeneralUtility::makeInstance('TYPO3\\CMS\\Extbase\\Service\\TypoScriptService')
-                ->convertTypoScriptArrayToPlainArray(BackendUtility::getPagesTSconfig($pageIdToGetTsConfig));
-            if (isset($config['tx_hugo'])) {
-                $this->setConfig($config['tx_hugo']);
-            } else {
-                throw new \Exception('There is no TSconfig for tx_hugo in the page id=' . $pageIdToGetTsConfig,
-                    1501692752398);
-            }
+        $config = GeneralUtility::makeInstance(TypoScriptService::class)
+            ->convertTypoScriptArrayToPlainArray(BackendUtility::getPagesTSconfig($pageIdToGetTsConfig));
+
+        if (!isset($config['tx_hugo'])) {
+            throw new \Exception(
+                'There is no TSconfig for tx_hugo in the page id=' . $pageIdToGetTsConfig,
+                1501692752398
+            );
         }
+
+        $this->setConfig($config['tx_hugo']);
+
+        self::$instances[$pageIdToGetTsConfig] = $this;
     }
 
 }

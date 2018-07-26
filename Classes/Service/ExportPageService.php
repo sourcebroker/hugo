@@ -66,9 +66,8 @@ class ExportPageService
         } while (true);
 
         foreach (($objectManager->get(Typo3PageRepository::class))->getSiteRootPages() as $siteRoot) {
-            $hugoConfigForRootSite = $objectManager->get(Configurator::class, null, $siteRoot['uid']);
+            $hugoConfigForRootSite = Configurator::getByPid((int)$siteRoot['uid']);
             if ($hugoConfigForRootSite->getOption('enable')) {
-                /** @var $hugoConfigForRootSite Configurator */
                 $writer = $objectManager->get($hugoConfigForRootSite->getOption('writer.class'));
                 $treeTraverser = $objectManager->get(TreeTraverser::class);
                 $writer->setRootPath($hugoConfigForRootSite->getOption('writer.path.content'));
