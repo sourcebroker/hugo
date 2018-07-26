@@ -28,7 +28,7 @@ class PageIndexer extends AbstractIndexer
     public function getDocumentsForPage(int $pageUid, DocumentCollection $documentCollection): array
     {
         $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        $hugoConfig = $objectManager->get(Configurator::class, null, $pageUid);
+        $hugoConfig = Configurator::getByPid($pageUid);
         $this->typo3PageRepository = $objectManager->get(Typo3PageRepository::class);
         $page = $this->typo3PageRepository->getByUid($pageUid);
         $rootline = ($objectManager->get(\TYPO3\CMS\Core\Utility\RootlineUtility::class, $pageUid))->get();
@@ -136,8 +136,7 @@ class PageIndexer extends AbstractIndexer
      */
     private function resolveCustomFields(array $page): array
     {
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        $config = $objectManager->get(Configurator::class, null, $page['uid']);
+        $config = Configurator::getByPid($page['uid']);
         $customFields = [];
         foreach ((array)$config->getOption('page.indexer.customFields.fieldMapper') as $fieldToMap => $fieldOptions) {
             $type = empty($fieldOptions['type']) ? null : $fieldOptions['type'];

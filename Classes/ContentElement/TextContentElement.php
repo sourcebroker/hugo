@@ -2,6 +2,8 @@
 
 namespace SourceBroker\Hugo\ContentElement;
 
+use SourceBroker\Hugo\Configuration\Configurator;
+
 class TextContentElement extends AbstractContentElement
 {
     /**
@@ -11,7 +13,10 @@ class TextContentElement extends AbstractContentElement
     public function getSpecificContentElementData(array $contentElementRawData): array
     {
         return [
-            'text' => $this->getRteService()->parse($contentElementRawData['bodytext'], $this->configurator),
+            'text' => $this->getRteService()->parse(
+                $contentElementRawData['bodytext'],
+                Configurator::getByPid((int)$contentElementRawData['pid'])
+            ),
         ];
     }
 }

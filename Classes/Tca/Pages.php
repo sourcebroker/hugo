@@ -16,7 +16,7 @@ class Pages
     public function getHugoFrontMatter($data)
     {
         if (!empty($data['row']['uid'])) {
-            $configurator = GeneralUtility::makeInstance(Configurator::class, null, $data['row']['uid']);
+            $configurator = Configurator::getByPid((int)$data['row']['uid']);
 
             $sysLanguageUid = 0; // TODO - do support for multilang
             $slugifiedRootline = GeneralUtility::makeInstance(\SourceBroker\Hugo\Utility\RootlineUtility::class,

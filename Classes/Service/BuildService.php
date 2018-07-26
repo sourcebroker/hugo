@@ -72,8 +72,7 @@ class BuildService
             }
         } while (true);
 
-        /** @var $hugoConfigForRootSite Configurator */
-        $hugoConfigForRootSite = $objectManager->get(Configurator::class, null, $rootPageUid);
+        $hugoConfigForRootSite = Configurator::getByPid($rootPageUid);
         if ($hugoConfigForRootSite->getOption('enable')) {
             $hugoPathBinary = $hugoConfigForRootSite->getOption('hugo.path.binary');
             if (!empty($hugoPathBinary)) {

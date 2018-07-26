@@ -136,7 +136,7 @@ class DceContentElement extends AbstractContentElement
                 $linkText,
                 $linkParameters,
                 $languageUid,
-                GeneralUtility::makeInstance(Configurator::class, null, $pid)
+                Configurator::getByPid($pid)
             );
     }
 

@@ -22,8 +22,7 @@ class RecordIndexer extends AbstractIndexer
      */
     public function getDocumentsForPage(int $pageUid, DocumentCollection $documentCollection): array
     {
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        $hugoConfig = $objectManager->get(Configurator::class, null, $pageUid);
+        $hugoConfig = Configurator::getByPid($pageUid);
         if (!empty($hugoConfig->getOption('record.indexer.exporter'))) {
             foreach ($hugoConfig->getOption('record.indexer.exporter') as $exporterConfig) {
                 if ($pageUid == $exporterConfig['pageUid']) {
