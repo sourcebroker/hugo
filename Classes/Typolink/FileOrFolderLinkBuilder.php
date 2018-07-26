@@ -39,8 +39,6 @@ class FileOrFolderLinkBuilder extends AbstractTypolinkBuilder
                 $linkText
             );
         }
-        // TODO: remove need for TSFE
-        $tsfe = $this->getTypoScriptFrontendController();
         $linkLocation = $fileOrFolderObject->getPublicUrl();
         if ($linkLocation === null) {
             // set the linkLocation to an empty string if null,
@@ -52,13 +50,18 @@ class FileOrFolderLinkBuilder extends AbstractTypolinkBuilder
         if (strpos($linkLocation, '/') !== 0
             && parse_url($linkLocation, PHP_URL_SCHEME) === null
         ) {
-            $linkLocation = $tsfe->absRefPrefix . $linkLocation;
+            $linkLocation = $this->txHugoConfigurator->getOption('link.absRefPrefix') . $linkLocation;
         }
         $url = $this->processUrl(UrlProcessorInterface::CONTEXT_FILE, $linkLocation, $conf);
         return [
             $this->forceAbsoluteUrl($url, $conf),
             $linkText,
-            $target ?: $this->resolveTargetAttribute($conf, 'fileTarget', false, $tsfe->fileTarget)
+            $target ?: $this->resolveTargetAttribute(
+                $conf,
+                'fileTarget',
+                false,
+                $this->txHugoConfigurator->getOption('link.fileTarget')
+            )
         ];
     }
 }

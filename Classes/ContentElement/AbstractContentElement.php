@@ -4,6 +4,7 @@ namespace SourceBroker\Hugo\ContentElement;
 
 use SourceBroker\Hugo\Configuration\Configurator;
 use SourceBroker\Hugo\Indexer\FieldTransformer;
+use SourceBroker\Hugo\Service\RteService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
@@ -14,6 +15,11 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
 abstract class AbstractContentElement implements ContentElementInterface
 {
     /**
+     * @var RteService
+     */
+    protected $rteService;
+
+    /**
      * @param array $contentElementRawData
      * @return array
      */
@@ -23,7 +29,7 @@ abstract class AbstractContentElement implements ContentElementInterface
 
         $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
         /** @var \SourceBroker\Hugo\Configuration\Configurator $config */
-        $config = $objectManager->get(Configurator::class, null, $contentElementRawData['pid']);
+        $config = Configurator::getByPid((int)$contentElementRawData['pid']);
         $fieldTransformer = $objectManager->get(FieldTransformer::class);
         foreach ((array)$config->getOption('content.indexer.commonFields.fieldMapper') as $fieldToMap => $fieldOptions) {
             $fields = [];
@@ -71,5 +77,17 @@ abstract class AbstractContentElement implements ContentElementInterface
             $this->getCommonContentElementData($contentElementRawData),
             $this->getSpecificContentElementData($contentElementRawData)
         );
+    }
+
+    /**
+     * @return RteService
+     */
+    protected function getRteService()
+    {
+        if (!$this->rteService instanceof RteService) {
+            $this->rteService = GeneralUtility::makeInstance(RteService::class);
+        }
+
+        return $this->rteService;
     }
 }

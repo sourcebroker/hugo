@@ -71,10 +71,10 @@ class ExportContentService
         // We assume config for exporting content is the same for all available site roots so take first available
         // site root which is enabled for hugo.
         foreach (($objectManager->get(Typo3PageRepository::class))->getSiteRootPages() as $siteRoot) {
-            /** @var $hugoConfigForRootSite Configurator */
-            $hugoConfigForRootSite = $objectManager->get(Configurator::class, null, $siteRoot['uid']);
+            $hugoConfigForRootSite = Configurator::getByPid((int)$siteRoot['uid']);
             if ($hugoConfigForRootSite->getOption('enable')) {
                 foreach (($objectManager->get(Typo3ContentRepository::class))->getAll() as $contentElement) {
+
                     if ($contentElement['sys_language_uid'] > 0) {
                         $contentElement =
                             $pageRepository->getRecordOverlay(
@@ -153,8 +153,7 @@ class ExportContentService
         /** @var PageRepository $pageRepository */
         $pageRepository = GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\Page\PageRepository::class);
         foreach (($objectManager->get(Typo3PageRepository::class))->getSiteRootPages() as $siteRoot) {
-            /** @var $hugoConfigForRootSite Configurator */
-            $hugoConfigForRootSite = $objectManager->get(Configurator::class, null, $siteRoot['uid']);
+            $hugoConfigForRootSite = Configurator::getByPid((int)$siteRoot['uid']);
             if ($hugoConfigForRootSite->getOption('enable')) {
                 $contentElement = $objectManager->get(Typo3ContentRepository::class)->getByUid($contentElementUid);
                 if ($contentElement['sys_language_uid'] > 0) {
