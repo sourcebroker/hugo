@@ -6,7 +6,11 @@ master
 1) [TASK] Optimize getSlugifiedRootline / add two more methods for slugified rootline: getSlugifiedRootlineForUrl
     getSlugifiedRootlineForFilePath
 2) [TASK] Optimize PageLinkBuilder to use SourceBroker\Hugo\Typolink. Do nto try to make link for deleted page.
-2) [BUGFIX] Normalize usage of languageUid vs sysLanguageUid in RootlineUtility class.
+3) [BUGFIX] Normalize usage of languageUid vs sysLanguageUid in RootlineUtility class.
+4) [TASK] Clean up the code after stopping passing of the configurator to content element via constructor.
+5) [TASK] Move hugo link configuration to outside from "content" namespace
+6) [TASK] Refactor configurator and use cached instances according to PID to avoid reading Page TSconfig on every construction.
+7) [TASK] Implement RTE service and change typolinks into correct FE links when exporting bodytext field of text content element
 
 0.2.0
 ~~~~~~
