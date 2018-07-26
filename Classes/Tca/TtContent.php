@@ -16,7 +16,7 @@ class TtContent
     public function getHugoFrontMatter($data)
     {
         if (!empty($data['row']['uid'])) {
-            $configurator = GeneralUtility::makeInstance(Configurator::class, null, $data['row']['pid']);
+            $configurator = Configurator::getByPid((int)$data['row']['pid']);
             $filename = PATH_site . rtrim($configurator->getOption('writer.path.data'), '/') .
                 '/' . $data['row']['uid'] . '.yaml';
             if (file_exists($filename)) {

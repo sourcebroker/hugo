@@ -245,7 +245,7 @@ class Document
     public function setMenu($page, $pageTranslation = null): self
     {
         $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        $hugoConfig = $objectManager->get(Configurator::class, null, $page['uid']);
+        $hugoConfig = Configurator::getByPid((int)$page['uid']);
         if (!empty($hugoConfig->getOption('page.indexer.menu'))) {
             foreach ($hugoConfig->getOption('page.indexer.menu') as $menuIdentifier => $menuConfig) {
                 $typo3PageRepository = $objectManager->get(Typo3PageRepository::class);

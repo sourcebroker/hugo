@@ -46,6 +46,7 @@ class Typo3UrlService
      * @param string $linkText
      * @param $linkParameter
      * @param int $pageLanguageUid
+     * @param Configurator $configurator
      *
      * @return array
      */

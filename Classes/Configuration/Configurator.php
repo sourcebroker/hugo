@@ -34,11 +34,30 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 class Configurator
 {
     /**
+     * @var Configurator[]
+     */
+    protected static $instances = [];
+
+    /**
      * Configuration of module set as array
      *
      * @var null|array
      */
     protected $config = null;
+
+    /**
+     * @param int $pid
+     *
+     * @return Configurator
+     */
+    public static function getByPid(int $pid)
+    {
+        if (!isset(self::$instances[$pid])) {
+            self::$instances[$pid] = GeneralUtility::makeInstance(self::class, null, $pid);
+        }
+
+        return self::$instances[$pid];
+    }
 
     /**
      * Configurator constructor.
@@ -51,7 +70,7 @@ class Configurator
         if ($config !== null) {
             $this->setConfig($config);
         } else {
-            $this->getPagesTSconfigForHugo($pageIdToGetTsConfig);
+            $this->getPagesTSconfigForHugo((int)$pageIdToGetTsConfig);
         }
     }
 
@@ -107,7 +126,7 @@ class Configurator
      * @param int $pageIdToGetTsConfig
      * @throws \Exception
      */
-    public function getPagesTSconfigForHugo($pageIdToGetTsConfig)
+    protected function getPagesTSconfigForHugo(int $pageIdToGetTsConfig)
     {
         $config = GeneralUtility::makeInstance(TypoScriptService::class)
             ->convertTypoScriptArrayToPlainArray(BackendUtility::getPagesTSconfig($pageIdToGetTsConfig));
@@ -120,6 +139,8 @@ class Configurator
         }
 
         $this->setConfig($config['tx_hugo']);
+
+        self::$instances[$pageIdToGetTsConfig] = $this;
     }
 
 }

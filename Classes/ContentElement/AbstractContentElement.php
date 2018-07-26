@@ -20,21 +20,6 @@ abstract class AbstractContentElement implements ContentElementInterface
     protected $rteService;
 
     /**
-     * @var Configurator
-     */
-    protected $configurator;
-
-    /**
-     * AbstractContentElement constructor.
-     *
-     * @param Configurator $configurator
-     */
-    public function __construct(Configurator $configurator)
-    {
-        $this->configurator = $configurator;
-    }
-
-    /**
      * @param array $contentElementRawData
      * @return array
      */
@@ -44,7 +29,7 @@ abstract class AbstractContentElement implements ContentElementInterface
 
         $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
         /** @var \SourceBroker\Hugo\Configuration\Configurator $config */
-        $config = $objectManager->get(Configurator::class, null, $contentElementRawData['pid']);
+        $config = Configurator::getByPid((int)$contentElementRawData['pid']);
         $fieldTransformer = $objectManager->get(FieldTransformer::class);
         foreach ((array)$config->getOption('content.indexer.commonFields.fieldMapper') as $fieldToMap => $fieldOptions) {
             $fields = [];
