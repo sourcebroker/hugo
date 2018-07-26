@@ -58,18 +58,18 @@ class EmailLinkBuilder extends AbstractTypolinkBuilder
 
         // no processing happened, therefore, the default processing kicks in
         if ($mailToUrl === $originalMailToUrl) {
-            if ($this->txHugoConfigurator->getOption('content.link.spamProtectEmailAddresses')) {
+            if ($this->txHugoConfigurator->getOption('link.spamProtectEmailAddresses')) {
                 $mailToUrl = $this->encryptEmail(
                     $mailToUrl,
-                    $this->txHugoConfigurator->getOption('content.link.spamProtectEmailAddresses')
+                    $this->txHugoConfigurator->getOption('link.spamProtectEmailAddresses')
                 );
-                if ($this->txHugoConfigurator->getOption('content.link.spamProtectEmailAddresses') !== 'ascii') {
+                if ($this->txHugoConfigurator->getOption('link.spamProtectEmailAddresses') !== 'ascii') {
                     $mailToUrl = 'javascript:linkTo_UnCryptMailto(' . GeneralUtility::quoteJSvalue($mailToUrl) . ');';
                 }
-                $atLabel = trim($this->txHugoConfigurator->getOption('content.link.spamProtectEmailAddresses_atSubst')) ?: '(at)';
+                $atLabel = trim($this->txHugoConfigurator->getOption('link.spamProtectEmailAddresses_atSubst')) ?: '(at)';
                 $spamProtectedMailAddress = str_replace('@', $atLabel, htmlspecialchars($mailAddress));
-                if ($this->txHugoConfigurator->getOption('content.link.spamProtectEmailAddresses_lastDotSubst')) {
-                    $lastDotLabel = trim($this->txHugoConfigurator->getOption('content.link.spamProtectEmailAddresses_lastDotSubst'));
+                if ($this->txHugoConfigurator->getOption('link.spamProtectEmailAddresses_lastDotSubst')) {
+                    $lastDotLabel = trim($this->txHugoConfigurator->getOption('link.spamProtectEmailAddresses_lastDotSubst'));
                     $lastDotLabel = $lastDotLabel ? $lastDotLabel : '(dot)';
                     $spamProtectedMailAddress = preg_replace('/\\.([^\\.]+)$/', $lastDotLabel . '$1', $spamProtectedMailAddress);
                 }

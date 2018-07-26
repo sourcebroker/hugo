@@ -99,7 +99,7 @@ abstract class AbstractTypolinkBuilder extends \TYPO3\CMS\Frontend\Typolink\Abst
                 // absRefPrefix has been prepended to $url beforehand
                 // so we only modify the path if no absRefPrefix has been set
                 // otherwise we would destroy the path
-                if ($this->txHugoConfigurator->getOption('content.link.absRefPrefix') === '') {
+                if ($this->txHugoConfigurator->getOption('link.absRefPrefix') === '') {
                     $urlParts['path'] = GeneralUtility::getIndpEnv('TYPO3_SITE_PATH') . ltrim($urlParts['path'], '/');
                 }
                 $isUrlModified = true;
