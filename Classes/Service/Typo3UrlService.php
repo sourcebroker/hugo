@@ -79,7 +79,7 @@ class Typo3UrlService
                     $configurator
                 );
                 try {
-                    list($url, $linkData['linkText'], $linkData['target']) = $linkBuilder->build($linkDetails, $linkText, $linkData['target'], []);
+                    list($url, $linkText, $linkData['target']) = $linkBuilder->build($linkDetails, $linkText, $linkData['target'], []);
                 } catch (UnableToLinkException $e) {
                     $logger = GeneralUtility::makeInstance(LogManager::class)->getLogger(__CLASS__);
                     $logger->debug(sprintf('Unable to link "%s": %s', $e->getLinkText(), $e->getMessage()),
