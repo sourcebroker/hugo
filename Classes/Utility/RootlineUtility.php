@@ -349,7 +349,8 @@ class RootlineUtility
      */
     public function getSlugifiedRootlineForUrl($withoutHome = true)
     {
-        return implode('/', $this->getSlugifiedRootline($withoutHome)) . '/';
+        $rootlineItems = $this->getSlugifiedRootline($withoutHome);
+        return count($rootlineItems) === 0 ? '/' : '/' . implode('/', $rootlineItems) . '/';
     }
 
     /**

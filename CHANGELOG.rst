@@ -12,6 +12,7 @@ master
 6) [TASK] Refactor configurator and use cached instances according to PID to avoid reading Page TSconfig on every construction.
 7) [TASK] Implement RTE service and change typolinks into correct FE links when exporting bodytext field of text content element
 8) [BUGFIX] Fix wrong full tag link text generation.
+9) [BUGFIX] Fix wrong homepage link generation.
 
 0.2.0
 ~~~~~~
