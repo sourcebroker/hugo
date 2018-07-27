@@ -127,13 +127,11 @@ class Typo3PageRepository
             ->add(GeneralUtility::makeInstance(DeletedRestriction::class))
             ->add(GeneralUtility::makeInstance(BackendWorkspaceRestriction::class));
 
-        $rows = $queryBuilder->select('*')
+        return $queryBuilder->select('*')
             ->from('pages_language_overlay')
             ->where($queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($defaultLangPageUid, \PDO::PARAM_INT)))
             ->execute()
             ->fetchAll();
-
-        return $rows;
     }
 
     /**
@@ -149,7 +147,7 @@ class Typo3PageRepository
             ->add(GeneralUtility::makeInstance(DeletedRestriction::class))
             ->add(GeneralUtility::makeInstance(BackendWorkspaceRestriction::class));
 
-        $rows = $queryBuilder->select('*')
+        return $queryBuilder->select('*')
             ->from('pages_language_overlay')
             ->where(
                 $queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($defaultLangPageUid, \PDO::PARAM_INT)),
@@ -157,6 +155,5 @@ class Typo3PageRepository
             )
             ->execute()
             ->fetchAll();
-        return $rows;
     }
 }

@@ -25,6 +25,7 @@
 namespace SourceBroker\Hugo\Service;
 
 use SourceBroker\Hugo\Configuration\Configurator;
+use SourceBroker\Hugo\Typolink\AbstractTypolinkBuilder;
 use SourceBroker\Hugo\Typolink\UnableToLinkException;
 use TYPO3\CMS\Core\LinkHandling\LinkService;
 use TYPO3\CMS\Core\Log\LogManager;
@@ -57,8 +58,6 @@ class Typo3UrlService
         Configurator $configurator
     ): array
     {
-        // $pageLanguageUid TODO: implement support for multilang
-
         $linkData = GeneralUtility::makeInstance(TypoLinkCodecService::class)->decode($linkParameter);
         $linkParameter = $linkData['url'];
 
@@ -73,10 +72,12 @@ class Typo3UrlService
 
             $linkDetails['typoLinkParameter'] = $linkParameter;
             if (isset($linkDetails['type']) && isset($GLOBALS['TYPO3_CONF_VARS']['EXT']['EXTCONF']['typolinkBuilder'][$linkDetails['type']])) {
+                /** @var AbstractTypolinkBuilder $linkBuilder */
                 $linkBuilder = GeneralUtility::makeInstance(
                     $GLOBALS['TYPO3_CONF_VARS']['EXT']['EXTCONF']['typolinkBuilder'][$linkDetails['type']],
                     GeneralUtility::makeInstance(ContentObjectRenderer::class),
-                    $configurator
+                    $configurator,
+                    (int)$pageLanguageUid ?: 0
                 );
                 try {
                     list($url, $linkText, $linkData['target']) = $linkBuilder->build($linkDetails, $linkText, $linkData['target'], []);

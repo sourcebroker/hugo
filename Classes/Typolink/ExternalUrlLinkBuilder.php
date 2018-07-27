@@ -27,7 +27,12 @@ class ExternalUrlLinkBuilder extends AbstractTypolinkBuilder
     public function build(array &$linkDetails, string $linkText, string $target, array $conf): array
     {
         return [
-            $this->processUrl(UrlProcessorInterface::CONTEXT_EXTERNAL, htmlspecialchars_decode($linkDetails['url']), $conf),
+            $this->applyHugoProcessors(
+                $this->processUrl(
+                    UrlProcessorInterface::CONTEXT_EXTERNAL,
+                    htmlspecialchars_decode($linkDetails['url']), $conf
+                )
+            ),
             $this->parseFallbackLinkTextIfLinkTextIsEmpty($linkText, $linkDetails['url']),
             $target ?: $this->resolveTargetAttribute(
                 $conf,
