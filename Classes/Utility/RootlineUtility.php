@@ -312,18 +312,15 @@ class RootlineUtility
 
 
     /**
-     * @param bool $withoutHome
      * @return array
      */
-    public function getSlugifiedRootline(bool $withoutHome = true): array
+    public function getSlugifiedRootline(): array
     {
         $typo3PageRepository = GeneralUtility::makeInstance(\SourceBroker\Hugo\Domain\Repository\Typo3PageRepository::class);
         $slugifier = GeneralUtility::makeInstance(\Cocur\Slugify\Slugify::class);
 
         $rootline = array_reverse($this->get());
-        if (!empty($withoutHome)) {
-            array_shift($rootline);
-        }
+        array_shift($rootline);
 
         $pathParts = [];
         foreach ($rootline as $key => $page) {
@@ -344,22 +341,11 @@ class RootlineUtility
     }
 
     /**
-     * @param bool $withoutHome
      * @return string
      */
-    public function getSlugifiedRootlineForUrl($withoutHome = true)
+    public function getSlugifiedRootlinePath()
     {
-        $rootlineItems = $this->getSlugifiedRootline($withoutHome);
-        return count($rootlineItems) === 0 ? '/' : '/' . implode('/', $rootlineItems) . '/';
+        return ltrim(implode('/', $this->getSlugifiedRootline()) . '/', '/');
     }
 
-    /**
-     * @param bool $withoutHome
-     * @return string
-     */
-    public function getSlugifiedRootlineForFilePath($withoutHome = true)
-    {
-        return implode('/', $this->getSlugifiedRootline($withoutHome)) .
-            count($this->getSlugifiedRootline($withoutHome)) ? '/' : '';
-    }
 }

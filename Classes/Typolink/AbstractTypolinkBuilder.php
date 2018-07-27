@@ -16,7 +16,6 @@ namespace SourceBroker\Hugo\Typolink;
  */
 
 use SourceBroker\Hugo\Configuration\Configurator;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
@@ -77,44 +76,12 @@ abstract class AbstractTypolinkBuilder extends \TYPO3\CMS\Frontend\Typolink\Abst
     }
 
     /**
-     * Overwrites method to get the link target to not use TSFE inside of it
+     * @param string $url
      *
-     * {@inheritdoc}
+     * @return string;
      */
-    protected function forceAbsoluteUrl(string $url, array $configuration): string
+    protected function addAbsRelPrefix(string $url)
     {
-        if (!empty($url) && !empty($configuration['forceAbsoluteUrl']) &&  preg_match('#^(?:([a-z]+)(://)([^/]*)/?)?(.*)$#', $url, $matches)) {
-            $urlParts = [
-                'scheme' => $matches[1],
-                'delimiter' => '://',
-                'host' => $matches[3],
-                'path' => $matches[4]
-            ];
-            $isUrlModified = false;
-            // Set scheme and host if not yet part of the URL:
-            if (empty($urlParts['host'])) {
-                $urlParts['scheme'] = GeneralUtility::getIndpEnv('TYPO3_SSL') ? 'https' : 'http';
-                $urlParts['host'] = GeneralUtility::getIndpEnv('HTTP_HOST');
-                $urlParts['path'] = '/' . ltrim($urlParts['path'], '/');
-                // absRefPrefix has been prepended to $url beforehand
-                // so we only modify the path if no absRefPrefix has been set
-                // otherwise we would destroy the path
-                if ($this->txHugoConfigurator->getOption('link.absRefPrefix') === '') {
-                    $urlParts['path'] = GeneralUtility::getIndpEnv('TYPO3_SITE_PATH') . ltrim($urlParts['path'], '/');
-                }
-                $isUrlModified = true;
-            }
-            // Override scheme:
-            $forceAbsoluteUrl = &$configuration['forceAbsoluteUrl.']['scheme'];
-            if (!empty($forceAbsoluteUrl) && $urlParts['scheme'] !== $forceAbsoluteUrl) {
-                $urlParts['scheme'] = $forceAbsoluteUrl;
-                $isUrlModified = true;
-            }
-            // Recreate the absolute URL:
-            if ($isUrlModified) {
-                $url = implode('', $urlParts);
-            }
-        }
-        return $url;
+        return $this->txHugoConfigurator->getOption('link.absRefPrefix').$url;
     }
 }
