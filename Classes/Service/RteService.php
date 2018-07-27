@@ -74,17 +74,18 @@ class RteService implements SingletonInterface
      */
     protected function makeLinks(string $html): string
     {
-        $html = preg_replace_callback('/<a\s.+?<\/a>/', function($aTag) {
-            $aTag = preg_replace_callback('/(href="(t3:\/\/.*?)")|(href=\'(t3:\/\/.*?)\')/', function ($matches) {
-                $t3Url = $matches[4] ?? $matches[2];
-                $attrQuoteChar = $matches[4] ? '\'' : '"';
+        $html = preg_replace_callback('/<a\s.+?<\/a>/', function ($aTag) {
+            $aTag = preg_replace_callback('/(href="(t3:\/\/.*?)")|(href=\'(t3:\/\/.*?)\')/',
+                function ($matches) {
+                    $t3Url = $matches[4] ?? $matches[2];
+                    $attrQuoteChar = $matches[4] ? '\'' : '"';
 
-                return 'href='
-                    .$attrQuoteChar
-                    .$this->urlService->linkArray('', $t3Url, null, $this->configurator)['href']
-                    .$attrQuoteChar
-                ;
-            }, $aTag[0]);
+                    return 'href='
+                        . $attrQuoteChar
+                        . $this->urlService->linkArray('', $t3Url, null,
+                            $this->configurator)['href']
+                        . $attrQuoteChar;
+                }, $aTag[0]);
 
             return $aTag;
         }, $html);
