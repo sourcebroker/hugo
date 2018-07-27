@@ -11,6 +11,7 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 class DataHandler implements SingletonInterface
 {
+
     /**
      * Clears path and URL caches if the page was deleted.
      *
@@ -22,6 +23,10 @@ class DataHandler implements SingletonInterface
     public function processCmdmap_deleteAction($tableName, $id)
     {
         // TODO: optimize later
+        if ($tableName === 'tt_content')
+        {
+            $this->deleteHugoContentElements((int)$id);
+        }
         $this->exportHugoPages();
     }
 
@@ -33,10 +38,21 @@ class DataHandler implements SingletonInterface
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
      */
-    public function processCmdmap_postProcess($command, $table)
+    public function processCmdmap_postProcess($command, $tableName, $recordId, $value, \TYPO3\CMS\Core\DataHandling\DataHandler $dataHandler, $pasteUpdate, $pasteDatamap)
     {
-        // TODO: optimize later
-        $this->exportHugoPages();
+        if ($command === 'undelete') {
+            switch ($tableName) {
+                case 'pages':
+                    $this->exportHugoPages();
+                    break;
+                case 'tt_content':
+                    $this->exportHugoContentElements($recordId);
+                    $this->exportHugoPages();
+                    break;
+            }
+        } else {
+            $this->exportHugoPages();
+        }
     }
 
     /**
@@ -85,6 +101,12 @@ class DataHandler implements SingletonInterface
         $hugoExportPageService->exportAll();
     }
 
+    /**
+     * @param null $contentRecordUid
+     *
+     * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
+     * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
+     */
     public function exportHugoContentElements($contentRecordUid = null)
     {
         $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
@@ -94,5 +116,12 @@ class DataHandler implements SingletonInterface
         } else {
             $hugoExportContentService->exportSingle($contentRecordUid);
         }
+    }
+
+    protected function deleteHugoContentElements(int $contentRecordUid): void
+    {
+        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+        $hugoExportContentService = $objectManager->get(ExportContentService::class);
+        $hugoExportContentService->deleteSingle($contentRecordUid);
     }
 }
