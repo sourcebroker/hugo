@@ -5,6 +5,7 @@ namespace SourceBroker\Hugo\Indexer;
 use SourceBroker\Hugo\Configuration\Configurator;
 use SourceBroker\Hugo\Domain\Model\DocumentCollection;
 use SourceBroker\Hugo\Domain\Repository\Typo3PageRepository;
+use SourceBroker\Hugo\Utility\RootlineUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Frontend\Page\PageRepository;
@@ -18,6 +19,11 @@ class PageIndexer extends AbstractIndexer
 {
     /** @var Typo3PageRepository */
     private $typo3PageRepository;
+
+    /**
+     * @var array
+     */
+    static private $contentElementStorage = [];
 
     /**
      * @param int $pageUid
@@ -44,6 +50,10 @@ class PageIndexer extends AbstractIndexer
                 PageRepository::DOKTYPE_SHORTCUT
             ]
         )) {
+            $contentElements = $this->typo3PageRepository->getPageContentElements($pageUid);
+            $this->addContentElementsToStorage($contentElements, $pageUid);
+            $contentElements = $this->mergeContentElementsWithParent($contentElements, $pageUid);
+
             $document = $documentCollection->create();
             $document->setStoreFilename('_index')
                 ->setId($page['uid'])
@@ -52,7 +62,7 @@ class PageIndexer extends AbstractIndexer
                 ->setDraft(!empty($page['hidden']))
                 ->setWeight($page['sorting'])
                 ->setLayout(str_replace('pagets__', '', $layout))
-                ->setContent($this->typo3PageRepository->getPageContentElements($pageUid))
+                ->setContent($contentElements)
                 ->setMenu($page)
                 ->setCustomFields($this->resolveCustomFields($page));
 
@@ -87,6 +97,35 @@ class PageIndexer extends AbstractIndexer
             $pageUid,
             $documentCollection,
         ];
+    }
+
+    /**
+     * @param array $contentElements
+     * @param int $pageUid
+     */
+    protected function addContentElementsToStorage(array $contentElements, $pageUid): void
+    {
+        self::$contentElementStorage[$pageUid] = $contentElements;
+    }
+
+    /**
+     * @param array $contentElements
+     * @param $pageUid
+     *
+     * @return array
+     */
+    protected function mergeContentElementsWithParent(array $contentElements, $pageUid): array
+    {
+        $rootLine = GeneralUtility::makeInstance(RootlineUtility::class, $pageUid)->get();
+        if (is_array($rootLine) && count($rootLine)) {
+            foreach ($rootLine as $key => $record) {
+                if (!empty(self::$contentElementStorage[$key])) {
+                    $contentElements = array_merge($contentElements, self::$contentElementStorage[$key]);
+                }
+            }
+        }
+
+        return $contentElements;
     }
 
     /**
