@@ -161,6 +161,38 @@ class ExportContentService extends AbstractService
                 break;
             }
         }
+        return $this->release();
+    }
+
+    /**
+     * @param int $contentElementUid
+     *
+     * @return bool
+     */
+    public function deleteSingle(int $contentElementUid): bool
+    {
+        $this->createLocker('hugoExportContent');
+
+        // We assume config for exporting content is the same for all available site roots so take first available
+        // site root which is enabled for hugo.
+
+        foreach (($this->objectManager->get(Typo3PageRepository::class))->getSiteRootPages() as $siteRoot) {
+            $hugoConfigForRootSite = Configurator::getByPid((int)$siteRoot['uid']);
+            if ($hugoConfigForRootSite->getOption('enable')) {
+                $contentElement = $this->objectManager->get(Typo3ContentRepository::class)->getByUid($contentElementUid);
+
+                if ( ! empty($contentElement)) {
+                    $contentElementFilePath = rtrim(PATH_site.$hugoConfigForRootSite->getOption('writer.path.data'),
+                            DIRECTORY_SEPARATOR).'/'.$contentElement['uid'].'.yaml';
+
+                    if (file_exists($contentElementFilePath)) {
+                        unlink($contentElementFilePath);
+                    }
+
+                    break;
+                }
+            }
+        }
 
         return $this->release();
     }
