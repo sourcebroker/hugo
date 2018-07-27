@@ -36,9 +36,14 @@ class PageLinkBuilder extends AbstractTypolinkBuilder
         if (MathUtility::canBeInterpretedAsInteger($pageUid)) {
             $page = GeneralUtility::makeInstance(Typo3PageRepository::class)->getByUid((int)$pageUid);
             if ($page['hidden'] === 0 && $page['deleted'] === 0) {
-                $url = GeneralUtility::makeInstance(RootlineUtility::class, $pageUid)->getSlugifiedRootlineForUrl();
+                $url = GeneralUtility::makeInstance(RootlineUtility::class, $pageUid)->getSlugifiedRootlinePath();
             }
         }
-        return [$url, empty($linkText) ? $page['title'] : $linkText, $target];
+
+        return [
+            $this->addAbsRelPrefix($url),
+            empty($linkText) ? $page['title'] : $linkText,
+            $target,
+        ];
     }
 }

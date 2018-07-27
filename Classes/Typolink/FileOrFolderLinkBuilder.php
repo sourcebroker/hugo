@@ -54,7 +54,7 @@ class FileOrFolderLinkBuilder extends AbstractTypolinkBuilder
         }
         $url = $this->processUrl(UrlProcessorInterface::CONTEXT_FILE, $linkLocation, $conf);
         return [
-            $this->forceAbsoluteUrl($url, $conf),
+            $this->addAbsRelPrefix($url),
             $linkText,
             $target ?: $this->resolveTargetAttribute(
                 $conf,

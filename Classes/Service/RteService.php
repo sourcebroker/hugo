@@ -74,9 +74,6 @@ class RteService implements SingletonInterface
      */
     protected function makeLinks(string $html): string
     {
-        $html = str_replace('href="t3://page?uid=1"',
-            'href=\'t3://page?uid=1\'', $html);
-
         $html = preg_replace_callback('/<a\s.+?<\/a>/', function ($aTag) {
             $aTag = preg_replace_callback('/(href="(t3:\/\/.*?)")|(href=\'(t3:\/\/.*?)\')/',
                 function ($matches) {
