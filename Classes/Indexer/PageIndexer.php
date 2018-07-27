@@ -68,7 +68,10 @@ class PageIndexer extends AbstractIndexer
                         ->setDraft(!empty($page['hidden']))
                         ->setWeight($page['sorting'])
                         ->setLayout(str_replace('pagets__', '', $layout))
-                        ->setContent($this->typo3PageRepository->getPageContentElements($pageUid))
+                        ->setContent($this->typo3PageRepository->getPageContentElements(
+                            $pageUid,
+                            (int)$translation['sys_language_uid'])
+                        )
                         ->setMenu($page, $translation)
                         ->setCustomFields($this->resolveCustomFields($page));
                     if (!$page['is_siteroot']) {
