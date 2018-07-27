@@ -8,6 +8,11 @@ use TYPO3\CMS\Core\Database\Query\Restriction\BackendWorkspaceRestriction;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
+/**
+ * Class Typo3PageRepository
+ *
+ * @package SourceBroker\Hugo\Domain\Repository
+ */
 class Typo3PageRepository
 {
     /**
@@ -16,7 +21,7 @@ class Typo3PageRepository
      */
     public function getByUid(int $uid): array
     {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+        $queryBuilder = $this->getConnectionPool()
             ->getQueryBuilderForTable('pages');
         return $queryBuilder
             ->select('*')
@@ -35,7 +40,7 @@ class Typo3PageRepository
      */
     public function getSiteRootPages(): array
     {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+        $queryBuilder = $this->getConnectionPool()
             ->getQueryBuilderForTable('pages');
         return $queryBuilder
             ->select('uid')
@@ -57,8 +62,9 @@ class Typo3PageRepository
      */
     public function getPageContentElements(int $pageUid, int $sysLangaugeUid = 0): array
     {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+        $queryBuilder = $this->getConnectionPool()
             ->getQueryBuilderForTable('tt_content');
+        
         return $queryBuilder
             ->select('*')
             ->from('tt_content')
@@ -81,7 +87,7 @@ class Typo3PageRepository
      */
     public function getShortcutsPointingToPage(int $pageUid): array
     {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+        $queryBuilder = $this->getConnectionPool()
             ->getQueryBuilderForTable('pages');
         return $queryBuilder
             ->select('*')
@@ -104,7 +110,8 @@ class Typo3PageRepository
      */
     public function getPagesByPidAndDoktype(int $pid, array $doktypes)
     {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages');
+        $queryBuilder = $this->getConnectionPool()
+            ->getQueryBuilderForTable('pages');
         $queryBuilder->select('uid', 'title')->from('pages')->where(
             $queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($pid, \PDO::PARAM_INT)),
             $queryBuilder->expr()->in('doktype',
@@ -120,7 +127,7 @@ class Typo3PageRepository
      */
     public function getPageTranslations(int $defaultLangPageUid): array
     {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+        $queryBuilder = $this->getConnectionPool()
             ->getQueryBuilderForTable('pages_language_overlay');
         $queryBuilder->getRestrictions()
             ->removeAll()
@@ -142,7 +149,7 @@ class Typo3PageRepository
      */
     public function getPageTranslation(int $defaultLangPageUid, int $sysLanguageUid): array
     {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+        $queryBuilder = $this->getConnectionPool()
             ->getQueryBuilderForTable('pages_language_overlay');
         $queryBuilder->getRestrictions()
             ->removeAll()
@@ -158,5 +165,13 @@ class Typo3PageRepository
             ->execute()
             ->fetchAll();
         return $rows;
+    }
+
+    /**
+     * @return \TYPO3\CMS\Core\Database\ConnectionPool
+     */
+    protected function getConnectionPool() : \TYPO3\CMS\Core\Database\ConnectionPool
+    {
+        return GeneralUtility::makeInstance(ConnectionPool::class);
     }
 }
