@@ -35,10 +35,12 @@ use \SourceBroker\Hugo\Domain\Repository\Typo3PageRepository;
 
 /**
  * Class ExportPageService
+ *
  * @package SourceBroker\Hugo\Service
  */
-class ExportPageService
+class ExportPageService extends AbstractService
 {
+
     /**
      * @return bool
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
@@ -47,42 +49,23 @@ class ExportPageService
      */
     public function exportAll(): bool
     {
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        $lockFactory = $objectManager->get(LockFactory::class);
-        $locker = $lockFactory->createLocker(
-            'hugoExportPages',
-            LockingStrategyInterface::LOCK_CAPABILITY_SHARED | LockingStrategyInterface::LOCK_CAPABILITY_NOBLOCK
-        );
-        do {
-            try {
-                $locked = $locker->acquire(LockingStrategyInterface::LOCK_CAPABILITY_SHARED | LockingStrategyInterface::LOCK_CAPABILITY_NOBLOCK);
-            } catch (LockAcquireWouldBlockException $e) {
-                usleep(100000); //100ms
-                continue;
-            }
-            if ($locked) {
-                break;
-            }
-        } while (true);
+        $this->createLocker('hugoExportPages');
 
-        foreach (($objectManager->get(Typo3PageRepository::class))->getSiteRootPages() as $siteRoot) {
+        foreach (($this->objectManager->get(Typo3PageRepository::class))->getSiteRootPages() as $siteRoot) {
             $hugoConfigForRootSite = Configurator::getByPid((int)$siteRoot['uid']);
             if ($hugoConfigForRootSite->getOption('enable')) {
-                $writer = $objectManager->get($hugoConfigForRootSite->getOption('writer.class'));
-                $treeTraverser = $objectManager->get(TreeTraverser::class);
+                $writer = $this->objectManager->get($hugoConfigForRootSite->getOption('writer.class'));
+                $treeTraverser = $this->objectManager->get(TreeTraverser::class);
                 $writer->setRootPath($hugoConfigForRootSite->getOption('writer.path.content'));
                 $writer->setExcludeCleaningFolders([$hugoConfigForRootSite->getOption('writer.path.media')]);
                 $treeTraverser->setWriter($writer);
-                $treeTraverser->start($siteRoot['uid'], [], 'getDocumentsForPage');
+                $treeTraverser->start($siteRoot['uid'], [],
+                    'getDocumentsForPage');
                 $buildService = GeneralUtility::makeInstance(\SourceBroker\Hugo\Service\BuildService::class);
                 $buildService->buildSingle($siteRoot['uid']);
             }
         }
-        if ($locked) {
-            $locker->release();
-            $locker->destroy();
-            return true;
-        }
-    }
 
+        return $this->release();
+    }
 }
