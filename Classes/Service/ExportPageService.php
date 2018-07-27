@@ -55,12 +55,19 @@ class ExportPageService extends AbstractService
             $hugoConfigForRootSite = Configurator::getByPid((int)$siteRoot['uid']);
             if ($hugoConfigForRootSite->getOption('enable')) {
                 $writer = $this->objectManager->get($hugoConfigForRootSite->getOption('writer.class'));
+
+                /** @var \SourceBroker\Hugo\Traversing\TreeTraverser $treeTraverser */
                 $treeTraverser = $this->objectManager->get(TreeTraverser::class);
                 $writer->setRootPath($hugoConfigForRootSite->getOption('writer.path.content'));
                 $writer->setExcludeCleaningFolders([$hugoConfigForRootSite->getOption('writer.path.media')]);
                 $treeTraverser->setWriter($writer);
-                $treeTraverser->start($siteRoot['uid'], [],
-                    'getDocumentsForPage');
+                $treeTraverser->start(
+                    $siteRoot['uid'],
+                    [],
+                    'getDocumentsForPage'
+                );
+
+                /** @var \SourceBroker\Hugo\Service\BuildService $buildService */
                 $buildService = GeneralUtility::makeInstance(\SourceBroker\Hugo\Service\BuildService::class);
                 $buildService->buildSingle($siteRoot['uid']);
             }

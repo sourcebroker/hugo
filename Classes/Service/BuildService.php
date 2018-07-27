@@ -51,6 +51,12 @@ class BuildService extends AbstractService
         return count(array_unique($results)) === 1 && end($results) === true;
     }
 
+    /**
+     * @param int $rootPageUid
+     *
+     * @return bool
+     * @throws \Exception
+     */
     public function buildSingle(int $rootPageUid): bool
     {
         $this->createLocker('hugoBuildDist');
