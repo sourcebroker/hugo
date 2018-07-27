@@ -36,7 +36,7 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
  * Class ExportContentService
  * @package SourceBroker\Hugo\Service
  */
-class BuildService
+class BuildService extends AbstractService
 {
     /**
      * @return bool
@@ -45,8 +45,7 @@ class BuildService
     public function buildAll(): bool
     {
         $results = [];
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        foreach (($objectManager->get(Typo3PageRepository::class))->getSiteRootPages() as $siteRoot) {
+        foreach (($this->objectManager->get(Typo3PageRepository::class))->getSiteRootPages() as $siteRoot) {
             $results[] = $this->buildSingle($siteRoot['uid']);
         }
         return count(array_unique($results)) === 1 && end($results) === true;
@@ -54,23 +53,7 @@ class BuildService
 
     public function buildSingle(int $rootPageUid): bool
     {
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        $lockFactory = $objectManager->get(LockFactory::class);
-        $locker = $lockFactory->createLocker(
-            'hugoBuildDist',
-            LockingStrategyInterface::LOCK_CAPABILITY_SHARED | LockingStrategyInterface::LOCK_CAPABILITY_NOBLOCK
-        );
-        do {
-            try {
-                $locked = $locker->acquire(LockingStrategyInterface::LOCK_CAPABILITY_SHARED | LockingStrategyInterface::LOCK_CAPABILITY_NOBLOCK);
-            } catch (LockAcquireWouldBlockException $e) {
-                usleep(100000); //100ms
-                continue;
-            }
-            if ($locked) {
-                break;
-            }
-        } while (true);
+        $this->createLocker('hugoBuildDist');
 
         $hugoConfigForRootSite = Configurator::getByPid($rootPageUid);
         if ($hugoConfigForRootSite->getOption('enable')) {
@@ -84,11 +67,7 @@ class BuildService
             }
         }
 
-        if ($locked) {
-            $locker->release();
-            $locker->destroy();
-            return true;
-        }
+        return $this->release();
     }
 
 }

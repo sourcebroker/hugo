@@ -28,9 +28,6 @@ use SourceBroker\Hugo\Configuration\Configurator;
 use SourceBroker\Hugo\Domain\Repository\Typo3ContentRepository;
 use SourceBroker\Hugo\Domain\Repository\Typo3PageRepository;
 use Symfony\Component\Yaml\Yaml;
-use TYPO3\CMS\Core\Locking\Exception\LockAcquireWouldBlockException;
-use TYPO3\CMS\Core\Locking\LockFactory;
-use TYPO3\CMS\Core\Locking\LockingStrategyInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Frontend\Page\PageRepository;
@@ -39,7 +36,7 @@ use TYPO3\CMS\Frontend\Page\PageRepository;
  * Class ExportContentService
  * @package SourceBroker\Hugo\Service
  */
-class ExportContentService
+class ExportContentService extends AbstractService
 {
     /**
      * TODO - optimize use of locker. Make service a singleton with common lock state.
@@ -50,30 +47,15 @@ class ExportContentService
      */
     public function exportAll(): bool
     {
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        $lockFactory = $objectManager->get(LockFactory::class);
-        $locker = $lockFactory->createLocker(
-            'hugoExportContent',
-            LockingStrategyInterface::LOCK_CAPABILITY_SHARED | LockingStrategyInterface::LOCK_CAPABILITY_NOBLOCK
-        );
-        do {
-            try {
-                $locked = $locker->acquire(LockingStrategyInterface::LOCK_CAPABILITY_SHARED | LockingStrategyInterface::LOCK_CAPABILITY_NOBLOCK);
-            } catch (LockAcquireWouldBlockException $e) {
-                usleep(100000); //100ms
-                continue;
-            }
-            if ($locked) {
-                break;
-            }
-        } while (true);
+        $this->createLocker('hugoExportContent');
+
         $pageRepository = GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\Page\PageRepository::class);
         // We assume config for exporting content is the same for all available site roots so take first available
         // site root which is enabled for hugo.
-        foreach (($objectManager->get(Typo3PageRepository::class))->getSiteRootPages() as $siteRoot) {
+        foreach (($this->objectManager->get(Typo3PageRepository::class))->getSiteRootPages() as $siteRoot) {
             $hugoConfigForRootSite = Configurator::getByPid((int)$siteRoot['uid']);
             if ($hugoConfigForRootSite->getOption('enable')) {
-                foreach (($objectManager->get(Typo3ContentRepository::class))->getAll() as $contentElement) {
+                foreach (($this->objectManager->get(Typo3ContentRepository::class))->getAll() as $contentElement) {
 
                     if ($contentElement['sys_language_uid'] > 0) {
                         $contentElement =
@@ -96,10 +78,10 @@ class ExportContentService
                             break;
                         }
                     }
-                    if (!$objectManager->isRegistered($classForCType)) {
+                    if (!$this->objectManager->isRegistered($classForCType)) {
                         $classForCType = $hugoConfigForRootSite->getOption('content.contentToClass.fallbackContentElementClass');
                     }
-                    $contentElementObject = $objectManager->get($classForCType);
+                    $contentElementObject = $this->objectManager->get($classForCType);
                     $folderToStore = rtrim(PATH_site . $hugoConfigForRootSite->getOption('writer.path.data'),
                             DIRECTORY_SEPARATOR) . '/';
                     $filename = $contentElement['uid'] . '.yaml';
@@ -115,11 +97,8 @@ class ExportContentService
                 break;
             }
         }
-        if ($locked) {
-            $locker->release();
-            $locker->destroy();
-            return true;
-        }
+
+        return $this->release();
     }
 
     /**
@@ -131,31 +110,16 @@ class ExportContentService
      */
     public function exportSingle(int $contentElementUid): bool
     {
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        $lockFactory = $objectManager->get(LockFactory::class);
-        $locker = $lockFactory->createLocker(
-            'hugoExportContent',
-            LockingStrategyInterface::LOCK_CAPABILITY_SHARED | LockingStrategyInterface::LOCK_CAPABILITY_NOBLOCK
-        );
-        do {
-            try {
-                $locked = $locker->acquire(LockingStrategyInterface::LOCK_CAPABILITY_SHARED | LockingStrategyInterface::LOCK_CAPABILITY_NOBLOCK);
-            } catch (LockAcquireWouldBlockException $e) {
-                usleep(100000); //100ms
-                continue;
-            }
-            if ($locked) {
-                break;
-            }
-        } while (true);
+        $this->createLocker('hugoExportContent');
+
         // We assume config for exporting content is the same for all available site roots so take first available
         // site root which is enabled for hugo.
         /** @var PageRepository $pageRepository */
         $pageRepository = GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\Page\PageRepository::class);
-        foreach (($objectManager->get(Typo3PageRepository::class))->getSiteRootPages() as $siteRoot) {
+        foreach (($this->objectManager->get(Typo3PageRepository::class))->getSiteRootPages() as $siteRoot) {
             $hugoConfigForRootSite = Configurator::getByPid((int)$siteRoot['uid']);
             if ($hugoConfigForRootSite->getOption('enable')) {
-                $contentElement = $objectManager->get(Typo3ContentRepository::class)->getByUid($contentElementUid);
+                $contentElement = $this->objectManager->get(Typo3ContentRepository::class)->getByUid($contentElementUid);
                 if ($contentElement['sys_language_uid'] > 0) {
                     $contentElement =
                         $pageRepository->getRecordOverlay(
@@ -178,10 +142,10 @@ class ExportContentService
                         break;
                     }
                 }
-                if (!$objectManager->isRegistered($classForCType)) {
+                if (!$this->objectManager->isRegistered($classForCType)) {
                     $classForCType = $hugoConfigForRootSite->getOption('content.contentToClass.fallbackContentElementClass');
                 }
-                $contentElementObject = $objectManager->get($classForCType);
+                $contentElementObject = $this->objectManager->get($classForCType);
                 $folderToStore = rtrim(PATH_site . $hugoConfigForRootSite->getOption('writer.path.data'),
                         DIRECTORY_SEPARATOR) . '/';
                 $filename = $contentElement['uid'] . '.yaml';
@@ -197,10 +161,39 @@ class ExportContentService
                 break;
             }
         }
-        if ($locked) {
-            $locker->release();
-            $locker->destroy();
-            return true;
+        return $this->release();
+    }
+
+    /**
+     * @param int $contentElementUid
+     *
+     * @return bool
+     */
+    public function deleteSingle(int $contentElementUid): bool
+    {
+        $this->createLocker('hugoExportContent');
+
+        // We assume config for exporting content is the same for all available site roots so take first available
+        // site root which is enabled for hugo.
+
+        foreach (($this->objectManager->get(Typo3PageRepository::class))->getSiteRootPages() as $siteRoot) {
+            $hugoConfigForRootSite = Configurator::getByPid((int)$siteRoot['uid']);
+            if ($hugoConfigForRootSite->getOption('enable')) {
+                $contentElement = $this->objectManager->get(Typo3ContentRepository::class)->getByUid($contentElementUid);
+
+                if ( ! empty($contentElement)) {
+                    $contentElementFilePath = rtrim(PATH_site.$hugoConfigForRootSite->getOption('writer.path.data'),
+                            DIRECTORY_SEPARATOR).'/'.$contentElement['uid'].'.yaml';
+
+                    if (file_exists($contentElementFilePath)) {
+                        unlink($contentElementFilePath);
+                    }
+
+                    break;
+                }
+            }
         }
+
+        return $this->release();
     }
 }
