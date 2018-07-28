@@ -13,6 +13,7 @@ master
 8) [FEATURE] Implement grid content element exporter
 9) [TASK] Implement multilang support into link builders
 10) [TASK] Code cleanup / PSR-2 / phpdocs
+11) [BUGFIX] Remove linkText form generated url make htmlspecialchars for title
 
 0.3.0
 ~~~~~
