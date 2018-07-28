@@ -47,16 +47,48 @@ class RecordIndexer extends AbstractIndexer
                         $recordRows = $queryBuilder->execute()->fetchAll();
                     }
 
+                    $taxonomy = [];
+                    if(array_key_exists('taxonomyMap', $exporterConfig)){
+                        foreach($exporterConfig['taxonomyMap'] as $mappedTaxonomyKey => $mappedTaxonomyField) {
+                            $taxonomy[$mappedTaxonomyKey] = [];
+                        }
+                    }
+
                     foreach ($recordRows as $record) {
                         if(is_object($record) && $record instanceof AbstractDomainObject){
-                            $record = $this->mapPropertiesToArrayRecursive($record->_getProperties());
+                            $record = $this->mapPropertiesToArrayRecursive($record->_getProperties(), $exporterConfig['mapper']);
                         }
+
+                        if(array_key_exists('taxonomyMap', $exporterConfig)){
+                            foreach($exporterConfig['taxonomyMap'] as $mappedTaxonomyKey => $mappedTaxonomyField){
+                                if(array_key_exists($mappedTaxonomyKey, $record)){
+
+                                    if(is_array($record[$mappedTaxonomyKey])){
+                                        foreach($record[$mappedTaxonomyKey] as $item){
+                                            if(array_key_exists($mappedTaxonomyField, $item)) {
+                                                if(!in_array($item[$mappedTaxonomyField], $taxonomy[$mappedTaxonomyKey])) {
+                                                    $taxonomy[$mappedTaxonomyKey][] = $item[$mappedTaxonomyField];
+                                                }
+                                            }
+                                        }
+                                    } else if(!in_array($record[$mappedTaxonomyKey], $taxonomy[$mappedTaxonomyKey])) {
+                                        $taxonomy[$mappedTaxonomyKey][] = $record[$mappedTaxonomyKey];
+                                    }
+                                }
+                            }
+                        }
+
                         $slug = $this->slugify($record['title']);
                         $document = $documentCollection->create();
                         $document->setStoreFilename($record['uid'] . '_' . ucfirst($slug))
                             ->setId($record['uid'])
+                            ->setTitle($record['title'])
                             ->setSlug($slug)
                             ->setCustomFields(['record' => $record]);
+
+                        foreach($taxonomy as $taxonomyKey => $values){
+                            $document->setCustomFields([$taxonomyKey => $values]);
+                        }
                     }
                 }
             }
