@@ -1,7 +1,7 @@
 Changelog
 ---------
 
-master
+0.4.0
 ~~~~~
 1) [TASK] Optimize getSlugifiedRootline / add two more methods for slugified rootline: getSlugifiedRootlineForUrl
 2) [TASK] Implement support for `link.absRefPrefix` into file, folder and page link builders
