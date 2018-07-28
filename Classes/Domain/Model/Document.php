@@ -240,6 +240,7 @@ class Document
 
     /**
      * @param $page
+     * @param null $pageTranslation
      * @return Document
      */
     public function setMenu($page, $pageTranslation = null): self
@@ -275,7 +276,7 @@ class Document
                             && $pageBelongsToMenuAndIsNotBelowSysfolder
                             && $pageBelongsToMenuAndIsNotBelowHiddenInNavigation) {
 
-                            if(!empty($pageTranslation['sys_language_uid'])) {
+                            if (!empty($pageTranslation['sys_language_uid'])) {
                                 $rootlinePageTranslation = $typo3PageRepository->getPageTranslation($checkPage['uid'],
                                     $pageTranslation['sys_language_uid']);
                                 $title = $rootlinePageTranslation[0]['title'];

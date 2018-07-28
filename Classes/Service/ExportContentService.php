@@ -29,7 +29,6 @@ use SourceBroker\Hugo\Domain\Repository\Typo3ContentRepository;
 use SourceBroker\Hugo\Domain\Repository\Typo3PageRepository;
 use Symfony\Component\Yaml\Yaml;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Frontend\Page\PageRepository;
 
 /**
@@ -85,7 +84,7 @@ class ExportContentService extends AbstractService
                     $folderToStore = rtrim(PATH_site . $hugoConfigForRootSite->getOption('writer.path.data'),
                             DIRECTORY_SEPARATOR) . '/';
                     $filename = $contentElement['uid'] . '.yaml';
-                    if(!file_exists($folderToStore)) {
+                    if (!file_exists($folderToStore)) {
                         GeneralUtility::mkdir_deep($folderToStore);
                     }
                     file_put_contents(
@@ -149,7 +148,7 @@ class ExportContentService extends AbstractService
                 $folderToStore = rtrim(PATH_site . $hugoConfigForRootSite->getOption('writer.path.data'),
                         DIRECTORY_SEPARATOR) . '/';
                 $filename = $contentElement['uid'] . '.yaml';
-                if(!file_exists($folderToStore)) {
+                if (!file_exists($folderToStore)) {
                     GeneralUtility::mkdir_deep($folderToStore);
                 }
                 file_put_contents(
@@ -181,9 +180,9 @@ class ExportContentService extends AbstractService
             if ($hugoConfigForRootSite->getOption('enable')) {
                 $contentElement = $this->objectManager->get(Typo3ContentRepository::class)->getByUid($contentElementUid);
 
-                if ( ! empty($contentElement)) {
-                    $contentElementFilePath = rtrim(PATH_site.$hugoConfigForRootSite->getOption('writer.path.data'),
-                            DIRECTORY_SEPARATOR).'/'.$contentElement['uid'].'.yaml';
+                if (!empty($contentElement)) {
+                    $contentElementFilePath = rtrim(PATH_site . $hugoConfigForRootSite->getOption('writer.path.data'),
+                            DIRECTORY_SEPARATOR) . '/' . $contentElement['uid'] . '.yaml';
 
                     if (file_exists($contentElementFilePath)) {
                         unlink($contentElementFilePath);

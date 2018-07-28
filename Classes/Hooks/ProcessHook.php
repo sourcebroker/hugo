@@ -2,8 +2,8 @@
 
 namespace SourceBroker\Hugo\Hooks;
 
-use TYPO3\CMS\Core\Utility\File\ExtendedFileUtility;
 use SourceBroker\Hugo\Service\ExportMediaService;
+use TYPO3\CMS\Core\Utility\File\ExtendedFileUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -21,6 +21,8 @@ class ProcessHook implements \TYPO3\CMS\Core\Utility\File\ExtendedFileUtilityPro
      * @param array $cmdArr The parameter sent to the action handler
      * @param array $result The results of all calls to the action handler
      * @param \TYPO3\CMS\Core\Utility\File\ExtendedFileUtility $parentObject
+     * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
+     * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
      */
     public function processData_postProcessAction(
         $action,

@@ -23,8 +23,7 @@ class DataHandler implements SingletonInterface
     public function processCmdmap_deleteAction($tableName, $id)
     {
         // TODO: optimize later
-        if ($tableName === 'tt_content')
-        {
+        if ($tableName === 'tt_content') {
             $this->deleteHugoContentElements((int)$id);
         }
         $this->exportHugoPages();
@@ -34,12 +33,16 @@ class DataHandler implements SingletonInterface
      * Expires caches if the page was moved.
      *
      * @param string $command
-     * @param string $table
+     * @param $tableName
+     * @param $recordId
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
      */
-    public function processCmdmap_postProcess($command, $tableName, $recordId, $value, \TYPO3\CMS\Core\DataHandling\DataHandler $dataHandler, $pasteUpdate, $pasteDatamap)
-    {
+    public function processCmdmap_postProcess(
+        $command,
+        $tableName,
+        $recordId
+    ) {
         if ($command === 'undelete') {
             switch ($tableName) {
                 case 'pages':
