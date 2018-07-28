@@ -1,6 +1,19 @@
 Changelog
 ---------
 
+master
+~~~~~
+1) [TASK] Optimize getSlugifiedRootline / add two more methods for slugified rootline: getSlugifiedRootlineForUrl
+2) [TASK] Implement support for `link.absRefPrefix` into file, folder and page link builders
+3) [TASK] Cleanup - Remove testing line for preg_match
+4) [TASK] refactor service classes
+5) [TASK] Handle undelete of the content element action
+6) [BUGFIX] Fix indexing of translated content elements
+7) [TASK] refactor class Typo3PageRepository; PageIndexer - add the content elements from parent
+8) [FEATURE] Implement grid content element exporter
+9) [TASK] Implement multilang support into link builders
+10) [TASK] Code cleanup / PSR-2 / phpdocs
+
 0.3.0
 ~~~~~
 1) [TASK] Optimize getSlugifiedRootline / add two more methods for slugified rootline: getSlugifiedRootlineForUrl

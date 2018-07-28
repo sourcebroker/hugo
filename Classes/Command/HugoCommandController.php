@@ -31,7 +31,10 @@ class HugoCommandController extends CommandController
 {
 
     /**
-     * Export TYPO3 media / content / pages
+     * Generating pages / content / media for all TYPO3 tree roots
+     *
+     * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
+     * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
      */
     public function exportCommand()
     {
@@ -48,7 +51,10 @@ class HugoCommandController extends CommandController
     }
 
     /**
-     * Export TYPO3 pages
+     * Generating Hugo pages for all TYPO3 tree roots
+     *
+     * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
+     * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
      */
     public function exportPagesCommand()
     {
@@ -60,8 +66,12 @@ class HugoCommandController extends CommandController
         }
     }
 
+
     /**
-     * Export TYPO3 content
+     * Generating Hugo content for all TYPO3 tree roots
+     *
+     * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
+     * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
      */
     public function exportContentCommand()
     {
@@ -75,8 +85,12 @@ class HugoCommandController extends CommandController
         }
     }
 
+
     /**
-     * Export TYPO3 media
+     * Generating Hugo media for all TYPO3 tree roots
+     *
+     * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
+     * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
      */
     public function exportMediaCommand()
     {
@@ -91,12 +105,14 @@ class HugoCommandController extends CommandController
     }
 
     /**
-     * Build dist
+     * Hugo build for all TYPO3 tree roots
+     *
+     * @throws \Exception
      */
     public function buildCommand()
     {
         $buildService = GeneralUtility::makeInstance(BuildService::class);
-        $this->outputLine('Generating Hugo build for all TYPO3 tree roots.');
+        $this->outputLine('Hugo build for all TYPO3 tree roots.');
 
         if ($buildService->buildAll()) {
             $this->outputLine('Success.');

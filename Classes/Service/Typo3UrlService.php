@@ -27,12 +27,12 @@ namespace SourceBroker\Hugo\Service;
 use SourceBroker\Hugo\Configuration\Configurator;
 use SourceBroker\Hugo\Typolink\AbstractTypolinkBuilder;
 use SourceBroker\Hugo\Typolink\UnableToLinkException;
+use TYPO3\CMS\Core\LinkHandling\Exception\UnknownUrnException;
 use TYPO3\CMS\Core\LinkHandling\LinkService;
 use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use TYPO3\CMS\Frontend\Service\TypoLinkCodecService;
-use TYPO3\CMS\Core\LinkHandling\Exception\UnknownUrnException;
 
 /**
  * Class Typo3UrlService
@@ -56,8 +56,7 @@ class Typo3UrlService
         string $linkParameter,
         int $pageLanguageUid = null,
         Configurator $configurator
-    ): array
-    {
+    ): array {
         $linkData = GeneralUtility::makeInstance(TypoLinkCodecService::class)->decode($linkParameter);
         $linkParameter = $linkData['url'];
 
@@ -80,7 +79,8 @@ class Typo3UrlService
                     (int)$pageLanguageUid ?: 0
                 );
                 try {
-                    list($url, $linkText, $linkData['target']) = $linkBuilder->build($linkDetails, $linkText, $linkData['target'], []);
+                    list($url, $linkText, $linkData['target']) = $linkBuilder->build($linkDetails, $linkText,
+                        $linkData['target'], []);
                 } catch (UnableToLinkException $e) {
                     $logger = GeneralUtility::makeInstance(LogManager::class)->getLogger(__CLASS__);
                     $logger->debug(sprintf('Unable to link "%s": %s', $e->getLinkText(), $e->getMessage()),

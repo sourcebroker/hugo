@@ -27,13 +27,9 @@ namespace SourceBroker\Hugo\Service;
 use SourceBroker\Hugo\Configuration\Configurator;
 use SourceBroker\Hugo\Domain\Repository\Typo3PageRepository;
 use Symfony\Component\Yaml\Yaml;
-use TYPO3\CMS\Core\Locking\Exception\LockAcquireWouldBlockException;
-use TYPO3\CMS\Core\Locking\LockFactory;
-use TYPO3\CMS\Core\Locking\LockingStrategyInterface;
 use TYPO3\CMS\Core\Resource\Folder;
 use TYPO3\CMS\Core\Resource\StorageRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /**
  * Class ExportMediaService

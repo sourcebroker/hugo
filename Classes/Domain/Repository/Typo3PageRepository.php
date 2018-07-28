@@ -64,7 +64,7 @@ class Typo3PageRepository
     {
         $queryBuilder = $this->getConnectionPool()
             ->getQueryBuilderForTable('tt_content');
-        
+
         return $queryBuilder
             ->select('*')
             ->from('tt_content')
@@ -122,7 +122,7 @@ class Typo3PageRepository
 
 
     /**
-     * @param int $pid
+     * @param int $defaultLangPageUid
      * @return array
      */
     public function getPageTranslations(int $defaultLangPageUid): array
@@ -136,13 +136,15 @@ class Typo3PageRepository
 
         return $queryBuilder->select('*')
             ->from('pages_language_overlay')
-            ->where($queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($defaultLangPageUid, \PDO::PARAM_INT)))
+            ->where($queryBuilder->expr()->eq('pid',
+                $queryBuilder->createNamedParameter($defaultLangPageUid, \PDO::PARAM_INT)))
             ->execute()
             ->fetchAll();
     }
 
     /**
-     * @param int $pid
+     * @param int $defaultLangPageUid
+     * @param int $sysLanguageUid
      * @return array
      */
     public function getPageTranslation(int $defaultLangPageUid, int $sysLanguageUid): array
@@ -157,8 +159,10 @@ class Typo3PageRepository
         return $queryBuilder->select('*')
             ->from('pages_language_overlay')
             ->where(
-                $queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($defaultLangPageUid, \PDO::PARAM_INT)),
-                $queryBuilder->expr()->eq('sys_language_uid', $queryBuilder->createNamedParameter($sysLanguageUid, \PDO::PARAM_INT))
+                $queryBuilder->expr()->eq('pid',
+                    $queryBuilder->createNamedParameter($defaultLangPageUid, \PDO::PARAM_INT)),
+                $queryBuilder->expr()->eq('sys_language_uid',
+                    $queryBuilder->createNamedParameter($sysLanguageUid, \PDO::PARAM_INT))
             )
             ->execute()
             ->fetchAll();
@@ -167,7 +171,7 @@ class Typo3PageRepository
     /**
      * @return \TYPO3\CMS\Core\Database\ConnectionPool
      */
-    protected function getConnectionPool() : \TYPO3\CMS\Core\Database\ConnectionPool
+    protected function getConnectionPool(): ConnectionPool
     {
         return GeneralUtility::makeInstance(ConnectionPool::class);
     }

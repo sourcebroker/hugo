@@ -55,7 +55,7 @@ class AdministrationController extends ActionController
             $this->controllerContext->getFlashMessageQueue()->addMessage(
                 GeneralUtility::makeInstance(
                     FlashMessage::class,
-                    $e->getMessage().' (error code: '.$e->getCode().')',
+                    $e->getMessage() . ' (error code: ' . $e->getCode() . ')',
                     'Error occured when trying to collect configuration',
                     FlashMessage::WARNING
                 )
