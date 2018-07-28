@@ -79,7 +79,9 @@ class Typo3UrlService
                     (int)$pageLanguageUid ?: 0
                 );
                 try {
-                    list($url, $linkText, $linkData['target']) = $linkBuilder->build($linkDetails, $linkText,
+                    list($url, $linkData['linkText'], $linkData['target']) = $linkBuilder->build(
+                        $linkDetails,
+                        $linkText,
                         $linkData['target'], []);
                 } catch (UnableToLinkException $e) {
                     $logger = GeneralUtility::makeInstance(LogManager::class)->getLogger(__CLASS__);
@@ -93,11 +95,14 @@ class Typo3UrlService
                 $url = $linkText;
             }
             $linkData['href'] = $url;
-            unset($linkData['additionalParams']);
-            unset($linkData['url']);
-            $linkData['tag'] = '<a ' . GeneralUtility::implodeAttributes($linkData) . '>' . $linkText . '</a>';
+            $linkData['title'] = htmlspecialchars($linkData['title']);
+            $linkData['tag'] = '<a ' . GeneralUtility::implodeAttributes(
+                    array_filter($linkData, function ($key) {
+                        return !in_array($key, ['additionalParams', 'url', 'linkText']);
+                    }, ARRAY_FILTER_USE_KEY)
+                ) .
+                '>' . $linkData['linkText'] . '</a>';
         }
-
         return empty($url) ? [] : $linkData;
     }
 
