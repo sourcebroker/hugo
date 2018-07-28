@@ -31,7 +31,8 @@ class EmailLinkBuilder extends AbstractTypolinkBuilder
     public function build(array &$linkDetails, string $linkText, string $target, array $conf): array
     {
         list($url, $linkText) = $this->getMailTo($linkDetails['email'], $linkText);
-        return [$url, $linkText, $target];
+
+        return [$this->applyHugoProcessors($url), $linkText, $target];
     }
 
     /**
