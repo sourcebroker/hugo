@@ -25,13 +25,14 @@
 namespace SourceBroker\Hugo\Service;
 
 use SourceBroker\Hugo\Configuration\Configurator;
+use SourceBroker\Hugo\Typolink\AbstractTypolinkBuilder;
 use SourceBroker\Hugo\Typolink\UnableToLinkException;
+use TYPO3\CMS\Core\LinkHandling\Exception\UnknownUrnException;
 use TYPO3\CMS\Core\LinkHandling\LinkService;
 use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use TYPO3\CMS\Frontend\Service\TypoLinkCodecService;
-use TYPO3\CMS\Core\LinkHandling\Exception\UnknownUrnException;
 
 /**
  * Class Typo3UrlService
@@ -55,10 +56,7 @@ class Typo3UrlService
         string $linkParameter,
         int $pageLanguageUid = null,
         Configurator $configurator
-    ): array
-    {
-        // $pageLanguageUid TODO: implement support for multilang
-
+    ): array {
         $linkData = GeneralUtility::makeInstance(TypoLinkCodecService::class)->decode($linkParameter);
         $linkParameter = $linkData['url'];
 
@@ -73,13 +71,18 @@ class Typo3UrlService
 
             $linkDetails['typoLinkParameter'] = $linkParameter;
             if (isset($linkDetails['type']) && isset($GLOBALS['TYPO3_CONF_VARS']['EXT']['EXTCONF']['typolinkBuilder'][$linkDetails['type']])) {
+                /** @var AbstractTypolinkBuilder $linkBuilder */
                 $linkBuilder = GeneralUtility::makeInstance(
                     $GLOBALS['TYPO3_CONF_VARS']['EXT']['EXTCONF']['typolinkBuilder'][$linkDetails['type']],
                     GeneralUtility::makeInstance(ContentObjectRenderer::class),
-                    $configurator
+                    $configurator,
+                    (int)$pageLanguageUid ?: 0
                 );
                 try {
-                    list($url, $linkText, $linkData['target']) = $linkBuilder->build($linkDetails, $linkText, $linkData['target'], []);
+                    list($url, $linkData['linkText'], $linkData['target']) = $linkBuilder->build(
+                        $linkDetails,
+                        $linkText,
+                        $linkData['target'], []);
                 } catch (UnableToLinkException $e) {
                     $logger = GeneralUtility::makeInstance(LogManager::class)->getLogger(__CLASS__);
                     $logger->debug(sprintf('Unable to link "%s": %s', $e->getLinkText(), $e->getMessage()),
@@ -92,11 +95,14 @@ class Typo3UrlService
                 $url = $linkText;
             }
             $linkData['href'] = $url;
-            unset($linkData['additionalParams']);
-            unset($linkData['url']);
-            $linkData['tag'] = '<a ' . GeneralUtility::implodeAttributes($linkData) . '>' . $linkText . '</a>';
+            $linkData['title'] = htmlspecialchars($linkData['title']);
+            $linkData['tag'] = '<a ' . GeneralUtility::implodeAttributes(
+                    array_filter($linkData, function ($key) {
+                        return !in_array($key, ['additionalParams', 'url', 'linkText']);
+                    }, ARRAY_FILTER_USE_KEY)
+                ) .
+                '>' . $linkData['linkText'] . '</a>';
         }
-
         return empty($url) ? [] : $linkData;
     }
 

@@ -32,18 +32,33 @@ class PageLinkBuilder extends AbstractTypolinkBuilder
     public function build(array &$linkData, string $linkText, string $target, array $conf): array
     {
         $url = null;
-        $pageUid = $linkData['pageuid'];
+        $pageUid = (int)$linkData['pageuid'];
         if (MathUtility::canBeInterpretedAsInteger($pageUid)) {
-            $page = GeneralUtility::makeInstance(Typo3PageRepository::class)->getByUid((int)$pageUid);
+            $page = GeneralUtility::makeInstance(Typo3PageRepository::class)->getByUid($pageUid);
             if ($page['hidden'] === 0 && $page['deleted'] === 0) {
-                $url = GeneralUtility::makeInstance(RootlineUtility::class, $pageUid)->getSlugifiedRootlinePath();
+                $url = GeneralUtility::makeInstance(RootlineUtility::class, $pageUid)
+                    ->getSlugifiedRootlinePath($this->txHugoSysLanguageUid);
             }
         }
 
         return [
-            $this->addAbsRelPrefix($url),
+            $this->applyHugoProcessors($url),
             empty($linkText) ? $page['title'] : $linkText,
             $target,
         ];
+    }
+
+    /**
+     * @return callable[]
+     */
+    protected function getProcessors(): array
+    {
+        return array_merge(
+            parent::getProcessors(),
+            [
+                [$this, 'addHugoLanguagePrefix'],
+                [$this, 'addHugoAbsRelPrefix'],
+            ]
+        );
     }
 }

@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
+
 namespace SourceBroker\Hugo\Typolink;
 
 /*
@@ -31,7 +32,8 @@ class EmailLinkBuilder extends AbstractTypolinkBuilder
     public function build(array &$linkDetails, string $linkText, string $target, array $conf): array
     {
         list($url, $linkText) = $this->getMailTo($linkDetails['email'], $linkText);
-        return [$url, $linkText, $target];
+
+        return [$this->applyHugoProcessors($url), $linkText, $target];
     }
 
     /**
@@ -71,7 +73,8 @@ class EmailLinkBuilder extends AbstractTypolinkBuilder
                 if ($this->txHugoConfigurator->getOption('link.spamProtectEmailAddresses_lastDotSubst')) {
                     $lastDotLabel = trim($this->txHugoConfigurator->getOption('link.spamProtectEmailAddresses_lastDotSubst'));
                     $lastDotLabel = $lastDotLabel ? $lastDotLabel : '(dot)';
-                    $spamProtectedMailAddress = preg_replace('/\\.([^\\.]+)$/', $lastDotLabel . '$1', $spamProtectedMailAddress);
+                    $spamProtectedMailAddress = preg_replace('/\\.([^\\.]+)$/', $lastDotLabel . '$1',
+                        $spamProtectedMailAddress);
                 }
                 $linktxt = str_ireplace($mailAddress, $spamProtectedMailAddress, $linktxt);
             }
@@ -85,7 +88,7 @@ class EmailLinkBuilder extends AbstractTypolinkBuilder
      * because method is protected by default in TYPO3 core.
      *
      * @param string $string Input string to en/decode: "mailto:blabla@bla.com
-     * @param mixed  $type - either "ascii" or a number between -10 and 10, taken from config.spamProtectEmailAddresses
+     * @param mixed $type - either "ascii" or a number between -10 and 10, taken from config.spamProtectEmailAddresses
      * @return string encoded version of $string
      */
     protected function encryptEmail($string, $type)

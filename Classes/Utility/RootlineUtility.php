@@ -310,11 +310,12 @@ class RootlineUtility
         return false;
     }
 
-
     /**
+     * @param int $sysLanguageUid
+     *
      * @return array
      */
-    public function getSlugifiedRootline(): array
+    public function getSlugifiedRootline(int $sysLanguageUid = 0): array
     {
         $typo3PageRepository = GeneralUtility::makeInstance(\SourceBroker\Hugo\Domain\Repository\Typo3PageRepository::class);
         $slugifier = GeneralUtility::makeInstance(\Cocur\Slugify\Slugify::class);
@@ -329,7 +330,7 @@ class RootlineUtility
                     PageRepository::DOKTYPE_SHORTCUT
                 ]
             )) {
-                $translation = $typo3PageRepository->getPageTranslation($page['uid'], 0);
+                $translation = $typo3PageRepository->getPageTranslation($page['uid'], $sysLanguageUid);
                 if (!empty($translation[0]['title'])) {
                     $pathParts[] = $slugifier->slugify(!empty($translation[0]['nav_title']) ? $translation[0]['nav_title'] : $translation[0]['title']);
                 } else {
@@ -341,11 +342,13 @@ class RootlineUtility
     }
 
     /**
+     * @param int $sysLanguageUid
+     *
      * @return string
      */
-    public function getSlugifiedRootlinePath()
+    public function getSlugifiedRootlinePath(int $sysLanguageUid = 0)
     {
-        return ltrim(implode('/', $this->getSlugifiedRootline()) . '/', '/');
+        return ltrim(implode('/', $this->getSlugifiedRootline($sysLanguageUid)) . '/', '/');
     }
 
 }

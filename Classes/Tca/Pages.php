@@ -12,9 +12,12 @@ class Pages
 {
     /**
      * Returns Hugo Front Matter for given page
+     * @param $data
+     * @return string
      */
     public function getHugoFrontMatter($data)
     {
+        $content = '';
         if (!empty($data['row']['uid'])) {
             $configurator = Configurator::getByPid((int)$data['row']['uid']);
 
@@ -36,8 +39,8 @@ class Pages
                     . '<li>one of parent page is hidden,</li> '
                     . '<li>TYPO3 Hugo export failed.</li>'
                     . '</ul>';
-                }
-            return $content;
+            }
         }
+        return $content;
     }
 }
