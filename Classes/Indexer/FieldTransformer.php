@@ -76,6 +76,6 @@ class FieldTransformer
      */
     public function toInteger($currentValue)
     {
-        return (int) $currentValue;
+        return (int)$currentValue;
     }
 }

@@ -19,6 +19,7 @@ class DocumentCollection extends ObjectStorage
     public function create()
     {
         $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+        /** @var \SourceBroker\Hugo\Domain\Model\Document $document */
         $document = $objectManager->get(Document::class);
         $this->attach($document);
         return $document;

@@ -58,32 +58,39 @@ class RteService implements SingletonInterface
     /**
      * @param string $html
      * @param Configurator $configurator
+     * @param int $sysLanguageUid
      *
      * @return string
      */
-    public function parse(string $html, Configurator $configurator): string
+    public function parse(string $html, Configurator $configurator, int $sysLanguageUid = 0): string
     {
         $this->configurator = $configurator;
-        return $this->makeLinks($html);
+
+        return $this->makeLinks($html, $sysLanguageUid);
     }
 
     /**
      * @param string $html
+     * @param int $sysLanguageUid
      *
      * @return string
      */
-    protected function makeLinks(string $html): string
+    protected function makeLinks(string $html, int $sysLanguageUid = 0): string
     {
-        $html = preg_replace_callback('/<a\s.+?<\/a>/', function ($aTag) {
+        $html = preg_replace_callback('/<a\s.+?<\/a>/', function ($aTag) use ($sysLanguageUid) {
             $aTag = preg_replace_callback('/(href="(t3:\/\/.*?)")|(href=\'(t3:\/\/.*?)\')/',
-                function ($matches) {
+                function ($matches) use ($sysLanguageUid) {
                     $t3Url = $matches[4] ?? $matches[2];
                     $attrQuoteChar = $matches[4] ? '\'' : '"';
 
                     return 'href='
                         . $attrQuoteChar
-                        . $this->urlService->linkArray('', $t3Url, null,
-                            $this->configurator)['href']
+                        . $this->urlService->linkArray(
+                            '',
+                            $t3Url,
+                            $sysLanguageUid,
+                            $this->configurator
+                        )['href']
                         . $attrQuoteChar;
                 }, $aTag[0]);
 

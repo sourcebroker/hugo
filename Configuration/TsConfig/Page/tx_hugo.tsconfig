@@ -30,6 +30,9 @@ tx_hugo {
                     id {
                         from = uid
                     }
+                    pid {
+                        from = pid
+                    }
                     type {
                         from = CType
                     }

@@ -45,7 +45,7 @@ abstract class AbstractContentElement implements ContentElementInterface
                     foreach ($fieldOptions['transforms'] as $transform) {
                         if (method_exists($fieldTransformer, $transform['type'])) {
                             $content[$fieldToMap] = $fieldTransformer->{$transform['type']}(
-                                $content[$fieldToMap], 
+                                $content[$fieldToMap],
                                 $contentElementRawData,
                                 $fieldOptions['from'],
                                 !empty($transform['method']) ? $transform['method'] : null
@@ -64,7 +64,7 @@ abstract class AbstractContentElement implements ContentElementInterface
      */
     public function getSpecificContentElementData(array $contentElementRawData): array
     {
-
+        return [];
     }
 
     /**

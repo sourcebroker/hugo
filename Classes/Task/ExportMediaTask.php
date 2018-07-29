@@ -15,10 +15,11 @@ class ExportMediaTask extends \TYPO3\CMS\Scheduler\Task\AbstractTask
 
     /**
      * @return bool
+     * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
+     * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
      */
     public function execute()
     {
-        return GeneralUtility::makeInstance(ExportMediaService::class)
-            ->exportAll();
+        return GeneralUtility::makeInstance(ExportMediaService::class)->exportAll();
     }
 }
