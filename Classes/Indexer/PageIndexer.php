@@ -118,9 +118,17 @@ class PageIndexer extends AbstractIndexer
     {
         $rootLine = GeneralUtility::makeInstance(RootlineUtility::class, $pageUid)->get();
         if (is_array($rootLine) && count($rootLine)) {
+            $colPosArr = array_unique(array_map(function($el) { return $el['colPos']; }, $contentElements));
             foreach ($rootLine as $key => $record) {
                 if (!empty(self::$contentElementStorage[$key])) {
-                    $contentElements = array_merge($contentElements, self::$contentElementStorage[$key]);
+                    $elementsToMerge = array_filter(self::$contentElementStorage[$key],
+                        function ($el) use ($colPosArr) {
+                        return !in_array($el['colPos'], $colPosArr);
+                    });
+
+                    if (count($elementsToMerge)) {
+                        $contentElements = array_merge($contentElements, $elementsToMerge);
+                    }
                 }
             }
         }
