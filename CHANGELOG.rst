@@ -1,9 +1,10 @@
 Changelog
 ---------
 
-master
-~~~~~~
+0.5.0
+~~~~~
 1) [FEATURE] Add pid to content exported data.
+2) [BUGFIX] PageIndexer - resolve the problem with elements from parent pages.
 
 0.4.0
 ~~~~~
