@@ -19,7 +19,6 @@ namespace SourceBroker\Hugo\Typolink;
 use SourceBroker\Hugo\Domain\Repository\Typo3PageRepository;
 use SourceBroker\Hugo\Utility\RootlineUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Core\Utility\MathUtility;
 
 /**
  * Builds a TypoLink to a certain page
@@ -33,18 +32,17 @@ class PageLinkBuilder extends AbstractTypolinkBuilder
     {
         $url = null;
         $pageUid = (int)$linkData['pageuid'];
-        if (MathUtility::canBeInterpretedAsInteger($pageUid)) {
+        if ($pageUid) {
             $page = GeneralUtility::makeInstance(Typo3PageRepository::class)->getByUid($pageUid);
             if ($page['hidden'] === 0 && $page['deleted'] === 0) {
                 $url = GeneralUtility::makeInstance(RootlineUtility::class, $pageUid)
                     ->getSlugifiedRootlinePath($this->txHugoSysLanguageUid);
             }
         }
-
         return [
-            $this->applyHugoProcessors($url),
-            empty($linkText) ? $page['title'] : $linkText,
-            $target,
+            $url === null ? null : $this->applyHugoProcessors($url),
+            (empty($linkText) && !empty($page['title'])) ? $page['title'] : $linkText,
+            $target
         ];
     }
 

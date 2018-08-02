@@ -1,6 +1,10 @@
 Changelog
 ---------
 
+master
+~~~~~~
+1) [BUGFIX] Do not break on non int values in link.
+
 0.5.0
 ~~~~~
 1) [FEATURE] Add pid to content exported data.
