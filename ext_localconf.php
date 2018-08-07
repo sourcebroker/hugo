@@ -12,6 +12,7 @@ call_user_func(function () use ($_EXTKEY) {
 
     if (TYPO3_MODE === 'BE') {
         $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['extbase']['commandControllers'][] = \SourceBroker\Hugo\Command\HugoCommandController::class;
+        $GLOBALS['TYPO3_CONF_VARS']['BE']['ContextMenu']['ItemProviders'][] = \SourceBroker\Hugo\ContextMenu\ItemProviders\PageView::class;
     }
 
     /** @var \TYPO3\CMS\Extbase\SignalSlot\Dispatcher $signalSlotDispatcher */
