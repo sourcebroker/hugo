@@ -6,6 +6,7 @@ master
 1) [BUGFIX] Do not break on non int values in link.
 2) [TASK] Remove support for legacy links.
 3) [BUGFIX] Bugfix for edge cases with link creation.
+4) [FEATURE] Add Hugo page view buttons into page context-sensitive menu.
 
 0.5.0
 ~~~~~
