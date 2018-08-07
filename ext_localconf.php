@@ -66,8 +66,7 @@ call_user_func(function () use ($_EXTKEY) {
         'folder' => \SourceBroker\Hugo\Typolink\FileOrFolderLinkBuilder::class,
         'url' => \SourceBroker\Hugo\Typolink\ExternalUrlLinkBuilder::class,
         'email' => \SourceBroker\Hugo\Typolink\EmailLinkBuilder::class,
-        'record' => \SourceBroker\Hugo\Typolink\DatabaseRecordLinkBuilder::class,
-        'unknown' => \SourceBroker\Hugo\Typolink\LegacyLinkBuilder::class,
+        'record' => \SourceBroker\Hugo\Typolink\DatabaseRecordLinkBuilder::class
     ];
 
 });

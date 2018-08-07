@@ -4,6 +4,7 @@ Changelog
 master
 ~~~~~~
 1) [BUGFIX] Do not break on non int values in link.
+2) [TASK] Remove support for legacy links.
 
 0.5.0
 ~~~~~
