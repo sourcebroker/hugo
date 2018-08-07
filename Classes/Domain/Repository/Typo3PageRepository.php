@@ -19,11 +19,11 @@ class Typo3PageRepository
      * @param int $uid
      * @return array
      */
-    public function getByUid(int $uid): array
+    public function getByUid(int $uid): ?array
     {
         $queryBuilder = $this->getConnectionPool()
             ->getQueryBuilderForTable('pages');
-        return $queryBuilder
+        $result = $queryBuilder
             ->select('*')
             ->from('pages')
             ->where(
@@ -33,6 +33,7 @@ class Typo3PageRepository
             )
             ->execute()
             ->fetch();
+        return $result === false ? null : $result;
     }
 
     /**
