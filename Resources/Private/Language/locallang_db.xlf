@@ -12,6 +12,9 @@
             <trans-unit id="tt_content.tx_hugo_frontmatter">
                 <source>Hugo Front Matter</source>
             </trans-unit>
+            <trans-unit id="sys_domain.tx_hugo_domains">
+                <source>Hugo FE Domains (comma separated)</source>
+            </trans-unit>
 			<trans-unit id="task.export.title">
                 <source>Generating pages / content / media for all TYPO3 tree roots.</source>
             </trans-unit>
@@ -35,6 +38,9 @@
             </trans-unit>
 			<trans-unit id="task.exportContent.description">
                 <source></source>
+            </trans-unit>
+			<trans-unit id="context_menu.pageView.label">
+                <source>Show Hugo [%s]</source>
             </trans-unit>
         </body>
 	</file>
