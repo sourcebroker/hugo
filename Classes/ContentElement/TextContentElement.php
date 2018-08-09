@@ -14,7 +14,7 @@ class TextContentElement extends AbstractContentElement
     {
         return [
             'text' => $this->getRteService()->parse(
-                $contentElementRawData['bodytext'],
+                (string)$contentElementRawData['bodytext'],
                 Configurator::getByPid((int)$contentElementRawData['pid']),
                 (int)$contentElementRawData['sys_language_uid']
             ),
