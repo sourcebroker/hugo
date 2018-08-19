@@ -58,10 +58,10 @@ class Typo3PageRepository
 
     /**
      * @param int $pageUid
-     * @param int $sysLangaugeUid
+     * @param int $sysLanguageUid
      * @return array
      */
-    public function getPageContentElements(int $pageUid, int $sysLangaugeUid = 0): array
+    public function getPageContentElements(int $pageUid, int $sysLanguageUid = 0): array
     {
         $queryBuilder = $this->getConnectionPool()
             ->getQueryBuilderForTable('tt_content');
@@ -74,7 +74,7 @@ class Typo3PageRepository
                     $queryBuilder->createNamedParameter($pageUid, \PDO::PARAM_INT)
                 ),
                 $queryBuilder->expr()->eq('sys_language_uid',
-                    $queryBuilder->createNamedParameter($sysLangaugeUid, \PDO::PARAM_INT)
+                    $queryBuilder->createNamedParameter($sysLanguageUid, \PDO::PARAM_INT)
                 )
             )
             ->orderBy('sorting')
