@@ -133,47 +133,51 @@ class PageIndexer extends AbstractIndexer
         }
 
         $backendLayoutService = GeneralUtility::makeInstance(ObjectManager::class)->get(BackendLayoutService::class);
+        $colPoses = $backendLayoutService->getColPosesByPage($pageUid);
         $depthLevel = 0;
         array_shift($rootLine);
 
-        do {
+        foreach ($rootLine as $parentPage) {
             $colPosesToFill = array_filter(
                 $backendLayoutService->getColPosesByPageAndSlideLevel($pageUid, ++$depthLevel),
                 function($colPos) use ($contentElements) {
-                    return empty($this->filterContentElementsByColPos($contentElements, $colPos));
+                    return empty($this->filterContentElementsByColPoses($contentElements, [$colPos]));
                 }
             );
 
-            if (empty($colPosesToFill)) {
-                break;
-            }
+            $parentContentElements = $this->getPageContentElements($parentPage['uid'], $sysLanguageUid);
 
-            $parentPage = array_shift($rootLine);
+            // By default all colPoses that does not exist in current page backend layout are treated as sliding with -1.
+            // It means we need to merge $colPosesToFill with the colPos that: (1) Are not filled yet AND (2) does not exist in current page backend layout
+            $colPosFilledInParentButStillEmpty = array_diff(
+                array_column($parentContentElements, 'colPos'),
+                array_column($contentElements, 'colPos'),
+                $colPoses
+            );
+
+            $colPosesToFill = array_merge($colPosesToFill, $colPosFilledInParentButStillEmpty);
 
             $contentElements = array_merge(
                 $contentElements,
-                array_filter(
-                    $this->getPageContentElements($parentPage['uid'], $sysLanguageUid),
-                    function($contentElement) use ($colPosesToFill) {
-                        return in_array($contentElement['colPos'], $colPosesToFill);
-                    }
-                )
+                $this->filterContentElementsByColPoses($parentContentElements, $colPosesToFill)
             );
-        } while (!empty($colPosesToFill) && !empty($rootLine));
+        }
     }
 
     /**
      * @param array $contentElements
-     * @param int $colPos
+     * @param array $colPoses
      *
      * @return array
      */
-    private function filterContentElementsByColPos(array $contentElements, int $colPos): array
+    private function filterContentElementsByColPoses(array $contentElements, array $colPoses): array
     {
+        $colPoses = array_map('intval', $colPoses);
+
         return array_filter(
             $contentElements,
-            function($contentElement) use ($colPos) {
-                return (int)$contentElement['colPos'] === (int)$colPos;
+            function($contentElement) use ($colPoses) {
+                return in_array((int)$contentElement['colPos'], $colPoses, true);
             }
         );
     }
