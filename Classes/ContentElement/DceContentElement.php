@@ -131,11 +131,11 @@ class DceContentElement extends AbstractContentElement
     ): ?array {
         return GeneralUtility::makeInstance(ObjectManager::class)
             ->get(Typo3UrlService::class)
-            ->linkArray(
-                $linkText,
+            ->convertToLinkElement(
                 $linkParameters,
+                Configurator::getByPid($pid),
                 $languageUid,
-                Configurator::getByPid($pid)
+                $linkText
             );
     }
 

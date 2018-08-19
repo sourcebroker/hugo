@@ -46,6 +46,11 @@ class Configurator
     protected $config = null;
 
     /**
+     * @var int
+     */
+    protected $pageUid;
+
+    /**
      * @param int $pid
      *
      * @return Configurator
@@ -72,6 +77,8 @@ class Configurator
         } else {
             $this->getPagesTSconfigForHugo((int)$pageIdToGetTsConfig);
         }
+
+        $this->pageUid = (int)$pageIdToGetTsConfig;
     }
 
     /**
@@ -88,6 +95,14 @@ class Configurator
     public function setConfig($config)
     {
         $this->config = $config;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPageUid(): int
+    {
+        return $this->pageUid;
     }
 
     /**

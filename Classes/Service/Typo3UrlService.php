@@ -44,18 +44,18 @@ class Typo3UrlService
     /**
      * TODO: implement support for multilang
      *
-     * @param string $linkText
-     * @param $linkParameter
-     * @param int $pageLanguageUid
+     * @param string $linkParameter
      * @param Configurator $configurator
+     * @param int $pageLanguageUid
+     * @param string $linkText
      *
      * @return array
      */
-    public function linkArray(
-        string $linkText = '',
+    public function convertToLinkElement(
         string $linkParameter,
-        int $pageLanguageUid = null,
-        Configurator $configurator
+        Configurator $configurator,
+        int $pageLanguageUid,
+        string $linkText = ''
     ): array {
         $linkData = GeneralUtility::makeInstance(TypoLinkCodecService::class)->decode($linkParameter);
         $linkParameter = $linkData['url'];
@@ -82,7 +82,9 @@ class Typo3UrlService
                     list($url, $linkData['linkText'], $linkData['target']) = $linkBuilder->build(
                         $linkDetails,
                         $linkText,
-                        $linkData['target'], []);
+                        $linkData['target'],
+                        []
+                    );
                 } catch (UnableToLinkException $e) {
                     $logger = GeneralUtility::makeInstance(LogManager::class)->getLogger(__CLASS__);
                     $logger->debug(sprintf('Unable to link "%s": %s', $e->getLinkText(), $e->getMessage()),
@@ -103,6 +105,7 @@ class Typo3UrlService
                 ) .
                 '>' . $linkData['linkText'] . '</a>';
         }
+
         return empty($url) ? [] : $linkData;
     }
 
