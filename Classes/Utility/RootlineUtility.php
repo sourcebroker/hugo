@@ -126,7 +126,7 @@ class RootlineUtility
      *
      * @return array
      */
-    public function get()
+    public function get(): array
     {
         if (!isset(static::$localCache[$this->cacheIdentifier])) {
             $page = $this->getRecordArray($this->pageUid);
