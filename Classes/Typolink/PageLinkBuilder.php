@@ -31,12 +31,23 @@ class PageLinkBuilder extends AbstractTypolinkBuilder
     public function build(array &$linkData, string $linkText, string $target, array $conf): array
     {
         $url = null;
-        $pageUid = (int)$linkData['pageuid'];
+
+        // support for some legacy links to the current page
+        // @see \TYPO3\CMS\Core\LinkHandling\LegacyLinkNotationConverter::resolvePageRelatedParameters
+        $pageUid = ($linkData['pageuid'] !== 'current')
+            ? (int)$linkData['pageuid']
+            : $this->txHugoConfigurator->getPageUid()
+        ;
+
         if ($pageUid) {
             $page = GeneralUtility::makeInstance(Typo3PageRepository::class)->getByUid($pageUid);
             if ($page['hidden'] === 0 && $page['deleted'] === 0) {
                 $url = GeneralUtility::makeInstance(RootlineUtility::class, $pageUid)
                     ->getSlugifiedRootlinePath($this->txHugoSysLanguageUid);
+
+                if (isset($linkData['fragment'])) {
+                    $url .= '#' . $linkData['fragment'];
+                }
             }
         }
         return [

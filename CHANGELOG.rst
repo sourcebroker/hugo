@@ -7,7 +7,8 @@ master
 2) [TASK] Remove support for legacy links.
 3) [BUGFIX] Bugfix for edge cases with link creation.
 4) [FEATURE] Add Hugo page view buttons into page context-sensitive menu.
-5) [FEATURE] Implement support of content slide functionality
+5) [FEATURE] Implement support of content slide functionality.
+6) [TASK] Implement support for links with fragments and legacy links to the current page.
 
 0.5.0
 ~~~~~

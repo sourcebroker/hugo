@@ -38,7 +38,7 @@ class RteService implements SingletonInterface
 {
 
     /**
-     * @var
+     * @var Typo3UrlService
      */
     protected $urlService;
 
@@ -85,11 +85,11 @@ class RteService implements SingletonInterface
 
                     return 'href='
                         . $attrQuoteChar
-                        . $this->urlService->linkArray(
-                            '',
+                        . $this->urlService->convertToLinkElement(
                             $t3Url,
+                            $this->configurator,
                             $sysLanguageUid,
-                            $this->configurator
+                            ''
                         )['href']
                         . $attrQuoteChar;
                 }, $aTag[0]);
