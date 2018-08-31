@@ -8,6 +8,8 @@ use SourceBroker\Hugo\Service\ExportContentService;
 use SourceBroker\Hugo\Service\ExportMediaService;
 use SourceBroker\Hugo\Service\ExportPageService;
 use TYPO3\CMS\Backend\View\BackendTemplateView;
+use TYPO3\CMS\Core\Messaging\FlashMessage;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Http\AjaxRequestHandler;
 use TYPO3\CMS\Core\Locking\Exception\LockAcquireException;
 use TYPO3\CMS\Core\Locking\Exception\LockCreateException;
@@ -61,7 +63,7 @@ class AdministrationController extends ActionController
             $this->controllerContext->getFlashMessageQueue()->addMessage(
                 GeneralUtility::makeInstance(
                     FlashMessage::class,
-                    $e->getMessage().' (error code: '.$e->getCode().')',
+                    $e->getMessage() . ' (error code: ' . $e->getCode() . ')',
                     'Error occured when trying to collect configuration',
                     FlashMessage::WARNING
                 )

@@ -26,11 +26,6 @@ namespace SourceBroker\Hugo\Service;
 
 use SourceBroker\Hugo\Configuration\Configurator;
 use SourceBroker\Hugo\Domain\Repository\Typo3PageRepository;
-use TYPO3\CMS\Core\Locking\Exception\LockAcquireWouldBlockException;
-use TYPO3\CMS\Core\Locking\LockFactory;
-use TYPO3\CMS\Core\Locking\LockingStrategyInterface;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /**
  * Class ExportContentService
@@ -51,6 +46,12 @@ class BuildService extends AbstractService
         return count(array_unique($results)) === 1 && end($results) === true;
     }
 
+    /**
+     * @param int $rootPageUid
+     *
+     * @return bool
+     * @throws \Exception
+     */
     public function buildSingle(int $rootPageUid): bool
     {
         $this->createLocker('hugoBuildDist');

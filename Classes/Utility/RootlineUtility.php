@@ -126,7 +126,7 @@ class RootlineUtility
      *
      * @return array
      */
-    public function get()
+    public function get(): array
     {
         if (!isset(static::$localCache[$this->cacheIdentifier])) {
             $page = $this->getRecordArray($this->pageUid);
@@ -310,20 +310,18 @@ class RootlineUtility
         return false;
     }
 
-
     /**
-     * @param bool $withoutHome
+     * @param int $sysLanguageUid
+     *
      * @return array
      */
-    public function getSlugifiedRootline(bool $withoutHome = true): array
+    public function getSlugifiedRootline(int $sysLanguageUid = 0): array
     {
         $typo3PageRepository = GeneralUtility::makeInstance(\SourceBroker\Hugo\Domain\Repository\Typo3PageRepository::class);
         $slugifier = GeneralUtility::makeInstance(\Cocur\Slugify\Slugify::class);
 
         $rootline = array_reverse($this->get());
-        if (!empty($withoutHome)) {
-            array_shift($rootline);
-        }
+        array_shift($rootline);
 
         $pathParts = [];
         foreach ($rootline as $key => $page) {
@@ -332,7 +330,7 @@ class RootlineUtility
                     PageRepository::DOKTYPE_SHORTCUT
                 ]
             )) {
-                $translation = $typo3PageRepository->getPageTranslation($page['uid'], 0);
+                $translation = $typo3PageRepository->getPageTranslation($page['uid'], $sysLanguageUid);
                 if (!empty($translation[0]['title'])) {
                     $pathParts[] = $slugifier->slugify(!empty($translation[0]['nav_title']) ? $translation[0]['nav_title'] : $translation[0]['title']);
                 } else {
@@ -344,22 +342,13 @@ class RootlineUtility
     }
 
     /**
-     * @param bool $withoutHome
+     * @param int $sysLanguageUid
+     *
      * @return string
      */
-    public function getSlugifiedRootlineForUrl($withoutHome = true)
+    public function getSlugifiedRootlinePath(int $sysLanguageUid = 0)
     {
-        $rootlineItems = $this->getSlugifiedRootline($withoutHome);
-        return count($rootlineItems) === 0 ? '/' : '/' . implode('/', $rootlineItems) . '/';
+        return ltrim(implode('/', $this->getSlugifiedRootline($sysLanguageUid)) . '/', '/');
     }
 
-    /**
-     * @param bool $withoutHome
-     * @return string
-     */
-    public function getSlugifiedRootlineForFilePath($withoutHome = true)
-    {
-        return implode('/', $this->getSlugifiedRootline($withoutHome)) .
-            count($this->getSlugifiedRootline($withoutHome)) ? '/' : '';
-    }
 }

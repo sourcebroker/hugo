@@ -5,7 +5,6 @@ namespace SourceBroker\Hugo\DataHandling;
 use SourceBroker\Hugo\Queue\QueueInterface;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Core\Utility\MathUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 class DataHandler implements SingletonInterface
@@ -34,7 +33,8 @@ class DataHandler implements SingletonInterface
      * Expires caches if the page was moved.
      *
      * @param string $command
-     * @param string $table
+     * @param $tableName
+     * @param $recordId
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
      */

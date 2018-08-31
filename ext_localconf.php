@@ -12,6 +12,7 @@ call_user_func(function () use ($_EXTKEY) {
 
     if (TYPO3_MODE === 'BE') {
         $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['extbase']['commandControllers'][] = \SourceBroker\Hugo\Command\HugoCommandController::class;
+        $GLOBALS['TYPO3_CONF_VARS']['BE']['ContextMenu']['ItemProviders'][] = \SourceBroker\Hugo\ContextMenu\ItemProviders\PageView::class;
     }
 
     /** @var \TYPO3\CMS\Extbase\SignalSlot\Dispatcher $signalSlotDispatcher */
@@ -65,10 +66,8 @@ call_user_func(function () use ($_EXTKEY) {
         'folder' => \SourceBroker\Hugo\Typolink\FileOrFolderLinkBuilder::class,
         'url' => \SourceBroker\Hugo\Typolink\ExternalUrlLinkBuilder::class,
         'email' => \SourceBroker\Hugo\Typolink\EmailLinkBuilder::class,
-        'record' => \SourceBroker\Hugo\Typolink\DatabaseRecordLinkBuilder::class,
-        'unknown' => \SourceBroker\Hugo\Typolink\LegacyLinkBuilder::class,
+        'record' => \SourceBroker\Hugo\Typolink\DatabaseRecordLinkBuilder::class
     ];
-
 
 
     $pageRenderer = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Page\PageRenderer::class);

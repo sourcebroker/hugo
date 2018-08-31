@@ -8,17 +8,22 @@ use TYPO3\CMS\Core\Database\Query\Restriction\BackendWorkspaceRestriction;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
+/**
+ * Class Typo3PageRepository
+ *
+ * @package SourceBroker\Hugo\Domain\Repository
+ */
 class Typo3PageRepository
 {
     /**
      * @param int $uid
      * @return array
      */
-    public function getByUid(int $uid): array
+    public function getByUid(int $uid): ?array
     {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+        $queryBuilder = $this->getConnectionPool()
             ->getQueryBuilderForTable('pages');
-        return $queryBuilder
+        $result = $queryBuilder
             ->select('*')
             ->from('pages')
             ->where(
@@ -28,6 +33,7 @@ class Typo3PageRepository
             )
             ->execute()
             ->fetch();
+        return $result === false ? null : $result;
     }
 
     /**
@@ -35,7 +41,7 @@ class Typo3PageRepository
      */
     public function getSiteRootPages(): array
     {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+        $queryBuilder = $this->getConnectionPool()
             ->getQueryBuilderForTable('pages');
         return $queryBuilder
             ->select('uid')
@@ -52,12 +58,14 @@ class Typo3PageRepository
 
     /**
      * @param int $pageUid
+     * @param int $sysLanguageUid
      * @return array
      */
-    public function getPageContentElements(int $pageUid): array
+    public function getPageContentElements(int $pageUid, int $sysLanguageUid = 0): array
     {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+        $queryBuilder = $this->getConnectionPool()
             ->getQueryBuilderForTable('tt_content');
+
         return $queryBuilder
             ->select('*')
             ->from('tt_content')
@@ -66,7 +74,7 @@ class Typo3PageRepository
                     $queryBuilder->createNamedParameter($pageUid, \PDO::PARAM_INT)
                 ),
                 $queryBuilder->expr()->eq('sys_language_uid',
-                    $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)
+                    $queryBuilder->createNamedParameter($sysLanguageUid, \PDO::PARAM_INT)
                 )
             )
             ->orderBy('sorting')
@@ -80,7 +88,7 @@ class Typo3PageRepository
      */
     public function getShortcutsPointingToPage(int $pageUid): array
     {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+        $queryBuilder = $this->getConnectionPool()
             ->getQueryBuilderForTable('pages');
         return $queryBuilder
             ->select('*')
@@ -103,7 +111,8 @@ class Typo3PageRepository
      */
     public function getPagesByPidAndDoktype(int $pid, array $doktypes)
     {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages');
+        $queryBuilder = $this->getConnectionPool()
+            ->getQueryBuilderForTable('pages');
         $queryBuilder->select('uid', 'title')->from('pages')->where(
             $queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($pid, \PDO::PARAM_INT)),
             $queryBuilder->expr()->in('doktype',
@@ -114,48 +123,57 @@ class Typo3PageRepository
 
 
     /**
-     * @param int $pid
+     * @param int $defaultLangPageUid
      * @return array
      */
     public function getPageTranslations(int $defaultLangPageUid): array
     {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+        $queryBuilder = $this->getConnectionPool()
             ->getQueryBuilderForTable('pages_language_overlay');
         $queryBuilder->getRestrictions()
             ->removeAll()
             ->add(GeneralUtility::makeInstance(DeletedRestriction::class))
             ->add(GeneralUtility::makeInstance(BackendWorkspaceRestriction::class));
 
-        $rows = $queryBuilder->select('*')
+        return $queryBuilder->select('*')
             ->from('pages_language_overlay')
-            ->where($queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($defaultLangPageUid, \PDO::PARAM_INT)))
+            ->where($queryBuilder->expr()->eq('pid',
+                $queryBuilder->createNamedParameter($defaultLangPageUid, \PDO::PARAM_INT)))
             ->execute()
             ->fetchAll();
-
-        return $rows;
     }
 
     /**
-     * @param int $pid
+     * @param int $defaultLangPageUid
+     * @param int $sysLanguageUid
      * @return array
      */
     public function getPageTranslation(int $defaultLangPageUid, int $sysLanguageUid): array
     {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+        $queryBuilder = $this->getConnectionPool()
             ->getQueryBuilderForTable('pages_language_overlay');
         $queryBuilder->getRestrictions()
             ->removeAll()
             ->add(GeneralUtility::makeInstance(DeletedRestriction::class))
             ->add(GeneralUtility::makeInstance(BackendWorkspaceRestriction::class));
 
-        $rows = $queryBuilder->select('*')
+        return $queryBuilder->select('*')
             ->from('pages_language_overlay')
             ->where(
-                $queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($defaultLangPageUid, \PDO::PARAM_INT)),
-                $queryBuilder->expr()->eq('sys_language_uid', $queryBuilder->createNamedParameter($sysLanguageUid, \PDO::PARAM_INT))
+                $queryBuilder->expr()->eq('pid',
+                    $queryBuilder->createNamedParameter($defaultLangPageUid, \PDO::PARAM_INT)),
+                $queryBuilder->expr()->eq('sys_language_uid',
+                    $queryBuilder->createNamedParameter($sysLanguageUid, \PDO::PARAM_INT))
             )
             ->execute()
             ->fetchAll();
-        return $rows;
+    }
+
+    /**
+     * @return \TYPO3\CMS\Core\Database\ConnectionPool
+     */
+    protected function getConnectionPool(): ConnectionPool
+    {
+        return GeneralUtility::makeInstance(ConnectionPool::class);
     }
 }

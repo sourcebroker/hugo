@@ -7,10 +7,10 @@ use ArminVieweg\Dce\Domain\Model\DceField;
 use SourceBroker\Hugo\Configuration\Configurator;
 use SourceBroker\Hugo\Service\Typo3UrlService;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\FileReference;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 class DceContentElement extends AbstractContentElement
 {
@@ -82,7 +82,7 @@ class DceContentElement extends AbstractContentElement
                 ]
             )
         ) {
-            return $this->getSysFileIds((array)$value);
+            return $this->getSysFileIds((array)$value, $contentElementRawData);
         } elseif ($this->fieldIsLink($field)) {
             return $this->convertTypolinkToLinkArray(
                 (int)$contentElementRawData['pid'],
@@ -126,17 +126,16 @@ class DceContentElement extends AbstractContentElement
     protected function convertTypolinkToLinkArray(
         int $pid,
         string $linkText,
-        string $linkParameters, int
-        $languageUid
-    ): ?array
-    {
+        string $linkParameters,
+        int $languageUid
+    ): ?array {
         return GeneralUtility::makeInstance(ObjectManager::class)
             ->get(Typo3UrlService::class)
-            ->linkArray(
-                $linkText,
+            ->convertToLinkElement(
                 $linkParameters,
+                Configurator::getByPid($pid),
                 $languageUid,
-                Configurator::getByPid($pid)
+                $linkText
             );
     }
 
@@ -145,8 +144,9 @@ class DceContentElement extends AbstractContentElement
      *
      * @return array
      */
-    protected function getSysFileIds($values): array
+    protected function getSysFileIds($values, $contentElementRawData): array
     {
+        $languageUid = (int)$contentElementRawData['sys_language_uid'];
         $data = [];
         foreach ($values as $object) {
             if ($object instanceof File) {
@@ -163,7 +163,7 @@ class DceContentElement extends AbstractContentElement
                     'title' => $object->getTitle() ?: ($originalFile->getProperty('title') ?: ''),
                     'alternative' => $object->getAlternative() ?: ($originalFile->getProperty('alternative') ?: ''),
                     'description' => $object->getDescription() ?: ($originalFile->getProperty('description') ?: ''),
-                    'link' => $object->getLink() ? $this->convertTypolinkToLinkArray('', $object->getLink(), 0) : [],
+                    'link' => $object->getLink() ? $this->convertTypolinkToLinkArray((int)$contentElementRawData['pid'], $object->getLink(), 0, $languageUid) : [],
                 ];
             }
         }

@@ -5,6 +5,8 @@ namespace SourceBroker\Hugo\Indexer;
 use SourceBroker\Hugo\Configuration\Configurator;
 use SourceBroker\Hugo\Domain\Model\DocumentCollection;
 use SourceBroker\Hugo\Domain\Repository\Typo3PageRepository;
+use SourceBroker\Hugo\Service\BackendLayoutService;
+use SourceBroker\Hugo\Utility\RootlineUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Frontend\Page\PageRepository;
@@ -20,6 +22,11 @@ class PageIndexer extends AbstractIndexer
     private $typo3PageRepository;
 
     /**
+     * @var array
+     */
+    static private $contentElementStorage = [];
+
+    /**
      * @param int $pageUid
      * @param DocumentCollection $documentCollection
      *
@@ -32,7 +39,7 @@ class PageIndexer extends AbstractIndexer
         $this->typo3PageRepository = $objectManager->get(Typo3PageRepository::class);
         $page = $this->typo3PageRepository->getByUid($pageUid);
         $rootline = ($objectManager->get(\TYPO3\CMS\Core\Utility\RootlineUtility::class, $pageUid))->get();
-        $layout = $page['backend_layout'] ? $page['backend_layout'] : $this->resolveLayoutForPage($rootline, $pageUid);
+        $layout = ($objectManager->get(BackendLayoutService::class))->getIdentifierByPage($pageUid);
 
         switch ($hugoConfig->getOption('page.indexer.layout.nameTransform')) {
             default:
@@ -44,6 +51,9 @@ class PageIndexer extends AbstractIndexer
                 PageRepository::DOKTYPE_SHORTCUT
             ]
         )) {
+            $contentElements = $this->getPageContentElements($pageUid);
+            $this->applyContentSlide($contentElements, $pageUid);
+
             $document = $documentCollection->create();
             $document->setStoreFilename('_index')
                 ->setId($page['uid'])
@@ -52,31 +62,36 @@ class PageIndexer extends AbstractIndexer
                 ->setDraft(!empty($page['hidden']))
                 ->setWeight($page['sorting'])
                 ->setLayout(str_replace('pagets__', '', $layout))
-                ->setContent($this->typo3PageRepository->getPageContentElements($pageUid))
+                ->setContent($contentElements)
                 ->setMenu($page)
                 ->setCustomFields($this->resolveCustomFields($page));
 
             $languages = $hugoConfig->getOption('languages');
             $translations = $this->typo3PageRepository->getPageTranslations($page['uid']);
-            if (!empty($translations)) {
-                foreach ($translations as $translation) {
-                    $document = $documentCollection->create();
-                    $document->setStoreFilename('_index.' . $languages[$translation['sys_language_uid']])
-                        ->setId($page['uid'])
-                        ->setPid($page['pid'])
-                        ->setTitle($translation['title'])
-                        ->setDraft(!empty($page['hidden']))
-                        ->setWeight($page['sorting'])
-                        ->setLayout(str_replace('pagets__', '', $layout))
-                        ->setContent($this->typo3PageRepository->getPageContentElements($pageUid))
-                        ->setMenu($page, $translation)
-                        ->setCustomFields($this->resolveCustomFields($page));
-                    if (!$page['is_siteroot']) {
-                        $document->setCustomFields([
-                            'url' => $languages[$translation['sys_language_uid']] . '/' . $this->resolveFullLangPath($rootline,
-                                    $translation['sys_language_uid'])
-                        ]);
-                    }
+
+            foreach ($translations as $translation) {
+                $translationContentElements = $this->getPageContentElements(
+                    $pageUid,
+                    (int)$translation['sys_language_uid']
+                );
+                $this->applyContentSlide($translationContentElements, $pageUid, (int)$translation['sys_language_uid']);
+
+                $document = $documentCollection->create();
+                $document->setStoreFilename('_index.' . $languages[$translation['sys_language_uid']])
+                    ->setId($page['uid'])
+                    ->setPid($page['pid'])
+                    ->setTitle($translation['title'])
+                    ->setDraft(!empty($page['hidden']))
+                    ->setWeight($page['sorting'])
+                    ->setLayout(str_replace('pagets__', '', $layout))
+                    ->setContent($translationContentElements)
+                    ->setMenu($page, $translation)
+                    ->setCustomFields($this->resolveCustomFields($page));
+                if (!$page['is_siteroot']) {
+                    $document->setCustomFields([
+                        'url' => $languages[$translation['sys_language_uid']] . '/' . $this->resolveFullLangPath($rootline,
+                                $translation['sys_language_uid'])
+                    ]);
                 }
             }
         }
@@ -84,6 +99,87 @@ class PageIndexer extends AbstractIndexer
             $pageUid,
             $documentCollection,
         ];
+    }
+
+    /**
+     * @param int $pageUid
+     * @param int $sysLanguageUid
+     *
+     * @return array
+     */
+    protected function getPageContentElements(int $pageUid, int $sysLanguageUid = 0)
+    {
+        if (empty(self::$contentElementStorage[$pageUid][$sysLanguageUid])) {
+            self::$contentElementStorage[$pageUid][$sysLanguageUid] =
+                $this->typo3PageRepository->getPageContentElements($pageUid, $sysLanguageUid);
+        }
+
+        return self::$contentElementStorage[$pageUid][$sysLanguageUid];
+    }
+
+    /**
+     * @param array $contentElements
+     * @param int $pageUid
+     * @param int $sysLanguageUid
+     *
+     * @return void
+     */
+    protected function applyContentSlide(array &$contentElements, int $pageUid, int $sysLanguageUid = 0): void
+    {
+        $rootLine = GeneralUtility::makeInstance(RootlineUtility::class, $pageUid)->get();
+
+        if (count($rootLine) < 2) {
+            return;
+        }
+
+        $backendLayoutService = GeneralUtility::makeInstance(ObjectManager::class)->get(BackendLayoutService::class);
+        $colPoses = $backendLayoutService->getColPosesByPage($pageUid);
+        $depthLevel = 0;
+        array_shift($rootLine);
+
+        foreach ($rootLine as $parentPage) {
+            $colPosesToFill = array_filter(
+                $backendLayoutService->getColPosesByPageAndSlideLevel($pageUid, ++$depthLevel),
+                function($colPos) use ($contentElements) {
+                    return empty($this->filterContentElementsByColPoses($contentElements, [$colPos]));
+                }
+            );
+
+            $parentContentElements = $this->getPageContentElements($parentPage['uid'], $sysLanguageUid);
+
+            // By default all colPoses that does not exist in current page backend layout are treated as sliding with -1.
+            // It means we need to merge $colPosesToFill with the colPos that: (1) Are not filled yet AND (2) does not exist in current page backend layout
+            $colPosFilledInParentButStillEmpty = array_diff(
+                array_column($parentContentElements, 'colPos'),
+                array_column($contentElements, 'colPos'),
+                $colPoses
+            );
+
+            $colPosesToFill = array_merge($colPosesToFill, $colPosFilledInParentButStillEmpty);
+
+            $contentElements = array_merge(
+                $contentElements,
+                $this->filterContentElementsByColPoses($parentContentElements, $colPosesToFill)
+            );
+        }
+    }
+
+    /**
+     * @param array $contentElements
+     * @param array $colPoses
+     *
+     * @return array
+     */
+    private function filterContentElementsByColPoses(array $contentElements, array $colPoses): array
+    {
+        $colPoses = array_map('intval', $colPoses);
+
+        return array_filter(
+            $contentElements,
+            function($contentElement) use ($colPoses) {
+                return in_array((int)$contentElement['colPos'], $colPoses, true);
+            }
+        );
     }
 
     /**
@@ -109,25 +205,6 @@ class PageIndexer extends AbstractIndexer
             }
         }
         return implode('/', $pathParts);
-    }
-
-    /**
-     * @param array $tree
-     * @param int $pageUid
-     * @return string
-     */
-    private function resolveLayoutForPage(array $tree, int $pageUid): string
-    {
-        krsort($tree);
-        foreach ($tree as $key => $page) {
-            if ($pageUid == $page['uid'] && !empty($page['backend_layout'])) {
-                return $page['backend_layout'];
-            }
-            if (!empty($page['backend_layout_next_level'])) {
-                return $page['backend_layout_next_level'];
-            }
-        }
-        return '';
     }
 
     /**

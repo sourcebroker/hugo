@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
+
 namespace SourceBroker\Hugo\Typolink;
 
 /*
@@ -52,9 +53,11 @@ class FileOrFolderLinkBuilder extends AbstractTypolinkBuilder
         ) {
             $linkLocation = $this->txHugoConfigurator->getOption('link.absRefPrefix') . $linkLocation;
         }
-        $url = $this->processUrl(UrlProcessorInterface::CONTEXT_FILE, $linkLocation, $conf);
+
         return [
-            $this->forceAbsoluteUrl($url, $conf),
+            $this->applyHugoProcessors(
+                $this->processUrl(UrlProcessorInterface::CONTEXT_FILE, $linkLocation, $conf)
+            ),
             $linkText,
             $target ?: $this->resolveTargetAttribute(
                 $conf,
@@ -63,5 +66,19 @@ class FileOrFolderLinkBuilder extends AbstractTypolinkBuilder
                 $this->txHugoConfigurator->getOption('link.fileTarget')
             )
         ];
+    }
+
+    /**
+     * @return callable[]
+     */
+    protected function getProcessors(): array
+    {
+        return array_merge(
+            parent::getProcessors(),
+            [
+                [$this, 'addHugoLanguagePrefix'],
+                [$this, 'addHugoAbsRelPrefix'],
+            ]
+        );
     }
 }
