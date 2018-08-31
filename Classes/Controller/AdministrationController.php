@@ -16,6 +16,7 @@ use TYPO3\CMS\Extbase\Mvc\Exception\StopActionException;
 use TYPO3\CMS\Extbase\Mvc\Exception\UnsupportedRequestTypeException;
 use TYPO3\CMS\Extbase\Mvc\View\ViewInterface;
 use TYPO3\CMS\Extbase\Mvc\Web\Routing\UriBuilder;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 
 /**
@@ -131,7 +132,7 @@ class AdministrationController extends ActionController
     {
 
     }
-    
+
     public function exportAjax($params = [], AjaxRequestHandler $ajaxObj = NULL)
     {
         $objectManager = GeneralUtility::makeInstance(ObjectManager::class);

@@ -2,6 +2,7 @@
 
 namespace SourceBroker\Hugo\DataHandling;
 
+use SourceBroker\Hugo\Queue\QueueInterface;
 use SourceBroker\Hugo\Service\ExportContentService;
 use SourceBroker\Hugo\Service\ExportPageService;
 use TYPO3\CMS\Core\SingletonInterface;
