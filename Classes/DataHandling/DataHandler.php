@@ -2,8 +2,7 @@
 
 namespace SourceBroker\Hugo\DataHandling;
 
-use SourceBroker\Hugo\Service\ExportContentService;
-use SourceBroker\Hugo\Service\ExportPageService;
+use SourceBroker\Hugo\Queue\QueueInterface;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
@@ -20,14 +19,15 @@ class DataHandler implements SingletonInterface
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
      */
-    public function processCmdmap_deleteAction($tableName, $id)
+    public function processCmdmap_deleteAction($tableName, $recordId)
     {
-        // TODO: optimize later
-        if ($tableName === 'tt_content')
-        {
-            $this->deleteHugoContentElements((int)$id);
+        $queueValue = 'delete:'.$tableName;
+
+        if (is_numeric($recordId)) {
+            $queueValue .= ':'.intval($recordId);
         }
-        $this->exportHugoPages();
+
+        $this->getQueue()->push($queueValue);
     }
 
     /**
@@ -40,19 +40,13 @@ class DataHandler implements SingletonInterface
      */
     public function processCmdmap_postProcess($command, $tableName, $recordId, $value, \TYPO3\CMS\Core\DataHandling\DataHandler $dataHandler, $pasteUpdate, $pasteDatamap)
     {
-        if ($command === 'undelete') {
-            switch ($tableName) {
-                case 'pages':
-                    $this->exportHugoPages();
-                    break;
-                case 'tt_content':
-                    $this->exportHugoContentElements($recordId);
-                    $this->exportHugoPages();
-                    break;
-            }
-        } else {
-            $this->exportHugoPages();
+        $queueValue = 'update:'.$tableName;
+
+        if (is_numeric($recordId)) {
+            $queueValue .= ':'.$recordId;
         }
+
+        $this->getQueue()->push($queueValue);
     }
 
     /**
@@ -76,52 +70,26 @@ class DataHandler implements SingletonInterface
         /** @noinspection PhpUnusedParameterInspection */
         \TYPO3\CMS\Core\DataHandling\DataHandler $dataHandler
     ) {
+
+        $queueValue = 'update:'.$tableName;
+
         if (!MathUtility::canBeInterpretedAsInteger($recordId)) {
             $recordId = (int)$dataHandler->substNEWwithIDs[$recordId];
         }
-        switch ($tableName) {
-            case 'pages':
-                $this->exportHugoPages();
-                break;
-            case 'tt_content':
-                $this->exportHugoContentElements($recordId);
-                $this->exportHugoPages();
-                break;
+
+        if (is_numeric($recordId)) {
+            $queueValue .= ':'.$recordId;
         }
+
+        $this->getQueue()->push($queueValue);
     }
 
     /**
-     * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
-     * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
+     * @return QueueInterface
      */
-    public function exportHugoPages()
+    public function getQueue(): QueueInterface
     {
         $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        $hugoExportPageService = $objectManager->get(ExportPageService::class);
-        $hugoExportPageService->exportAll();
-    }
-
-    /**
-     * @param null $contentRecordUid
-     *
-     * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
-     * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
-     */
-    public function exportHugoContentElements($contentRecordUid = null)
-    {
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        $hugoExportContentService = $objectManager->get(ExportContentService::class);
-        if ($contentRecordUid === null) {
-            $hugoExportContentService->exportAll();
-        } else {
-            $hugoExportContentService->exportSingle($contentRecordUid);
-        }
-    }
-
-    protected function deleteHugoContentElements(int $contentRecordUid): void
-    {
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        $hugoExportContentService = $objectManager->get(ExportContentService::class);
-        $hugoExportContentService->deleteSingle($contentRecordUid);
+        return $objectManager->get(QueueInterface::class);
     }
 }

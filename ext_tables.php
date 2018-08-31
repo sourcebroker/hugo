@@ -20,6 +20,11 @@ call_user_func(
                     'labels' => 'LLL:EXT:hugo/Resources/Private/Language/locallang_mod.xlf',
                 ]
             );
+
+            \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::registerAjaxHandler (
+                'HugoAdministrationController::export',
+                \SourceBroker\Hugo\Controller\AdministrationController::class.'->exportAjax'
+            );
         }
     }
 );
