@@ -29,46 +29,50 @@ use SourceBroker\Hugo\Domain\Repository\Typo3PageRepository;
 
 /**
  * Class ExportContentService
+ *
  * @package SourceBroker\Hugo\Service
  */
 class BuildService extends AbstractService
 {
+
     /**
-     * @return bool
+     * @return array
      * @throws \Exception
      */
-    public function buildAll(): bool
+    public function buildAll(): array
     {
         $results = [];
-        foreach (($this->objectManager->get(Typo3PageRepository::class))->getSiteRootPages() as $siteRoot) {
+        foreach ($this->objectManager->get(Typo3PageRepository::class)->getSiteRootPages() as $siteRoot) {
             $results[] = $this->buildSingle($siteRoot['uid']);
         }
-        return count(array_unique($results)) === 1 && end($results) === true;
+
+        return $results;
     }
 
     /**
      * @param int $rootPageUid
      *
-     * @return bool
-     * @throws \Exception
+     * @return \SourceBroker\Hugo\Domain\Model\ServiceResult
      */
-    public function buildSingle(int $rootPageUid): bool
-    {
+    public function buildSingle(int $rootPageUid): \SourceBroker\Hugo\Domain\Model\ServiceResult {
         $this->createLocker('hugoBuildDist');
-
         $hugoConfigForRootSite = Configurator::getByPid($rootPageUid);
+        $serviceResult = $this->createServiceResult();
+
         if ($hugoConfigForRootSite->getOption('enable')) {
             $hugoPathBinary = $hugoConfigForRootSite->getOption('hugo.path.binary');
             if (!empty($hugoPathBinary)) {
-                exec($hugoPathBinary . ' ' . str_replace(['{PATH_site}'], [PATH_site],
-                        $hugoConfigForRootSite->getOption('hugo.command')), $output, $return);
-
+                $serviceResult->setCommand($hugoPathBinary . ' ' . str_replace(['{PATH_site}'],
+                        [PATH_site],
+                        $hugoConfigForRootSite->getOption('hugo.command'))
+                );
+                $this->executeServiceResultCommand($serviceResult);
             } else {
-                throw new \Exception('Can not find hugo binary');
+                $serviceResult->setMessage('Can\'t find hugo binary #1535713956');
             }
         }
 
-        return $this->release();
+        $this->release();
+        return $serviceResult;
     }
-
 }

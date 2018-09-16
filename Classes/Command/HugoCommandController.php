@@ -32,9 +32,11 @@ class HugoCommandController extends CommandController
 
     /**
      * Generating pages / content / media for all TYPO3 tree roots
+     * Command: hugo:export
      *
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
+     * @todo
      */
     public function exportCommand()
     {
@@ -52,9 +54,11 @@ class HugoCommandController extends CommandController
 
     /**
      * Generating Hugo pages for all TYPO3 tree roots
+     * Command: hugo:exportpages
      *
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
+     * @todo
      */
     public function exportPagesCommand()
     {
@@ -66,12 +70,13 @@ class HugoCommandController extends CommandController
         }
     }
 
-
     /**
      * Generating Hugo content for all TYPO3 tree roots
+     * Command: hugo:exportcontent
      *
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
+     * @todo
      */
     public function exportContentCommand()
     {
@@ -85,12 +90,13 @@ class HugoCommandController extends CommandController
         }
     }
 
-
     /**
      * Generating Hugo media for all TYPO3 tree roots
+     * Command: hugo:exportmedia
      *
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
+     * @todo
      */
     public function exportMediaCommand()
     {
@@ -106,6 +112,7 @@ class HugoCommandController extends CommandController
 
     /**
      * Hugo build for all TYPO3 tree roots
+     * Command: hugo:build
      *
      * @throws \Exception
      */
@@ -114,10 +121,14 @@ class HugoCommandController extends CommandController
         $buildService = GeneralUtility::makeInstance(BuildService::class);
         $this->outputLine('Hugo build for all TYPO3 tree roots.');
 
-        if ($buildService->buildAll()) {
-            $this->outputLine('Success.');
-        } else {
-            $this->outputLine('Fail.');
+        foreach ($buildService->buildAll() as $result) {
+            $this->outputLine("Command: " . $result->getCommand());
+            $this->outputLine("Output: " . $result->getCommandOutput());
+            $this->outputLine("Success: " . ($result->isExecutedSuccessfully() ? 'true' : 'false'));
+            if ($result->getMessage()) {
+                $this->outputLine("Message: " . $result->getMessage());
+            }
+            echo $this->outputLine("\n" . str_repeat('-', 80) . "\n");
         }
     }
 }
