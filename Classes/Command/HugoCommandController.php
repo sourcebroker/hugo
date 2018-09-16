@@ -114,10 +114,14 @@ class HugoCommandController extends CommandController
         $buildService = GeneralUtility::makeInstance(BuildService::class);
         $this->outputLine('Hugo build for all TYPO3 tree roots.');
 
-        if ($buildService->buildAll()) {
-            $this->outputLine('Success.');
-        } else {
-            $this->outputLine('Fail.');
+        foreach ($buildService->buildAll() as $result) {
+            $this->outputLine("Command: ".$result->getCommand());
+            $this->outputLine("Output: ".$result->getCommandOutput());
+            $this->outputLine("Success: ".($result->isExecutedSuccessfully() ? 'true' : 'false'));
+            if ($result->getMessage()) {
+                $this->outputLine("Message: ".$result->getMessage());
+            }
+            echo $this->outputLine("\n".str_repeat('-', 80)."\n");
         }
     }
 }
