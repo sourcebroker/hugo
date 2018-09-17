@@ -60,10 +60,7 @@ class BuildService extends AbstractService
         if ($hugoConfigForRootSite->getOption('enable')) {
             $hugoPathBinary = $hugoConfigForRootSite->getOption('hugo.path.binary');
             if (!empty($hugoPathBinary)) {
-                $serviceResult->setCommand($hugoPathBinary . ' ' . str_replace(['{PATH_site}'],
-                        [PATH_site],
-                        $hugoConfigForRootSite->getOption('hugo.command'))
-                );
+                $serviceResult->setCommand($hugoPathBinary . ' ' . str_replace(['{PATH_site}'], [PATH_site], $hugoConfigForRootSite->getOption('hugo.command')));
                 $this->executeServiceResultCommand($serviceResult);
             } else {
                 $serviceResult->setMessage('Can\'t find hugo binary #1535713956');

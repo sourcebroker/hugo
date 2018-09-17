@@ -33,28 +33,29 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Class ExportMediaService
+ *
  * @package SourceBroker\Hugo\Service
  */
 class ExportMediaService extends AbstractService
 {
     /**
-     * @return bool
-     * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
-     * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
-     * @throws \Exception
+     * @return array
      */
-    public function exportAll(): bool
+    public function exportAll(): array
     {
         $this->createLocker('hugoExportMedia');
+        $results = [];
 
         // We assume config for exporting content is the same for all available site roots so take first available
         // site root which is enabled for hugo.
-        foreach (($this->objectManager->get(Typo3PageRepository::class))->getSiteRootPages() as $siteRoot) {
+        foreach ($this->objectManager->get(Typo3PageRepository::class)->getSiteRootPages() as $siteRoot) {
             $hugoConfigForRootSite = Configurator::getByPid((int)$siteRoot['uid']);
             if ($hugoConfigForRootSite->getOption('enable')) {
 
-                $folderToStore = rtrim(PATH_site . $hugoConfigForRootSite->getOption('writer.path.media'),
-                    '\\/');
+                $folderToStore = rtrim(
+                    PATH_site . $hugoConfigForRootSite->getOption('writer.path.media'),
+                    '\\/'
+                );
                 if (!file_exists($folderToStore)) {
                     GeneralUtility::mkdir_deep($folderToStore);
                 }
@@ -65,13 +66,20 @@ class ExportMediaService extends AbstractService
 
                 $filesHugo = [];
                 foreach ($allStorages as $storage) {
+                    $serviceResult = $this->createServiceResult();
                     $folder = GeneralUtility::makeInstance(Folder::class, $storage, '/', 'All files');
-                    $files = $storage->getFilesInFolder($folder, $start = 0, $maxNumberOfItems = 0,
+                    $files = $storage->getFilesInFolder(
+                        $folder,
+                        $start = 0,
+                        $maxNumberOfItems = 0,
                         $useFilters = false,
-                        $recursive = true, $sort = 'name');
+                        $recursive = true,
+                        $sort = 'name'
+                    );
                     foreach ($files as $file) {
                         if (!$storage->isWithinProcessingFolder($file->getIdentifier())
-                            && $file->getProperty('type') == 2) {
+                            && $file->getProperty('type') == 2
+                        ) {
                             $filesHugo[] = [
                                 'src' => $file->getPublicUrl(false),
                                 'name' => $file->getUid(),
@@ -83,9 +91,15 @@ class ExportMediaService extends AbstractService
                             '\\/') . '/' . rtrim($storage->getConfiguration()['basePath'], '\\/');
                     $command = 'ln -s ' . rtrim(PATH_site . $storage->getConfiguration()['basePath'],
                             '\\/') . ' ' . $symlinkStorageFolder;
+                    $serviceResult->setCommand($command);
                     if (!file_exists($symlinkStorageFolder)) {
-                        exec($command);
+                        $this->executeServiceResultCommand($serviceResult);
                     }
+                    else {
+                        $serviceResult->setMessage('Storage folder: '.$symlinkStorageFolder.' exists');
+                    }
+
+                    $results[] = $serviceResult;
                 }
 
                 $languages = $hugoConfigForRootSite->getOption('languages');
@@ -101,6 +115,7 @@ class ExportMediaService extends AbstractService
             }
         }
 
-        return $this->release();
+        $this->release();
+        return $results;
     }
 }

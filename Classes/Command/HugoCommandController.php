@@ -93,20 +93,15 @@ class HugoCommandController extends CommandController
     /**
      * Generating Hugo media for all TYPO3 tree roots
      * Command: hugo:exportmedia
-     *
-     * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
-     * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
-     * @todo
      */
     public function exportMediaCommand()
     {
-        $hugoExportMediaService = GeneralUtility::makeInstance(ExportMediaService::class);
+        /** @var \SourceBroker\Hugo\Service\ExportMediaService $service */
+        $service = GeneralUtility::makeInstance(ExportMediaService::class);
         $this->outputLine('Generating Hugo media for all TYPO3 tree roots.');
 
-        if ($hugoExportMediaService->exportAll()) {
-            $this->outputLine('Success.');
-        } else {
-            $this->outputLine('Fail.');
+        foreach ($service->exportAll() as $result) {
+            $this->displayCommandResult($result);
         }
     }
 
@@ -118,17 +113,25 @@ class HugoCommandController extends CommandController
      */
     public function buildCommand()
     {
-        $buildService = GeneralUtility::makeInstance(BuildService::class);
+        /** @var \SourceBroker\Hugo\Service\BuildService $service */
+        $service = GeneralUtility::makeInstance(BuildService::class);
         $this->outputLine('Hugo build for all TYPO3 tree roots.');
 
-        foreach ($buildService->buildAll() as $result) {
-            $this->outputLine("Command: " . $result->getCommand());
-            $this->outputLine("Output: " . $result->getCommandOutput());
-            $this->outputLine("Success: " . ($result->isExecutedSuccessfully() ? 'true' : 'false'));
-            if ($result->getMessage()) {
-                $this->outputLine("Message: " . $result->getMessage());
-            }
-            echo $this->outputLine("\n" . str_repeat('-', 80) . "\n");
+        foreach ($service->buildAll() as $result) {
+            $this->displayCommandResult($result);
         }
+    }
+
+    /**
+     * @param \SourceBroker\Hugo\Domain\Model\ServiceResult $result
+     */
+    protected function displayCommandResult(\SourceBroker\Hugo\Domain\Model\ServiceResult $result) {
+        $this->outputLine("Command: " . $result->getCommand());
+        $this->outputLine("Output: " . $result->getCommandOutput());
+        $this->outputLine("Success: " . ($result->isExecutedSuccessfully() ? 'true' : 'false'));
+        if ($result->getMessage()) {
+            $this->outputLine("Message: " . $result->getMessage());
+        }
+        echo $this->outputLine("\n" . str_repeat('-', 80) . "\n");
     }
 }
