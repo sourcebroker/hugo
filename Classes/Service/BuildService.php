@@ -29,12 +29,10 @@ use SourceBroker\Hugo\Domain\Repository\Typo3PageRepository;
 
 /**
  * Class ExportContentService
- *
  * @package SourceBroker\Hugo\Service
  */
 class BuildService extends AbstractService
 {
-
     /**
      * @return array
      * @throws \Exception
