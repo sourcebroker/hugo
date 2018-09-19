@@ -1,8 +1,8 @@
 Changelog
 ---------
 
-master
-~~~~~~
+0.6.0
+~~~~~
 1) [BUGFIX] Do not break on non int values in link.
 2) [TASK] Remove support for legacy links.
 3) [BUGFIX] Bugfix for edge cases with link creation.
