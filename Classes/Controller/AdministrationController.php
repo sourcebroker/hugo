@@ -3,6 +3,7 @@
 namespace SourceBroker\Hugo\Controller;
 
 use SourceBroker\Hugo\Configuration\Configurator;
+use SourceBroker\Hugo\Queue\QueueInterface;
 use SourceBroker\Hugo\Service\ExportContentService;
 use SourceBroker\Hugo\Service\ExportMediaService;
 use SourceBroker\Hugo\Service\ExportPageService;
