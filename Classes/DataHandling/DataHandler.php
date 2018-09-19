@@ -3,8 +3,6 @@
 namespace SourceBroker\Hugo\DataHandling;
 
 use SourceBroker\Hugo\Queue\QueueInterface;
-use SourceBroker\Hugo\Service\ExportContentService;
-use SourceBroker\Hugo\Service\ExportPageService;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
@@ -17,11 +15,11 @@ class DataHandler implements SingletonInterface
      * Clears path and URL caches if the page was deleted.
      *
      * @param string $tableName
-     * @param string|int $id
+     * @param string|int $recordId
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
      */
-    public function processCmdmap_deleteAction($tableName, $id)
+    public function processCmdmap_deleteAction($tableName, $recordId)
     {
 	$queueValue = 'delete:'.$tableName;
 
