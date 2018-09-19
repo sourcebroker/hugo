@@ -7,7 +7,7 @@ CREATE TABLE sys_domain (
 );
 
 
-CREATE TABLE queue_items (
+CREATE TABLE tx_hugo_queueitems (
   uid int(11) NOT NULL auto_increment,
   namespace varchar (32) NOT NULL,
   value varchar(128) NOT NULL,
@@ -16,5 +16,5 @@ CREATE TABLE queue_items (
   executed_date DATETIME,
   PRIMARY KEY (uid),
   KEY namespace (namespace, value),
-    KEY executed (executed, created_date),
+  KEY executed (executed, created_date),
 );

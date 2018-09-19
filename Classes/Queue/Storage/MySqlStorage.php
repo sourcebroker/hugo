@@ -10,7 +10,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class MySqlStorage implements StorageInterface
 {
-    const TABLE_NAME = 'queue_items';
+    const TABLE_NAME = 'tx_hugo_queueitems';
 
     const DATE_FORMAT = 'Y-m-d H:i:s';
 

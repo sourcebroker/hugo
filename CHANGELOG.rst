@@ -8,6 +8,8 @@ master
 3) [BUGFIX] Bugfix for edge cases with link creation.
 4) [FEATURE] Add Hugo page view buttons into page context-sensitive menu.
 5) [BUGIFIX] Revert wrong pull request.
+6) [FEATURE] Export action shoud be put into queue to not slow down backend.
+7) [BUGIFIX] Change table name for storing queue items.
 
 0.5.0
 ~~~~~
