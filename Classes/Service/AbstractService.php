@@ -29,6 +29,7 @@ use TYPO3\CMS\Core\Locking\LockFactory;
 use TYPO3\CMS\Core\Locking\LockingStrategyInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
+use SourceBroker\Hugo\Domain\Model\ServiceResult;
 
 /**
  * Class AbstractService
@@ -73,7 +74,7 @@ abstract class AbstractService
     protected function createLocker($id)
     {
         $this->locker = $this->lockFactory->createLocker(
-            'hugoExportContent',
+            $id,
             LockingStrategyInterface::LOCK_CAPABILITY_SHARED | LockingStrategyInterface::LOCK_CAPABILITY_NOBLOCK
         );
         do {
@@ -90,16 +91,41 @@ abstract class AbstractService
     }
 
     /**
-     * @return bool
+     * @return \SourceBroker\Hugo\Domain\Model\ServiceResult
      */
-    protected function release()
+    protected function release(): \SourceBroker\Hugo\Domain\Model\ServiceResult
     {
         if ($this->locked) {
             $this->locker->release();
             $this->locker->destroy();
-            return true;
         }
 
-        return false;
+        return $this->createServiceResult();
+    }
+
+    /**
+     * @return \SourceBroker\Hugo\Domain\Model\ServiceResult
+     */
+    protected function createServiceResult(
+    ): \SourceBroker\Hugo\Domain\Model\ServiceResult
+    {
+        return GeneralUtility::makeInstance(ServiceResult::class);
+    }
+
+    /**
+     * @param \SourceBroker\Hugo\Domain\Model\ServiceResult $serviceResult
+     */
+    protected function executeServiceResultCommand(
+        \SourceBroker\Hugo\Domain\Model\ServiceResult $serviceResult
+    ) {
+        $output = null;
+        $return_var = null;
+        exec($serviceResult->getCommand(), $output, $return_var);
+        if (count($output)) {
+            $serviceResult->setCommandOutput(implode("\n", $output));
+        }
+        if ($return_var == 0) {
+            $serviceResult->setExecutedSuccessfully(true);
+        }
     }
 }
