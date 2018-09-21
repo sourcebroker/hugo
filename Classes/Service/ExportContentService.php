@@ -39,14 +39,15 @@ class ExportContentService extends AbstractService
 {
     /**
      * TODO - optimize use of locker. Make service a singleton with common lock state.
-     * @return bool
+     * @return array
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
      * @throws \Exception
      */
-    public function exportAll(): bool
+    public function exportAll(): array
     {
         $this->createLocker('hugoExportContent');
+        $results = [];
 
         $pageRepository = GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\Page\PageRepository::class);
         // We assume config for exporting content is the same for all available site roots so take first available
@@ -55,11 +56,12 @@ class ExportContentService extends AbstractService
             $hugoConfigForRootSite = Configurator::getByPid((int)$siteRoot['uid']);
             if ($hugoConfigForRootSite->getOption('enable')) {
                 foreach (($this->objectManager->get(Typo3ContentRepository::class))->getAll() as $contentElement) {
-
+                    $serviceResult = $this->createServiceResult();
                     if ($contentElement['sys_language_uid'] > 0) {
-                        $contentElement =
-                            $pageRepository->getRecordOverlay(
-                                'tt_content', $contentElement, $contentElement['sys_language_uid'],
+                        $contentElement = $pageRepository->getRecordOverlay(
+                                'tt_content',
+                                $contentElement,
+                                $contentElement['sys_language_uid'],
                                 $hugoConfigForRootSite->getOption('sys_language_overlay')
                             );
                     }
@@ -91,13 +93,17 @@ class ExportContentService extends AbstractService
                         $folderToStore . $filename,
                         Yaml::dump($contentElementObject->getData($contentElement), 100)
                     );
+                    $serviceResult->setMessage('tt_content.uid: '.$contentElement['uid'].' / file: '.$folderToStore . $filename);
+                    $serviceResult->setExecutedSuccessfully(true);
+                    $results[] = $serviceResult;
                 }
                 // Leave after first hugo enabled site root becase content elements are the same for all root sites.
                 break;
             }
         }
 
-        return $this->release();
+        $this->release();
+        return $results;
     }
 
     /**

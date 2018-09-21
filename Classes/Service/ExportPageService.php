@@ -38,16 +38,16 @@ class ExportPageService extends AbstractService
 {
 
     /**
-     * @return bool
-     * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
-     * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
-     * @throws \Exception
+     * @return array
+     * @throws \TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotException
+     * @throws \TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotReturnException
      */
-    public function exportAll(): bool
+    public function exportAll(): array
     {
         $this->createLocker('hugoExportPages');
+        $results = [];
 
-        foreach (($this->objectManager->get(Typo3PageRepository::class))->getSiteRootPages() as $siteRoot) {
+        foreach ($this->objectManager->get(Typo3PageRepository::class)->getSiteRootPages() as $siteRoot) {
             $hugoConfigForRootSite = Configurator::getByPid((int)$siteRoot['uid']);
             if ($hugoConfigForRootSite->getOption('enable')) {
                 $writer = $this->objectManager->get($hugoConfigForRootSite->getOption('writer.class'));
@@ -65,10 +65,11 @@ class ExportPageService extends AbstractService
 
                 /** @var \SourceBroker\Hugo\Service\BuildService $buildService */
                 $buildService = GeneralUtility::makeInstance(\SourceBroker\Hugo\Service\BuildService::class);
-                $buildService->buildSingle($siteRoot['uid']);
+                $results[] = $buildService->buildSingle($siteRoot['uid']);
             }
         }
 
-        return $this->release();
+        $this->release();
+        return $results;
     }
 }
