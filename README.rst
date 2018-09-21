@@ -1,6 +1,18 @@
 TYPO3 Extension ``hugo``
 ######################
 
+    .. image:: https://github.styleci.io/repos/130708818/shield?branch=master
+  :target: https://styleci.io/repos/130708818
+
+    .. image:: https://scrutinizer-ci.com/g/sourcebroker/hugo/badges/quality-score.png?b=master
+  :target: https://scrutinizer-ci.com/g/sourcebroker/hugo/?branch=master
+
+    .. image:: https://poser.pugx.org/sourcebroker/hugo/license
+  :target: https://packagist.org/packages/sourcebroker/hugo
+
+
+<a href="https://github.styleci.io/repos/130708818"><img src="https://github.styleci.io/repos/130708818/shield?branch=master" alt="StyleCI"></a>
+
 What does it do?
 ****************
 

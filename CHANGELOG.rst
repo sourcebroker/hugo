@@ -4,7 +4,8 @@ Changelog
 master
 ~~~~~~~
 1) [TASK] Add styleci and scrutinizer checkers settings.
-1) [TASK] Apply styleci fixes.
+2) [TASK] Apply styleci fixes.
+3) [TASK] Add styleci and scrutinizer badges.
 
 0.6.0
 ~~~~~
