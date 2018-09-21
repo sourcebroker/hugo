@@ -6,6 +6,7 @@ master
 1) [TASK] Add styleci and scrutinizer checkers settings.
 2) [TASK] Apply styleci fixes.
 3) [TASK] Add styleci and scrutinizer badges.
+3) [TASK] Fix styleci and scrutinizer badges.
 
 0.6.0
 ~~~~~
