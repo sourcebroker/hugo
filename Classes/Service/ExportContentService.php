@@ -112,12 +112,11 @@ class ExportContentService extends AbstractService
 
     /**
      * TODO - optimize use of locker. Make service a singleton with common lock state.
-     * @param $contentElementUid
-     * @return bool
-     * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
-     * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
+     * @param int $contentElementUid
+     *
+     * @return \SourceBroker\Hugo\Domain\Model\ServiceResult
      */
-    public function exportSingle(int $contentElementUid): bool
+    public function exportSingle(int $contentElementUid): \SourceBroker\Hugo\Domain\Model\ServiceResult
     {
         $this->createLocker('hugoExportContent');
 

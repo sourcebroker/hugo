@@ -62,10 +62,6 @@ class ExportPageService extends AbstractService
                     [],
                     'getDocumentsForPage'
                 );
-
-                /** @var \SourceBroker\Hugo\Service\BuildService $buildService */
-                $buildService = GeneralUtility::makeInstance(\SourceBroker\Hugo\Service\BuildService::class);
-                $results[] = $buildService->buildSingle($siteRoot['uid']);
             }
         }
 
