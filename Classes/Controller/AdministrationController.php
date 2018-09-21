@@ -4,6 +4,7 @@ namespace SourceBroker\Hugo\Controller;
 
 use SourceBroker\Hugo\Configuration\Configurator;
 use SourceBroker\Hugo\Queue\QueueInterface;
+use SourceBroker\Hugo\Service\BuildService;
 use SourceBroker\Hugo\Service\ExportContentService;
 use SourceBroker\Hugo\Service\ExportMediaService;
 use SourceBroker\Hugo\Service\ExportPageService;
@@ -114,12 +115,12 @@ class AdministrationController extends ActionController
     }
 
     /**
-     * @param array $params
-     *
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
+     * @throws \TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotException
+     * @throws \TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotReturnException
      */
-    public function exportAjax($params = [])
+    public function exportAjax()
     {
         $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
 
@@ -149,6 +150,8 @@ class AdministrationController extends ActionController
      *
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
+     * @throws \TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotException
+     * @throws \TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotReturnException
      */
     protected function updateElements(string $tableName, int $recordId)
     {
@@ -165,6 +168,8 @@ class AdministrationController extends ActionController
      *
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
+     * @throws \TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotException
+     * @throws \TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotReturnException
      */
     protected function deleteElements(string $tableName, int $recordId)
     {
@@ -287,12 +292,17 @@ class AdministrationController extends ActionController
     /**
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
+     * @throws \TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotException
+     * @throws \TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotReturnException
+     * @throws \Exception
      */
     protected function exportHugoPages()
     {
         $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
         $hugoExportPageService = $objectManager->get(ExportPageService::class);
         $hugoExportPageService->exportAll();
+        $hugoBuildService = $objectManager->get(BuildService::class);
+        $hugoBuildService->buildAll();
     }
 
     /**
@@ -312,6 +322,11 @@ class AdministrationController extends ActionController
         }
     }
 
+    /**
+     * @param int $contentRecordUid
+     * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
+     * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
+     */
     protected function deleteHugoContentElements(int $contentRecordUid): void
     {
         $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
