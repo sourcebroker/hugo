@@ -1,14 +1,17 @@
 Changelog
 ---------
 
-master
-~~~~~~
+0.6.0
+~~~~~
 1) [BUGFIX] Do not break on non int values in link.
 2) [TASK] Remove support for legacy links.
 3) [BUGFIX] Bugfix for edge cases with link creation.
 4) [FEATURE] Add Hugo page view buttons into page context-sensitive menu.
 5) [FEATURE] Implement support of content slide functionality.
 6) [TASK] Implement support for links with fragments and legacy links to the current page.
+7) [FEATURE] push export action to queue and execute its asynchronously.
+8) [TASK] Services return ServiceResult object.
+9) [TASK] Implement RTE fields parser for records indexer.
 
 0.5.0
 ~~~~~
