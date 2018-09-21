@@ -3,17 +3,20 @@
 namespace SourceBroker\Hugo\Controller;
 
 use SourceBroker\Hugo\Configuration\Configurator;
+use SourceBroker\Hugo\Queue\QueueInterface;
 use SourceBroker\Hugo\Service\ExportContentService;
 use SourceBroker\Hugo\Service\ExportMediaService;
 use SourceBroker\Hugo\Service\ExportPageService;
 use TYPO3\CMS\Backend\View\BackendTemplateView;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\MathUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use TYPO3\CMS\Extbase\Mvc\Exception\StopActionException;
 use TYPO3\CMS\Extbase\Mvc\Exception\UnsupportedRequestTypeException;
 use TYPO3\CMS\Extbase\Mvc\View\ViewInterface;
 use TYPO3\CMS\Extbase\Mvc\Web\Routing\UriBuilder;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 
 /**
@@ -108,6 +111,68 @@ class AdministrationController extends ActionController
         );
 
         $this->redirect('index');
+    }
+
+    /**
+     * @param array $params
+     *
+     * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
+     * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
+     */
+    public function exportAjax($params = [])
+    {
+        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+
+        $queue = $objectManager->get(QueueInterface::class);
+        $queueItem = $queue->pop();
+        if ($queueItem) {
+            list($action, $table, $uid) = explode(':', $queueItem['value']);
+
+            if (MathUtility::canBeInterpretedAsInteger($uid)) {
+                $uid = (int)$uid;
+            }
+
+            switch ($action) {
+                case 'update':
+                    $this->updateElements($table, $uid);
+                    break;
+                case 'delete':
+                    $this->deleteElements($table, $uid);
+                    break;
+            }
+        }
+    }
+
+    /**
+     * @param string $tableName
+     * @param int $recordId
+     *
+     * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
+     * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
+     */
+    protected function updateElements(string $tableName, int $recordId)
+    {
+        if ($tableName === 'tt_content') {
+            $this->exportHugoContentElements($recordId);
+        }
+
+        $this->exportHugoPages();
+    }
+
+    /**
+     * @param string $tableName
+     * @param int $recordId
+     *
+     * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
+     * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
+     */
+    protected function deleteElements(string $tableName, int $recordId)
+    {
+        if ($tableName === 'tt_content') {
+            $this->deleteHugoContentElements($recordId);
+        }
+
+        $this->exportHugoPages();
     }
 
     /**
@@ -217,5 +282,40 @@ class AdministrationController extends ActionController
             'Command' => str_replace(['{PATH_site}'], PATH_site, $pageTsConfig['hugo']['command']),
             'Executable bin path' => $pageTsConfig['hugo']['path']['binary'],
         ];
+    }
+
+    /**
+     * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
+     * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
+     */
+    protected function exportHugoPages()
+    {
+        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+        $hugoExportPageService = $objectManager->get(ExportPageService::class);
+        $hugoExportPageService->exportAll();
+    }
+
+    /**
+     * @param null $contentRecordUid
+     *
+     * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
+     * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
+     */
+    protected function exportHugoContentElements($contentRecordUid = null)
+    {
+        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+        $hugoExportContentService = $objectManager->get(ExportContentService::class);
+        if ($contentRecordUid === null) {
+            $hugoExportContentService->exportAll();
+        } else {
+            $hugoExportContentService->exportSingle($contentRecordUid);
+        }
+    }
+
+    protected function deleteHugoContentElements(int $contentRecordUid): void
+    {
+        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+        $hugoExportContentService = $objectManager->get(ExportContentService::class);
+        $hugoExportContentService->deleteSingle($contentRecordUid);
     }
 }

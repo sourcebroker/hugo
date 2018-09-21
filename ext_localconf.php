@@ -69,6 +69,14 @@ call_user_func(function () use ($_EXTKEY) {
         'record' => \SourceBroker\Hugo\Typolink\DatabaseRecordLinkBuilder::class
     ];
 
+    $pageRenderer = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Page\PageRenderer::class);
+    $pageRenderer->loadRequireJsModule('TYPO3/CMS/Hugo/Export');
+    
+    $extbaseObjectContainer = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Extbase\Object\Container\Container::class);
+    $extbaseObjectContainer->registerImplementation(\SourceBroker\Hugo\Queue\Storage\StorageInterface::class, \SourceBroker\Hugo\Queue\Storage\MySqlStorage::class);
+    $extbaseObjectContainer->registerImplementation(\SourceBroker\Hugo\Queue\QueueInterface::class, \SourceBroker\Hugo\Queue\SimpleQueue::class);
+
+
 });
 
 
