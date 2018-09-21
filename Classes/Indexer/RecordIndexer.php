@@ -5,16 +5,58 @@ namespace SourceBroker\Hugo\Indexer;
 use SourceBroker\Hugo\Configuration\Configurator;
 
 use SourceBroker\Hugo\Domain\Model\DocumentCollection;
+use SourceBroker\Hugo\Service\RteService;
+use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\SingletonInterface;
+use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 use TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Persistence\Generic\LazyObjectStorage;
+use TYPO3\CMS\Extbase\Persistence\Generic\Mapper\DataMapper;
 use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
+use TYPO3\CMS\Extbase\Persistence\Repository;
 
-class RecordIndexer extends AbstractIndexer
+/**
+ * Class RecordIndexer
+ * @package SourceBroker\Hugo\Indexer
+ */
+class RecordIndexer extends AbstractIndexer implements SingletonInterface
 {
+    /**
+     * @var ObjectManager
+     */
+    private $objectManager;
+
+    /**
+     * @var array
+     */
+    private $frameworkConfiguration;
+
+    /**
+     * @var DataMapper
+     */
+    private $dataMapper;
+
+    /**
+     * @var RteService
+     */
+    private $rteService;
+
+    /**
+     * RecordIndexer constructor
+     */
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+        $this->frameworkConfiguration = $this->objectManager->get(ConfigurationManagerInterface::class)
+            ->getConfiguration(ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK);
+    }
+
     /**
      * @param int $pageUid
      * @param DocumentCollection $documentCollection
@@ -29,7 +71,6 @@ class RecordIndexer extends AbstractIndexer
                     $table = $exporterConfig['table'];
                     $recordsPid = $exporterConfig['recordsPid'];
 
-                    /** @var \TYPO3\CMS\Extbase\Persistence\Repository $repository */
                     $repository = $this->getRepositoryByTable($table);
 
                     if (is_object($repository)) {
@@ -51,12 +92,18 @@ class RecordIndexer extends AbstractIndexer
                         if (is_object($record) && $record instanceof AbstractDomainObject) {
                             $record = $this->mapPropertiesToArrayRecursive($record->_getProperties());
                         }
+
+                        $this->parseFields($table, $record, $hugoConfig);
+
                         $slug = $this->slugify($record['title']);
                         $document = $documentCollection->create();
                         $document->setStoreFilename($record['uid'] . '_' . ucfirst($slug))
                             ->setId($record['uid'])
                             ->setSlug($slug)
-                            ->setCustomFields(['record' => $record]);
+                            ->setCustomFields([
+                                'template' => $exporterConfig['template'] ?? 'default',
+                                'record' => $record,
+                            ]);
                     }
                 }
             }
@@ -67,17 +114,17 @@ class RecordIndexer extends AbstractIndexer
         ];
     }
 
+    /**
+     * @param string $tableName
+     *
+     * @return Repository|null
+     */
     protected function getRepositoryByTable($tableName)
     {
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        $configurationManager = $objectManager->get(ConfigurationManagerInterface::class);
-        $frameworkConfiguration = $configurationManager->getConfiguration(\TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK);
-        $dataMapper = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Extbase\Persistence\Generic\Mapper\DataMapper::class);
-
         $repositoryClass = null;
         $modelSubclasses = [];
-        foreach ($frameworkConfiguration['persistence']['classes'] as $class => $classConfig) {
-            if ($tableName == $dataMapper->convertClassNameToTableName($class)) {
+        foreach ($this->frameworkConfiguration['persistence']['classes'] as $class => $classConfig) {
+            if ($tableName == $this->getDataMapper()->convertClassNameToTableName($class)) {
                 $tempRepositoryClass = str_replace('Model', 'Repository', $class) . 'Repository';
                 if (class_exists($tempRepositoryClass) && !in_array($class, $modelSubclasses)) {
                     $repositoryClass = $tempRepositoryClass;
@@ -89,11 +136,7 @@ class RecordIndexer extends AbstractIndexer
             }
         }
 
-        if (!empty($repositoryClass)) {
-            return $objectManager->get($repositoryClass);
-        }
-
-        return null;
+        return $repositoryClass ? $this->objectManager->get($repositoryClass) : null;
     }
 
     protected function mapPropertiesToArrayRecursive(array $properties)
@@ -120,4 +163,89 @@ class RecordIndexer extends AbstractIndexer
 
         return $properties;
     }
+
+    /**
+     * @param string $table
+     * @param array $record
+     * @param Configurator $configurator
+     *
+     * @return void
+     */
+    private function parseFields(string $table, array &$record, Configurator $configurator)
+    {
+        foreach ($record as $columnName => &$columnValue) {
+
+            if (empty($GLOBALS['TCA'][$table]['columns'][$columnName]['config'])) {
+                continue;
+            }
+
+            $columnTca = $GLOBALS['TCA'][$table]['columns'][$columnName]['config'];
+            $recordType = BackendUtility::getTCAtypeValue($table, $record);
+            $columnsOverridesConfigOfField = $GLOBALS['TCA'][$table]['types'][$recordType]['columnsOverrides'][$columnName]['config'] ?? null;
+            if ($columnsOverridesConfigOfField) {
+                ArrayUtility::mergeRecursiveWithOverrule($columnTca, $columnsOverridesConfigOfField);
+            }
+
+            $this->processSingleField($columnTca, $columnValue, $configurator);
+        }
+    }
+
+    /**
+     * @param array $columnTca
+     * @param $columnValue
+     * @param Configurator $configurator
+     *
+     * @return void
+     */
+    private function processSingleField(array $columnTca, &$columnValue, Configurator $configurator)
+    {
+        foreach ($this->getProcessorsFromTca($columnTca) as $processor) {
+            switch ($processor) {
+                case 'rte':
+                    $columnValue = $this->getRteService()->parse($columnValue, $configurator);
+                    break;
+            }
+        }
+    }
+
+    /**
+     * @param array $columnTca
+     *
+     * @return array
+     */
+    private function getProcessorsFromTca(array $columnTca): array
+    {
+        $processors = [];
+
+        if (!empty($columnTca['enableRichtext'])) {
+            $processors[] = 'rte';
+        }
+
+        return $processors;
+    }
+
+    /**
+     * @return DataMapper
+     */
+    private function getDataMapper(): DataMapper
+    {
+        if (!$this->dataMapper instanceof DataMapper) {
+            $this->dataMapper = $this->objectManager->get(DataMapper::class);
+        }
+
+        return $this->dataMapper;
+    }
+
+    /**
+     * @return RteService
+     */
+    private function getRteService(): RteService
+    {
+        if (!$this->rteService instanceof RteService) {
+            $this->rteService = $this->objectManager->get(RteService::class);
+        }
+
+        return $this->rteService;
+    }
+
 }
