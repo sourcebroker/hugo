@@ -12,6 +12,8 @@ Changelog
 7) [FEATURE] push export action to queue and execute its asynchronously.
 8) [TASK] Services return ServiceResult object.
 9) [TASK] Implement RTE fields parser for records indexer.
+10) [BUGFIX] Add missing hugo build after removing hugo build from hugo export.
+11) [BUGFIX] SimpleQueue count() method had no return.
 
 0.5.0
 ~~~~~

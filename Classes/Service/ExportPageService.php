@@ -27,7 +27,6 @@ namespace SourceBroker\Hugo\Service;
 use SourceBroker\Hugo\Configuration\Configurator;
 use SourceBroker\Hugo\Domain\Repository\Typo3PageRepository;
 use SourceBroker\Hugo\Traversing\TreeTraverser;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Class ExportPageService
@@ -38,7 +37,9 @@ class ExportPageService extends AbstractService
 {
 
     /**
-     * @return array
+     * @return \SourceBroker\Hugo\Domain\Model\ServiceResult[]
+     * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
+     * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
      * @throws \TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotException
      * @throws \TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotReturnException
      */

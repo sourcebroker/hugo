@@ -19,8 +19,6 @@ class DataHandler implements SingletonInterface
      * @param string $tableName
      * @param string|int $recordId
      *
-     * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
-     * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
      */
     public function processCmdmap_deleteAction($tableName, $recordId)
     {
@@ -42,8 +40,6 @@ class DataHandler implements SingletonInterface
      * @param        $tableName
      * @param        $recordId
      *
-     * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
-     * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
      */
     public function processCmdmap_postProcess($command, $tableName, $recordId)
     {

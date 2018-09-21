@@ -51,8 +51,11 @@ class BuildService extends AbstractService
      * @param int $rootPageUid
      *
      * @return \SourceBroker\Hugo\Domain\Model\ServiceResult
+     * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
+     * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
      */
-    public function buildSingle(int $rootPageUid): \SourceBroker\Hugo\Domain\Model\ServiceResult {
+    public function buildSingle(int $rootPageUid): \SourceBroker\Hugo\Domain\Model\ServiceResult
+    {
         $this->createLocker('hugoBuildDist');
         $hugoConfigForRootSite = Configurator::getByPid($rootPageUid);
         $serviceResult = $this->createServiceResult();
@@ -60,7 +63,8 @@ class BuildService extends AbstractService
         if ($hugoConfigForRootSite->getOption('enable')) {
             $hugoPathBinary = $hugoConfigForRootSite->getOption('hugo.path.binary');
             if (!empty($hugoPathBinary)) {
-                $serviceResult->setCommand($hugoPathBinary . ' ' . str_replace(['{PATH_site}'], [PATH_site], $hugoConfigForRootSite->getOption('hugo.command')));
+                $serviceResult->setCommand($hugoPathBinary . ' ' . str_replace(['{PATH_site}'], [PATH_site],
+                        $hugoConfigForRootSite->getOption('hugo.command')));
                 $this->executeServiceResultCommand($serviceResult);
             } else {
                 $serviceResult->setMessage('Can\'t find hugo binary #1535713956');

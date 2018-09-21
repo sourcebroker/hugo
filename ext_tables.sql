@@ -15,5 +15,5 @@ CREATE TABLE tx_local_queue_items (
   executed_date DATETIME,
   PRIMARY KEY (uid),
   KEY namespace (namespace, value),
-    KEY executed (executed, created_date),
+  KEY executed (executed, created_date),
 );

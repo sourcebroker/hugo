@@ -93,13 +93,13 @@ class RootlineUtility
 
     /**
      * @param int $uid
-     * @throws \RuntimeException
+     * @param int $languageUid
      */
     public function __construct($uid, $languageUid = 0)
     {
         $this->pageUid = (int)$uid;
         $this->languageUid = (int)$languageUid;
-        $this->pageContext = GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\Page\PageRepository::class);
+        $this->pageContext = GeneralUtility::makeInstance(PageRepository::class);
         self::$rootlineFields = array_merge(self::$rootlineFields,
             GeneralUtility::trimExplode(',', $GLOBALS['TYPO3_CONF_VARS']['FE']['addRootLineFields'], true));
         self::$rootlineFields = array_unique(self::$rootlineFields);
@@ -134,7 +134,7 @@ class RootlineUtility
             $cacheTags = ['pageId_' . $page['uid']];
             if ($parentUid > 0) {
                 /** @var $rootline \TYPO3\CMS\Core\Utility\RootlineUtility */
-                $rootline = GeneralUtility::makeInstance(\SourceBroker\Hugo\Utility\RootlineUtility::class, $parentUid,
+                $rootline = GeneralUtility::makeInstance(RootlineUtility::class, $parentUid,
                     $this->languageUid);
                 $rootline = $rootline->get();
                 // retrieve cache tags of parent rootline

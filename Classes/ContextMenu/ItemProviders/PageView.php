@@ -1,4 +1,5 @@
 <?php
+
 namespace SourceBroker\Hugo\ContextMenu\ItemProviders;
 
 use SourceBroker\Hugo\Utility\DomainUtility;

@@ -24,12 +24,12 @@
 
 namespace SourceBroker\Hugo\Service;
 
+use SourceBroker\Hugo\Domain\Model\ServiceResult;
 use TYPO3\CMS\Core\Locking\Exception\LockAcquireWouldBlockException;
 use TYPO3\CMS\Core\Locking\LockFactory;
 use TYPO3\CMS\Core\Locking\LockingStrategyInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
-use SourceBroker\Hugo\Domain\Model\ServiceResult;
 
 /**
  * Class AbstractService
@@ -70,6 +70,8 @@ abstract class AbstractService
 
     /**
      * @param string $id ID to identify this lock in the system
+     * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
+     * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
      */
     protected function createLocker($id)
     {
@@ -93,7 +95,7 @@ abstract class AbstractService
     /**
      * @return \SourceBroker\Hugo\Domain\Model\ServiceResult
      */
-    protected function release(): \SourceBroker\Hugo\Domain\Model\ServiceResult
+    protected function release(): ServiceResult
     {
         if ($this->locked) {
             $this->locker->release();
@@ -106,8 +108,7 @@ abstract class AbstractService
     /**
      * @return \SourceBroker\Hugo\Domain\Model\ServiceResult
      */
-    protected function createServiceResult(
-    ): \SourceBroker\Hugo\Domain\Model\ServiceResult
+    protected function createServiceResult(): ServiceResult
     {
         return GeneralUtility::makeInstance(ServiceResult::class);
     }
@@ -115,9 +116,8 @@ abstract class AbstractService
     /**
      * @param \SourceBroker\Hugo\Domain\Model\ServiceResult $serviceResult
      */
-    protected function executeServiceResultCommand(
-        \SourceBroker\Hugo\Domain\Model\ServiceResult $serviceResult
-    ) {
+    protected function executeServiceResultCommand(ServiceResult $serviceResult)
+    {
         $output = null;
         $return_var = null;
         exec($serviceResult->getCommand(), $output, $return_var);

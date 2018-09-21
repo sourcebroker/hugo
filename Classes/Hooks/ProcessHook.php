@@ -23,6 +23,7 @@ class ProcessHook implements \TYPO3\CMS\Core\Utility\File\ExtendedFileUtilityPro
      * @param \TYPO3\CMS\Core\Utility\File\ExtendedFileUtility $parentObject
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
+     * @throws \TYPO3\CMS\Core\Resource\Exception\InsufficientFolderAccessPermissionsException
      */
     public function processData_postProcessAction(
         $action,

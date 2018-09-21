@@ -36,8 +36,7 @@ class PageLinkBuilder extends AbstractTypolinkBuilder
         // @see \TYPO3\CMS\Core\LinkHandling\LegacyLinkNotationConverter::resolvePageRelatedParameters
         $pageUid = ($linkData['pageuid'] !== 'current')
             ? (int)$linkData['pageuid']
-            : $this->txHugoConfigurator->getPageUid()
-        ;
+            : $this->txHugoConfigurator->getPageUid();
 
         if ($pageUid) {
             $page = GeneralUtility::makeInstance(Typo3PageRepository::class)->getByUid($pageUid);

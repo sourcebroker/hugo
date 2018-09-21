@@ -25,6 +25,7 @@
 namespace SourceBroker\Hugo\Service;
 
 use SourceBroker\Hugo\Configuration\Configurator;
+use SourceBroker\Hugo\Domain\Model\ServiceResult;
 use SourceBroker\Hugo\Domain\Repository\Typo3ContentRepository;
 use SourceBroker\Hugo\Domain\Repository\Typo3PageRepository;
 use Symfony\Component\Yaml\Yaml;
@@ -38,11 +39,9 @@ use TYPO3\CMS\Frontend\Page\PageRepository;
 class ExportContentService extends AbstractService
 {
     /**
-     * TODO - optimize use of locker. Make service a singleton with common lock state.
-     * @return array
+     * @return \SourceBroker\Hugo\Domain\Model\ServiceResult[]
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
-     * @throws \Exception
      */
     public function exportAll(): array
     {
@@ -60,11 +59,11 @@ class ExportContentService extends AbstractService
                 foreach (($this->objectManager->get(Typo3ContentRepository::class))->getAll() as $contentElement) {
                     if ($contentElement['sys_language_uid'] > 0) {
                         $contentElement = $pageRepository->getRecordOverlay(
-                                'tt_content',
-                                $contentElement,
-                                $contentElement['sys_language_uid'],
-                                $hugoConfigForRootSite->getOption('sys_language_overlay')
-                            );
+                            'tt_content',
+                            $contentElement,
+                            $contentElement['sys_language_uid'],
+                            $hugoConfigForRootSite->getOption('sys_language_overlay')
+                        );
                     }
                     $camelCaseClass = str_replace('_', '', ucwords($contentElement['CType'], '_'));
                     $classForCType = null;
@@ -102,7 +101,7 @@ class ExportContentService extends AbstractService
             }
         }
 
-        $serviceResult->setMessage($index. ' content elements have been exported to files.');
+        $serviceResult->setMessage($index . ' content elements have been exported to files.');
         $serviceResult->setExecutedSuccessfully(true);
         $results[] = $serviceResult;
 
@@ -111,12 +110,13 @@ class ExportContentService extends AbstractService
     }
 
     /**
-     * TODO - optimize use of locker. Make service a singleton with common lock state.
      * @param int $contentElementUid
      *
      * @return \SourceBroker\Hugo\Domain\Model\ServiceResult
+     * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
+     * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
      */
-    public function exportSingle(int $contentElementUid): \SourceBroker\Hugo\Domain\Model\ServiceResult
+    public function exportSingle(int $contentElementUid): ServiceResult
     {
         $this->createLocker('hugoExportContent');
 
@@ -176,6 +176,8 @@ class ExportContentService extends AbstractService
      * @param int $contentElementUid
      *
      * @return bool
+     * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
+     * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
      */
     public function deleteSingle(int $contentElementUid): bool
     {

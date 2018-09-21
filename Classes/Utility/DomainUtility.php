@@ -23,7 +23,7 @@ class DomainUtility implements SingletonInterface
         return array_filter(
             (array)array_merge(
                 ...array_map(
-                    function($commaSeparatedHugoDomains) {
+                    function ($commaSeparatedHugoDomains) {
                         return GeneralUtility::trimExplode(',', $commaSeparatedHugoDomains);
                     },
                     array_column($this->getDomainRecordsForRootLinePid($pid), 'tx_hugo_domains')
@@ -40,7 +40,7 @@ class DomainUtility implements SingletonInterface
     protected function getDomainRecordsForRootLinePid(int $pid): array
     {
         $rootLinePids = array_map(
-            function($rootLinePage) {
+            function ($rootLinePage) {
                 return (int)$rootLinePage['uid'];
             },
             GeneralUtility::makeInstance(RootlineUtility::class, $pid)->get()
@@ -57,14 +57,13 @@ class DomainUtility implements SingletonInterface
             ->from('sys_domain')
             ->where($qb->expr()->orX(
                 ...array_map(
-                    function($pid) use ($qb) {
+                    function ($pid) use ($qb) {
                         return $qb->expr()->eq('pid', $qb->createNamedParameter($pid, \PDO::PARAM_INT));
                     },
                     $rootLinePids
                 )
             ))
             ->execute()
-            ->fetchAll()
-        ;
+            ->fetchAll();
     }
 }

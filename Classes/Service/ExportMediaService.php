@@ -39,7 +39,10 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 class ExportMediaService extends AbstractService
 {
     /**
-     * @return array
+     * @return \SourceBroker\Hugo\Domain\Model\ServiceResult[]
+     * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
+     * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
+     * @throws \TYPO3\CMS\Core\Resource\Exception\InsufficientFolderAccessPermissionsException
      */
     public function exportAll(): array
     {
@@ -94,10 +97,9 @@ class ExportMediaService extends AbstractService
                     $serviceResult->setCommand($command);
                     if (!file_exists($symlinkStorageFolder)) {
                         $this->executeServiceResultCommand($serviceResult);
-                    }
-                    else {
+                    } else {
                         $serviceResult->setExecutedSuccessfully(true);
-                        $serviceResult->setMessage('Storage folder: '.$symlinkStorageFolder.' exists');
+                        $serviceResult->setMessage('Storage folder: ' . $symlinkStorageFolder . ' exists');
                     }
 
                     $results[] = $serviceResult;

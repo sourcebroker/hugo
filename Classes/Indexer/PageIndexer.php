@@ -140,7 +140,7 @@ class PageIndexer extends AbstractIndexer
         foreach ($rootLine as $parentPage) {
             $colPosesToFill = array_filter(
                 $backendLayoutService->getColPosesByPageAndSlideLevel($pageUid, ++$depthLevel),
-                function($colPos) use ($contentElements) {
+                function ($colPos) use ($contentElements) {
                     return empty($this->filterContentElementsByColPoses($contentElements, [$colPos]));
                 }
             );
@@ -176,7 +176,7 @@ class PageIndexer extends AbstractIndexer
 
         return array_filter(
             $contentElements,
-            function($contentElement) use ($colPoses) {
+            function ($contentElement) use ($colPoses) {
                 return in_array((int)$contentElement['colPos'], $colPoses, true);
             }
         );

@@ -147,7 +147,6 @@ class MySqlStorage implements StorageInterface
      *
      * @param string $key
      *
-     * @return mixed
      */
     public function unsetAll($key)
     {

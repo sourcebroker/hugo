@@ -3,7 +3,6 @@
 namespace SourceBroker\Hugo\Indexer;
 
 use SourceBroker\Hugo\Configuration\Configurator;
-
 use SourceBroker\Hugo\Domain\Model\DocumentCollection;
 use SourceBroker\Hugo\Service\RteService;
 use TYPO3\CMS\Backend\Utility\BackendUtility;

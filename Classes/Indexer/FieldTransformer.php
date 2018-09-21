@@ -44,8 +44,14 @@ class FieldTransformer
      * @param string $method
      * @return string
      */
-    public function commaToSpace($currentValue, $contentElementRawData, $fieldName, $method)
-    {
+    public function commaToSpace(
+        $currentValue,
+        /** @noinspection PhpUnusedParameterInspection */
+        $contentElementRawData,
+        /** @noinspection PhpUnusedParameterInspection */
+        $fieldName,
+        $method
+    ) {
         $fieldElements = preg_split('/,[\s]*/', $currentValue);
 
         if ($method == 'merge') {
