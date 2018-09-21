@@ -37,7 +37,6 @@ use TYPO3\CMS\Frontend\Service\TypoLinkCodecService;
 /**
  * Class Typo3UrlService
  *
- * @package SourceBroker\Hugo\Service
  */
 class Typo3UrlService
 {
@@ -108,5 +107,4 @@ class Typo3UrlService
 
         return empty($url) ? [] : $linkData;
     }
-
 }

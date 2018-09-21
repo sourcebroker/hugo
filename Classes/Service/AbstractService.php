@@ -34,7 +34,6 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
 /**
  * Class AbstractService
  *
- * @package SourceBroker\Hugo\Service
  */
 abstract class AbstractService
 {

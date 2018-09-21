@@ -34,7 +34,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 /**
  * Class ExportMediaService
  *
- * @package SourceBroker\Hugo\Service
  */
 class ExportMediaService extends AbstractService
 {
@@ -54,7 +53,6 @@ class ExportMediaService extends AbstractService
         foreach ($this->objectManager->get(Typo3PageRepository::class)->getSiteRootPages() as $siteRoot) {
             $hugoConfigForRootSite = Configurator::getByPid((int)$siteRoot['uid']);
             if ($hugoConfigForRootSite->getOption('enable')) {
-
                 $folderToStore = rtrim(
                     PATH_site . $hugoConfigForRootSite->getOption('writer.path.media'),
                     '\\/'

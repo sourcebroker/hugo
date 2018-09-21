@@ -8,7 +8,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 /**
  * Class ExportContentTask
  *
- * @package SourceBroker\Hugo\Task
  */
 class ExportContentTask extends \TYPO3\CMS\Scheduler\Task\AbstractTask
 {

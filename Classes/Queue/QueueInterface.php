@@ -3,7 +3,6 @@
 
 namespace SourceBroker\Hugo\Queue;
 
-
 interface QueueInterface
 {
     /**

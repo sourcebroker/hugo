@@ -9,7 +9,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 /**
  * Class ProcessHook
  *
- * @package SourceBroker\Hugo\Hooks
  */
 class ProcessHook implements \TYPO3\CMS\Core\Utility\File\ExtendedFileUtilityProcessDataHookInterface
 {

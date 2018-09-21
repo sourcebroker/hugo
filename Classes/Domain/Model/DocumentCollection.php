@@ -9,7 +9,6 @@ use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
 /**
  * Class DocumentCollection
  *
- * @package SourceBroker\Hugo\Domain\Model
  */
 class DocumentCollection extends ObjectStorage
 {

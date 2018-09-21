@@ -9,7 +9,6 @@ use TYPO3\CMS\Core\SingletonInterface;
 /**
  * Class AbstractIndexer
  *
- * @package SourceBroker\Hugo\Indexer
  */
 class AbstractIndexer implements IndexerInterface, SingletonInterface
 {

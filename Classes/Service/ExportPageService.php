@@ -31,7 +31,6 @@ use SourceBroker\Hugo\Traversing\TreeTraverser;
 /**
  * Class ExportPageService
  *
- * @package SourceBroker\Hugo\Service
  */
 class ExportPageService extends AbstractService
 {

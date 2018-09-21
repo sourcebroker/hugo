@@ -8,7 +8,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Class DomainUtility
- * @package SourceBroker\Hugo\Utility
  */
 class DomainUtility implements SingletonInterface
 {

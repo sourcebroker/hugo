@@ -34,7 +34,6 @@ use TYPO3\CMS\Frontend\Page\PageRepository;
 
 /**
  * Class ExportContentService
- * @package SourceBroker\Hugo\Service
  */
 class ExportContentService extends AbstractService
 {
@@ -70,7 +69,7 @@ class ExportContentService extends AbstractService
                     foreach ($hugoConfigForRootSite->getOption('content.contentToClass.mapper') as $contentToClassMapper) {
                         if (preg_match('/' . $contentToClassMapper['ctype'] . '/', $camelCaseClass, $cTypeMateches)) {
                             $classForCType = preg_replace_callback(
-                                "/\\{([0-9]+)\\}/",
+                                '/\\{([0-9]+)\\}/',
                                 function ($match) use ($cTypeMateches) {
                                     return $cTypeMateches[$match[1]];
                                 },
@@ -141,7 +140,7 @@ class ExportContentService extends AbstractService
                 foreach ($hugoConfigForRootSite->getOption('content.contentToClass.mapper') as $contentToClassMapper) {
                     if (preg_match('/' . $contentToClassMapper['ctype'] . '/', $camelCaseClass, $cTypeMateches)) {
                         $classForCType = preg_replace_callback(
-                            "/\\{([0-9]+)\\}/",
+                            '/\\{([0-9]+)\\}/',
                             function ($match) use ($cTypeMateches) {
                                 return $cTypeMateches[$match[1]];
                             },

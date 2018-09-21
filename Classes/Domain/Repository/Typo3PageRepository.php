@@ -11,7 +11,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 /**
  * Class Typo3PageRepository
  *
- * @package SourceBroker\Hugo\Domain\Repository
  */
 class Typo3PageRepository
 {
@@ -103,7 +102,6 @@ class Typo3PageRepository
             ->fetchAll();
     }
 
-
     /**
      * @param int $pid
      * @param array $doktypes
@@ -120,7 +118,6 @@ class Typo3PageRepository
         );
         return $queryBuilder->execute()->fetchAll();
     }
-
 
     /**
      * @param int $defaultLangPageUid

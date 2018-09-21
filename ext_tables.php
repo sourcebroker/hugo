@@ -22,9 +22,9 @@ call_user_func(
             );
         }
 
-        \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::registerAjaxHandler (
+        \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::registerAjaxHandler(
             'HugoAdministrationController::export',
-            \SourceBroker\Hugo\Controller\AdministrationController::class.'->exportAjax'
+            \SourceBroker\Hugo\Controller\AdministrationController::class . '->exportAjax'
         );
     }
 );

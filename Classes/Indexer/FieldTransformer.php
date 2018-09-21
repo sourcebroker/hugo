@@ -5,7 +5,6 @@ namespace SourceBroker\Hugo\Indexer;
 /**
  * Class FieldTransformer
  *
- * @package SourceBroker\Hugo\Indexer
  */
 class FieldTransformer
 {
@@ -78,7 +77,7 @@ class FieldTransformer
      * Convert string to integer
      *
      * @param string $currentValue
-     * @return integer
+     * @return int
      */
     public function toInteger($currentValue)
     {

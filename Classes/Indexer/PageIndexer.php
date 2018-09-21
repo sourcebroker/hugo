@@ -14,7 +14,6 @@ use TYPO3\CMS\Frontend\Page\PageRepository;
 /**
  * Class PageIndexer
  *
- * @package SourceBroker\Hugo\Indexer
  */
 class PageIndexer extends AbstractIndexer
 {
@@ -24,7 +23,7 @@ class PageIndexer extends AbstractIndexer
     /**
      * @var array
      */
-    static private $contentElementStorage = [];
+    private static $contentElementStorage = [];
 
     /**
      * @param int $pageUid

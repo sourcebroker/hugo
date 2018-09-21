@@ -8,7 +8,6 @@ use SourceBroker\Hugo\Domain\Model\DocumentCollection;
 /**
  * Interface WriterInterface
  *
- * @package SourceBroker\Hugo\Writer
  */
 interface WriterInterface
 {

@@ -3,7 +3,6 @@
 
 namespace SourceBroker\Hugo\Queue\Storage;
 
-
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -159,6 +158,4 @@ class MySqlStorage implements StorageInterface
             ->where($qb->expr()->eq('namespace', $qb->createNamedParameter($key, \PDO::PARAM_STR)))
             ->execute();
     }
-
-
 }

@@ -12,7 +12,6 @@ use TYPO3\CMS\Frontend\Page\PageRepository;
 /**
  * Class Document
  *
- * @package SourceBroker\Hugo\Traversing
  */
 class Document
 {
@@ -49,7 +48,6 @@ class Document
         'draft' => 0,
         'menu' => []
     ];
-
 
     /**
      * @var null
@@ -107,7 +105,7 @@ class Document
      * @param null $storeFilename
      * @return Document
      */
-    public function setStoreFilename($storeFilename): Document
+    public function setStoreFilename($storeFilename): self
     {
         $this->storeFilename = $storeFilename;
         return $this;
@@ -275,7 +273,6 @@ class Document
                             $rootlinePage['uid'] == $menuConfig['entryUid']
                             && $pageBelongsToMenuAndIsNotBelowSysfolder
                             && $pageBelongsToMenuAndIsNotBelowHiddenInNavigation) {
-
                             if (!empty($pageTranslation['sys_language_uid'])) {
                                 $rootlinePageTranslation = $typo3PageRepository->getPageTranslation($checkPage['uid'],
                                     $pageTranslation['sys_language_uid']);

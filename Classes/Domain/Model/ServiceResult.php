@@ -5,7 +5,6 @@ namespace SourceBroker\Hugo\Domain\Model;
 /**
  * Class ServiceResult
  *
- * @package SourceBroker\Hugo\Domain\Model
  */
 class ServiceResult
 {

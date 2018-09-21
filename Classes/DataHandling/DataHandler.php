@@ -10,7 +10,6 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 class DataHandler implements SingletonInterface
 {
-
     protected $supportedTables = ['tt_content', 'pages'];
 
     /**

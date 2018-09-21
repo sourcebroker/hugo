@@ -20,7 +20,6 @@ use TYPO3\CMS\Extbase\Persistence\Repository;
 
 /**
  * Class RecordIndexer
- * @package SourceBroker\Hugo\Indexer
  */
 class RecordIndexer extends AbstractIndexer implements SingletonInterface
 {
@@ -142,7 +141,6 @@ class RecordIndexer extends AbstractIndexer implements SingletonInterface
     {
         foreach ($properties as $property => $value) {
             if (is_object($value)) {
-
                 if ($value instanceof LazyObjectStorage || $value instanceof ObjectStorage) {
                     $properties[$property] = $this->mapPropertiesToArrayRecursive($value->toArray());
                 } else {
@@ -152,7 +150,6 @@ class RecordIndexer extends AbstractIndexer implements SingletonInterface
                         $properties[$property] = $value;
                     }
                 }
-
             }
 
             if (empty($properties[$property])) {
@@ -173,7 +170,6 @@ class RecordIndexer extends AbstractIndexer implements SingletonInterface
     private function parseFields(string $table, array &$record, Configurator $configurator)
     {
         foreach ($record as $columnName => &$columnValue) {
-
             if (empty($GLOBALS['TCA'][$table]['columns'][$columnName]['config'])) {
                 continue;
             }
@@ -246,5 +242,4 @@ class RecordIndexer extends AbstractIndexer implements SingletonInterface
 
         return $this->rteService;
     }
-
 }

@@ -51,5 +51,4 @@ class Typo3ContentRepository
             ->execute()
             ->fetch();
     }
-
 }

@@ -21,7 +21,6 @@ use TYPO3\CMS\Core\Database\Query\Restriction\HiddenRestriction;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\Page\PageRepository;
 
-
 /**
  * A utility resolving and Caching the Rootline generation
  */
@@ -106,7 +105,6 @@ class RootlineUtility
         $this->cacheIdentifier = $this->getCacheIdentifier();
     }
 
-
     /**
      * Constructs the cache Identifier
      *
@@ -134,7 +132,7 @@ class RootlineUtility
             $cacheTags = ['pageId_' . $page['uid']];
             if ($parentUid > 0) {
                 /** @var $rootline \TYPO3\CMS\Core\Utility\RootlineUtility */
-                $rootline = GeneralUtility::makeInstance(RootlineUtility::class, $parentUid,
+                $rootline = GeneralUtility::makeInstance(self::class, $parentUid,
                     $this->languageUid);
                 $rootline = $rootline->get();
                 // retrieve cache tags of parent rootline
@@ -350,5 +348,4 @@ class RootlineUtility
     {
         return ltrim(implode('/', $this->getSlugifiedRootline($sysLanguageUid)) . '/', '/');
     }
-
 }

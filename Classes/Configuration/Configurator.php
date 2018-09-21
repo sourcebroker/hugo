@@ -134,7 +134,6 @@ class Configurator
         return $config;
     }
 
-
     /**
      * Load configurator with TSconfig from give page id
      *
@@ -157,5 +156,4 @@ class Configurator
 
         self::$instances[$pageIdToGetTsConfig] = $this;
     }
-
 }

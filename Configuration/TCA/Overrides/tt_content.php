@@ -18,4 +18,3 @@
     'tt_content',
     '--div--;Hugo,tx_hugo_frontmatter'
 );
-

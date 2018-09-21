@@ -25,7 +25,6 @@ use TYPO3\CMS\Extbase\Mvc\Controller\CommandController;
 /**
  * Class HugoCommandController
  *
- * @package SourceBroker\Hugo\Command
  */
 class HugoCommandController extends CommandController
 {
@@ -153,11 +152,11 @@ class HugoCommandController extends CommandController
     protected function displayCommandResult(
         \SourceBroker\Hugo\Domain\Model\ServiceResult $result
     ) {
-        $this->outputLine("Command: " . $result->getCommand());
-        $this->outputLine("Output: " . $result->getCommandOutput());
-        $this->outputLine("Success: " . ($result->isExecutedSuccessfully() ? 'true' : 'false'));
+        $this->outputLine('Command: ' . $result->getCommand());
+        $this->outputLine('Output: ' . $result->getCommandOutput());
+        $this->outputLine('Success: ' . ($result->isExecutedSuccessfully() ? 'true' : 'false'));
         if ($result->getMessage()) {
-            $this->outputLine("Message: " . $result->getMessage());
+            $this->outputLine('Message: ' . $result->getMessage());
         }
         echo $this->outputLine("\n" . str_repeat('-', 80) . "\n");
     }

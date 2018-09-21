@@ -32,7 +32,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 /**
  * Class RteService
  *
- * @package SourceBroker\Hugo\Service
  */
 class RteService implements SingletonInterface
 {

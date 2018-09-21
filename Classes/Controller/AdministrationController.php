@@ -23,7 +23,6 @@ use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 /**
  * Class AdministrationController
  *
- * @package SourceBroker\Hugo\Controller
  *
  * @property BackendTemplateView $view
  */
@@ -187,7 +186,6 @@ class AdministrationController extends ActionController
      */
     public function systemEnvironmentCheckAction()
     {
-
     }
 
     /**
@@ -197,7 +195,6 @@ class AdministrationController extends ActionController
      */
     public function exportedStructurePreviewAction()
     {
-
     }
 
     /**

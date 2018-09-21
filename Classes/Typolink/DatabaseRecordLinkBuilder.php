@@ -21,5 +21,4 @@ namespace SourceBroker\Hugo\Typolink;
  */
 class DatabaseRecordLinkBuilder extends \TYPO3\CMS\Frontend\Typolink\DatabaseRecordLinkBuilder
 {
-
 }

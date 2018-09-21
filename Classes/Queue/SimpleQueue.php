@@ -57,7 +57,6 @@ class SimpleQueue implements QueueInterface
         return $this->storage->count($this->name);
     }
 
-
     /**
      * @return void
      */

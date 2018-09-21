@@ -1,6 +1,11 @@
 Changelog
 ---------
 
+master
+~~~~~~~
+1) [TASK] Add styleci and scrutinizer checkers settings.
+1) [TASK] Apply styleci fixes.
+
 0.6.0
 ~~~~~
 1) [BUGFIX] Do not break on non int values in link.

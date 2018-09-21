@@ -10,7 +10,6 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /**
  * Class AbstractContentElement
- * @package SourceBroker\Hugo\ContentElement
  */
 abstract class AbstractContentElement implements ContentElementInterface
 {

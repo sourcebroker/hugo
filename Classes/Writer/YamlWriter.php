@@ -9,7 +9,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Class YamlWriter
- * @package SourceBroker\Hugo\Writer
  */
 class YamlWriter implements WriterInterface
 {

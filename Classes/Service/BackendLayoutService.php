@@ -33,7 +33,6 @@ use TYPO3\CMS\Core\Utility\StringUtility;
 /**
  * Class Typo3UrlService
  *
- * @package SourceBroker\Hugo\Service
  */
 class BackendLayoutService extends AbstractService implements SingletonInterface
 {
@@ -152,5 +151,4 @@ class BackendLayoutService extends AbstractService implements SingletonInterface
 
         return $columns;
     }
-
 }

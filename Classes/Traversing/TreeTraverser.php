@@ -13,7 +13,6 @@ use TYPO3\CMS\Frontend\Page\PageRepository;
 /**
  * Class PageTraverser
  *
- * @package SourceBroker\Hugo\Traversing
  */
 class TreeTraverser
 {

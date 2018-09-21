@@ -18,4 +18,3 @@
     'pages',
     '--div--;Hugo,tx_hugo_frontmatter'
 );
-
