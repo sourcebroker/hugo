@@ -85,7 +85,6 @@ class Configurator
         }
     }
 
-
     /**
      * Configurator constructor.
      * @param null $config
