@@ -24,9 +24,11 @@
 
 namespace SourceBroker\Hugo\Configuration;
 
+use SourceBroker\Hugo\Domain\Repository\Typo3PageRepository;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /**
  * Configurator Class
@@ -62,6 +64,17 @@ class Configurator
         }
 
         return self::$instances[$pid];
+    }
+
+    /**
+     *
+     * @return Configurator
+     */
+    public static function getFirstRootsiteConfig() {
+        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+        foreach (($objectManager->get(Typo3PageRepository::class))->getSiteRootPages() as $siteRoot) {
+            return Configurator::getByPid((int)$siteRoot['uid']);
+        }
     }
 
     /**

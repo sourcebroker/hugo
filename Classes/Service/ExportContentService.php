@@ -27,7 +27,6 @@ namespace SourceBroker\Hugo\Service;
 use SourceBroker\Hugo\Configuration\Configurator;
 use SourceBroker\Hugo\Domain\Model\ServiceResult;
 use SourceBroker\Hugo\Domain\Repository\Typo3ContentRepository;
-use SourceBroker\Hugo\Domain\Repository\Typo3PageRepository;
 use Symfony\Component\Yaml\Yaml;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\Page\PageRepository;
@@ -38,80 +37,34 @@ use TYPO3\CMS\Frontend\Page\PageRepository;
 class ExportContentService extends AbstractService
 {
     /**
-     * @return \SourceBroker\Hugo\Domain\Model\ServiceResult[]
+     * Export all TYPO3 content elements
+     *
+     * @return ServiceResult
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
      */
-    public function exportAll(): array
+    public function exportAll(): ServiceResult
     {
-        $this->createLocker('hugoExportContent');
-        $results = [];
+        $this->createLocker('ExportContentService');
         $serviceResult = $this->createServiceResult();
         $index = 0;
-
-        $pageRepository = GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\Page\PageRepository::class);
-        // We assume config for exporting content is the same for all available site roots so take first available
-        // site root which is enabled for hugo.
-        foreach (($this->objectManager->get(Typo3PageRepository::class))->getSiteRootPages() as $siteRoot) {
-            $hugoConfigForRootSite = Configurator::getByPid((int)$siteRoot['uid']);
-            if ($hugoConfigForRootSite->getOption('enable')) {
-                foreach (($this->objectManager->get(Typo3ContentRepository::class))->getAll() as $contentElement) {
-                    if ($contentElement['sys_language_uid'] > 0) {
-                        $contentElement = $pageRepository->getRecordOverlay(
-                            'tt_content',
-                            $contentElement,
-                            $contentElement['sys_language_uid'],
-                            $hugoConfigForRootSite->getOption('sys_language_overlay')
-                        );
-                    }
-                    $camelCaseClass = str_replace('_', '', ucwords($contentElement['CType'], '_'));
-                    $classForCType = null;
-                    if(is_array($hugoConfigForRootSite->getOption('content.contentToClass.mapper'))) {
-                        foreach ($hugoConfigForRootSite->getOption('content.contentToClass.mapper') as $contentToClassMapper) {
-                            if (preg_match('/' . $contentToClassMapper['ctype'] . '/', $camelCaseClass,
-                                $cTypeMateches)) {
-                                $classForCType = preg_replace_callback(
-                                    '/\\{([0-9]+)\\}/',
-                                    function ($match) use ($cTypeMateches) {
-                                        return $cTypeMateches[$match[1]];
-                                    },
-                                    $contentToClassMapper['class']
-                                );
-                                break;
-                            }
-                        }
-                    }
-                    if (!$this->objectManager->isRegistered($classForCType)) {
-                        $classForCType = $hugoConfigForRootSite->getOption('content.contentToClass.fallbackContentElementClass');
-                    }
-                    $contentElementObject = $this->objectManager->get($classForCType);
-                    $folderToStore = rtrim(PATH_site . $hugoConfigForRootSite->getOption('writer.path.data'),
-                            DIRECTORY_SEPARATOR) . '/';
-                    $filename = $contentElement['uid'] . '.yaml';
-                    if (!file_exists($folderToStore)) {
-                        GeneralUtility::mkdir_deep($folderToStore);
-                    }
-                    file_put_contents(
-                        $folderToStore . $filename,
-                        Yaml::dump($contentElementObject->getData($contentElement), 100)
-                    );
-
-                    $index++;
-                }
-                // Leave after first hugo enabled site root becase content elements are the same for all root sites.
-                break;
+        $hugoConfigForFirstRootsite = Configurator::getFirstRootsiteConfig();
+        if ($hugoConfigForFirstRootsite->getOption('enable')) {
+            foreach (($this->objectManager->get(Typo3ContentRepository::class))->getAll() as $contentElement) {
+                $this->saveContentElement($contentElement, $hugoConfigForFirstRootsite);
+                $index++;
             }
         }
-
         $serviceResult->setMessage($index . ' content elements have been exported to files.');
         $serviceResult->setExecutedSuccessfully(true);
-        $results[] = $serviceResult;
 
         $this->release();
-        return $results;
+        return $serviceResult;
     }
 
     /**
+     * Export single content element
+     *
      * @param int $contentElementUid
      *
      * @return \SourceBroker\Hugo\Domain\Model\ServiceResult
@@ -120,94 +73,97 @@ class ExportContentService extends AbstractService
      */
     public function exportSingle(int $contentElementUid): ServiceResult
     {
-        $this->createLocker('hugoExportContent');
-
-        // We assume config for exporting content is the same for all available site roots so take first available
-        // site root which is enabled for hugo.
-        /** @var PageRepository $pageRepository */
-        $pageRepository = GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\Page\PageRepository::class);
-        foreach (($this->objectManager->get(Typo3PageRepository::class))->getSiteRootPages() as $siteRoot) {
-            $hugoConfigForRootSite = Configurator::getByPid((int)$siteRoot['uid']);
-            if ($hugoConfigForRootSite->getOption('enable')) {
-                $contentElement = $this->objectManager->get(Typo3ContentRepository::class)->getByUid($contentElementUid);
-                if ($contentElement['sys_language_uid'] > 0) {
-                    $contentElement =
-                        $pageRepository->getRecordOverlay(
-                            'tt_content', $contentElement, $contentElement['sys_language_uid'],
-                            $hugoConfigForRootSite->getOption('sys_language_overlay')
-                        );
-                }
-                //$row = $this->sys_page->getRecordOverlay('tt_content', $row, $basePageRow['_PAGES_OVERLAY_LANGUAGE'], $tsfe->sys_language_contentOL);
-                $camelCaseClass = str_replace('_', '', ucwords($contentElement['CType'], '_'));
-                $classForCType = null;
-                if (is_array($hugoConfigForRootSite->getOption('content.contentToClass.mapper'))) {
-                    foreach ($hugoConfigForRootSite->getOption('content.contentToClass.mapper') as $contentToClassMapper) {
-                        if (preg_match('/' . $contentToClassMapper['ctype'] . '/', $camelCaseClass, $cTypeMateches)) {
-                            $classForCType = preg_replace_callback(
-                                '/\\{([0-9]+)\\}/',
-                                function ($match) use ($cTypeMateches) {
-                                    return $cTypeMateches[$match[1]];
-                                },
-                                $contentToClassMapper['class']
-                            );
-                            break;
-                        }
-                    }
-                }
-                if (!$this->objectManager->isRegistered($classForCType)) {
-                    $classForCType = $hugoConfigForRootSite->getOption('content.contentToClass.fallbackContentElementClass');
-                }
-                $contentElementObject = $this->objectManager->get($classForCType);
-                $folderToStore = rtrim(PATH_site . $hugoConfigForRootSite->getOption('writer.path.data'),
-                        DIRECTORY_SEPARATOR) . '/';
-                $filename = $contentElement['uid'] . '.yaml';
-                if (!file_exists($folderToStore)) {
-                    GeneralUtility::mkdir_deep($folderToStore);
-                }
-                file_put_contents(
-                    $folderToStore . $filename,
-                    Yaml::dump($contentElementObject->getData($contentElement), 100)
-                );
-
-                // Leave after first hugo enabled site root because content elements are the same for all root sites.
-                break;
-            }
+        $this->createLocker('ExportContentService');
+        $serviceResult = $this->createServiceResult();
+        $hugoFirstRootSiteConfig = Configurator::getFirstRootsiteConfig();
+        if ($hugoFirstRootSiteConfig->getOption('enable')) {
+            $contentElement = $this->objectManager->get(Typo3ContentRepository::class)->getByUid($contentElementUid);
+            $this->saveContentElement($contentElement, $hugoFirstRootSiteConfig);
         }
-        return $this->release();
+        $this->release();
+        return $serviceResult;
     }
 
     /**
      * @param int $contentElementUid
      *
-     * @return bool
+     * @return ServiceResult
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
      */
-    public function deleteSingle(int $contentElementUid): bool
+    public function deleteSingle(int $contentElementUid): ServiceResult
     {
-        $this->createLocker('hugoExportContent');
+        $this->createLocker('ExportContentService');
+        $serviceResult = $this->createServiceResult();
+        $hugoFirstRootSiteConfig = Configurator::getFirstRootsiteConfig();
+        if ($hugoFirstRootSiteConfig->getOption('enable')) {
+            $contentElement = $this->objectManager->get(Typo3ContentRepository::class)->getByUid($contentElementUid);
+            if (!empty($contentElement)) {
+                $contentElementAbsolutePath = $this->getAbsolutePathToStoreContentElement($hugoFirstRootSiteConfig) . '/'
+                    . $this->getFilenameToStoreContentElement($contentElementUid);
+                if (file_exists($contentElementAbsolutePath)) {
+                    unlink($contentElementAbsolutePath);
+                }
+            }
+        }
+        $this->release();
+        return $serviceResult;
+    }
 
-        // We assume config for exporting content is the same for all available site roots so take first available
-        // site root which is enabled for hugo.
-
-        foreach (($this->objectManager->get(Typo3PageRepository::class))->getSiteRootPages() as $siteRoot) {
-            $hugoConfigForRootSite = Configurator::getByPid((int)$siteRoot['uid']);
-            if ($hugoConfigForRootSite->getOption('enable')) {
-                $contentElement = $this->objectManager->get(Typo3ContentRepository::class)->getByUid($contentElementUid);
-
-                if (!empty($contentElement)) {
-                    $contentElementFilePath = rtrim(PATH_site . $hugoConfigForRootSite->getOption('writer.path.data'),
-                            DIRECTORY_SEPARATOR) . '/' . $contentElement['uid'] . '.yaml';
-
-                    if (file_exists($contentElementFilePath)) {
-                        unlink($contentElementFilePath);
-                    }
-
+    /**
+     * Save single content element to yaml file
+     *
+     * @param $contentElement
+     * @param $hugoFirstRootSiteConfig
+     */
+    protected function saveContentElement(array $contentElement, Configurator $hugoFirstRootSiteConfig)
+    {
+        if ($contentElement['sys_language_uid'] > 0) {
+            /** @var PageRepository $pageRepository */
+            $pageRepository = GeneralUtility::makeInstance(PageRepository::class);
+            $contentElement =
+                $pageRepository->getRecordOverlay(
+                    'tt_content', $contentElement, $contentElement['sys_language_uid'],
+                    $hugoFirstRootSiteConfig->getOption('sys_language_overlay')
+                );
+        }
+        $camelCaseClass = str_replace('_', '', ucwords($contentElement['CType'], '_'));
+        $classForCType = null;
+        if (is_array($hugoFirstRootSiteConfig->getOption('content.contentToClass.mapper'))) {
+            foreach ($hugoFirstRootSiteConfig->getOption('content.contentToClass.mapper') as $contentToClassMapper) {
+                if (preg_match('/' . $contentToClassMapper['ctype'] . '/', $camelCaseClass, $cTypeMateches)) {
+                    $classForCType = preg_replace_callback(
+                        '/\\{([0-9]+)\\}/',
+                        function ($match) use ($cTypeMateches) {
+                            return $cTypeMateches[$match[1]];
+                        },
+                        $contentToClassMapper['class']
+                    );
                     break;
                 }
             }
         }
+        if (!$this->objectManager->isRegistered($classForCType)) {
+            $classForCType = $hugoFirstRootSiteConfig->getOption('content.contentToClass.fallbackContentElementClass');
+        }
+        $contentElementObject = $this->objectManager->get($classForCType);
+        $absolutePathToStoreContentElement = $this->getAbsolutePathToStoreContentElement($hugoFirstRootSiteConfig);
+        if (!file_exists($absolutePathToStoreContentElement)) {
+            GeneralUtility::mkdir_deep($absolutePathToStoreContentElement);
+        }
+        file_put_contents(
+            $absolutePathToStoreContentElement . '/' . $this->getFilenameToStoreContentElement($contentElement['uid']),
+            Yaml::dump($contentElementObject->getData($contentElement), 100)
+        );
+    }
 
-        return $this->release();
+    protected function getAbsolutePathToStoreContentElement(Configurator $hugoFirstRootSiteConfig)
+    {
+        return rtrim(PATH_site . (string)$hugoFirstRootSiteConfig->getOption('writer.path.data'), DIRECTORY_SEPARATOR);
+    }
+
+    protected function getFilenameToStoreContentElement(int $contentElementUid)
+    {
+        return $contentElementUid . '.yaml';
     }
 }
