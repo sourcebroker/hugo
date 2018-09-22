@@ -49,7 +49,7 @@ class AdministrationController extends ActionController
         try {
             $configurator = Configurator::getByPid($this->pageUid);
             $pageTsConfig = $configurator->getConfig();
-            if($pageTsConfig === null) {
+            if ($pageTsConfig === null) {
                 throw new \Exception('No config');
             } else {
                 $this->view->assignMultiple([

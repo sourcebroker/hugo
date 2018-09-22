@@ -40,6 +40,7 @@ class ExportContentService extends AbstractService
      * Export all TYPO3 content elements
      *
      * @return ServiceResult
+     * @throws \TYPO3\CMS\Core\Exception
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
      */
@@ -49,7 +50,7 @@ class ExportContentService extends AbstractService
         $serviceResult = $this->createServiceResult();
         $index = 0;
         $hugoConfigForFirstRootsite = Configurator::getFirstRootsiteConfig();
-        if ($hugoConfigForFirstRootsite->getOption('enable')) {
+        if ((int)$hugoConfigForFirstRootsite->getOption('enable')) {
             foreach (($this->objectManager->get(Typo3ContentRepository::class))->getAll() as $contentElement) {
                 $this->saveContentElement($contentElement, $hugoConfigForFirstRootsite);
                 $index++;
@@ -68,6 +69,7 @@ class ExportContentService extends AbstractService
      * @param int $contentElementUid
      *
      * @return \SourceBroker\Hugo\Domain\Model\ServiceResult
+     * @throws \TYPO3\CMS\Core\Exception
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
      */
@@ -76,7 +78,7 @@ class ExportContentService extends AbstractService
         $this->createLocker('ExportContentService');
         $serviceResult = $this->createServiceResult();
         $hugoFirstRootSiteConfig = Configurator::getFirstRootsiteConfig();
-        if ($hugoFirstRootSiteConfig->getOption('enable')) {
+        if ((int)$hugoFirstRootSiteConfig->getOption('enable')) {
             $contentElement = $this->objectManager->get(Typo3ContentRepository::class)->getByUid($contentElementUid);
             $this->saveContentElement($contentElement, $hugoFirstRootSiteConfig);
         }
@@ -88,6 +90,7 @@ class ExportContentService extends AbstractService
      * @param int $contentElementUid
      *
      * @return ServiceResult
+     * @throws \TYPO3\CMS\Core\Exception
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
      */
@@ -96,7 +99,7 @@ class ExportContentService extends AbstractService
         $this->createLocker('ExportContentService');
         $serviceResult = $this->createServiceResult();
         $hugoFirstRootSiteConfig = Configurator::getFirstRootsiteConfig();
-        if ($hugoFirstRootSiteConfig->getOption('enable')) {
+        if ((int)$hugoFirstRootSiteConfig->getOption('enable')) {
             $contentElement = $this->objectManager->get(Typo3ContentRepository::class)->getByUid($contentElementUid);
             if (!empty($contentElement)) {
                 $contentElementAbsolutePath = $this->getAbsolutePathToStoreContentElement($hugoFirstRootSiteConfig) . '/'
