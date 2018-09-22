@@ -245,7 +245,7 @@ class Document
     {
         $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
         $hugoConfig = Configurator::getByPid((int)$page['uid']);
-        if (!empty($hugoConfig->getOption('page.indexer.menu'))) {
+        if (!empty($hugoConfig->getOption('page.indexer.menu')) && is_array($hugoConfig->getOption('page.indexer.menu'))) {
             foreach ($hugoConfig->getOption('page.indexer.menu') as $menuIdentifier => $menuConfig) {
                 $typo3PageRepository = $objectManager->get(Typo3PageRepository::class);
                 $shortcuts = $typo3PageRepository->getShortcutsPointingToPage($page['uid']);
@@ -258,10 +258,10 @@ class Document
                         $pageBelongsToMenuAndIsNotBelowHiddenInNavigation = true;
                         $doktypeInRootline = false;
                         foreach ($rootline as $rootlinePageBelongs) {
-                            if ($doktypeInRootline == true && $rootlinePageBelongs['uid'] == $menuConfig['entryUid']) {
+                            if ($doktypeInRootline === true && $rootlinePageBelongs['uid'] === $menuConfig['entryUid']) {
                                 $pageBelongsToMenuAndIsNotBelowSysfolder = false;
                             }
-                            if ($rootlinePageBelongs['doktype'] == PageRepository::DOKTYPE_SYSFOLDER) {
+                            if ($rootlinePageBelongs['doktype'] === PageRepository::DOKTYPE_SYSFOLDER) {
                                 $doktypeInRootline = true;
                             }
                             if ($rootlinePageBelongs['nav_hide'] && empty($menuConfig['showHiddenInMenu'])) {
@@ -269,8 +269,8 @@ class Document
                             }
                         }
                         if (empty($page['nav_hide']) &&
-                            $page['uid'] != $menuConfig['entryUid'] &&
-                            $rootlinePage['uid'] == $menuConfig['entryUid']
+                            $page['uid'] !== (int)$menuConfig['entryUid'] &&
+                            $rootlinePage['uid'] === (int)$menuConfig['entryUid']
                             && $pageBelongsToMenuAndIsNotBelowSysfolder
                             && $pageBelongsToMenuAndIsNotBelowHiddenInNavigation) {
                             if (!empty($pageTranslation['sys_language_uid'])) {
