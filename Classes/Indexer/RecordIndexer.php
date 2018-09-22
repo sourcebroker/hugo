@@ -63,7 +63,7 @@ class RecordIndexer extends AbstractIndexer implements SingletonInterface
     public function getDocumentsForPage(int $pageUid, DocumentCollection $documentCollection): array
     {
         $hugoConfig = Configurator::getByPid($pageUid);
-        if (!empty($hugoConfig->getOption('record.indexer.exporter'))) {
+        if (!empty($hugoConfig->getOption('record.indexer.exporter')) && is_array($hugoConfig->getOption('record.indexer.exporter'))) {
             foreach ($hugoConfig->getOption('record.indexer.exporter') as $exporterConfig) {
                 if ($pageUid == $exporterConfig['pageUid']) {
                     $table = $exporterConfig['table'];

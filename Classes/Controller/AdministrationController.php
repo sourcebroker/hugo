@@ -49,11 +49,14 @@ class AdministrationController extends ActionController
         try {
             $configurator = Configurator::getByPid($this->pageUid);
             $pageTsConfig = $configurator->getConfig();
-
-            $this->view->assignMultiple([
-                'pageTsConfig' => $pageTsConfig,
-                'mainConfiguration' => $this->getMainConfigurationFromPageTsConfig($pageTsConfig),
-            ]);
+            if($pageTsConfig === null) {
+                throw new \Exception('No config');
+            } else {
+                $this->view->assignMultiple([
+                    'pageTsConfig' => $pageTsConfig,
+                    'mainConfiguration' => $this->getMainConfigurationFromPageTsConfig($pageTsConfig),
+                ]);
+            }
         } catch (\Exception $e) {
             $this->controllerContext->getFlashMessageQueue()->addMessage(
                 GeneralUtility::makeInstance(

@@ -12,6 +12,7 @@ master
 7) [BUGFIX] Disable passing by reference because expression can not be referenced.
 8) [BUGFIX] Add strict types checks.
 9) [BUGFIX] Remove not needed switch statements.
+10) [BUGFIX] Check if array bbefore use in foreach / check for null vs araray for config var.
 
 0.6.0
 ~~~~~
