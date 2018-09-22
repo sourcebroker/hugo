@@ -32,7 +32,7 @@ abstract class AbstractContentElement implements ContentElementInterface
         $fieldTransformer = $objectManager->get(FieldTransformer::class);
         foreach ((array)$config->getOption('content.indexer.commonFields.fieldMapper') as $fieldToMap => $fieldOptions) {
             $fields = [];
-            foreach (GeneralUtility::trimExplode(',', $fieldOptions['from']) as &$fieldName) {
+            foreach (GeneralUtility::trimExplode(',', $fieldOptions['from']) as $fieldName) {
                 if (!empty($contentElementRawData[$fieldName])) {
                     $fields[] = $contentElementRawData[$fieldName];
                 }
