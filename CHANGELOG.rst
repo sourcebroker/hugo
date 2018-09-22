@@ -10,6 +10,7 @@ master
 5) [BUGFIX] Add strict types checks.
 6) [TASK] Remove empty file.
 7) [BUGFIX] Disable passing by reference because expression can not be referenced.
+8) [BUGFIX] Add strict types checks.
 
 0.6.0
 ~~~~~

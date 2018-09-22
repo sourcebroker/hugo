@@ -123,7 +123,7 @@ abstract class AbstractService
         if (count($output)) {
             $serviceResult->setCommandOutput(implode("\n", $output));
         }
-        if ($return_var == 0) {
+        if ($return_var === 0) {
             $serviceResult->setExecutedSuccessfully(true);
         }
     }
