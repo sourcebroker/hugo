@@ -15,6 +15,7 @@ master
 10) [BUGFIX] Check if array bbefore use in foreach / check for null vs araray for config var.
 11) [TASK] Refactor ExportContentService class.
 12) [BUGFIX] Fix wrong tablename for queue.
+13) [TASK] Refactor getFirstRootsiteConfig function in Configurator class.
 
 0.6.0
 ~~~~~

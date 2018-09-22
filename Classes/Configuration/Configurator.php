@@ -26,6 +26,7 @@ namespace SourceBroker\Hugo\Configuration;
 
 use SourceBroker\Hugo\Domain\Repository\Typo3PageRepository;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Exception;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
@@ -69,13 +70,21 @@ class Configurator
     /**
      *
      * @return Configurator
+     * @throws Exception
      */
-    public static function getFirstRootsiteConfig() {
+    public static function getFirstRootsiteConfig()
+    {
         $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        foreach (($objectManager->get(Typo3PageRepository::class))->getSiteRootPages() as $siteRoot) {
-            return Configurator::getByPid((int)$siteRoot['uid']);
+        $rootPages = $objectManager->get(Typo3PageRepository::class)->getSiteRootPages();
+        if ($rootPages !== null) {
+            foreach ($rootPages as $rootPage) {
+                return self::getByPid((int)$rootPage['uid']);
+            }
+        } else {
+            throw new Exception('Can not find any root page in your TYPO3.', 1537646094);
         }
     }
+
 
     /**
      * Configurator constructor.
