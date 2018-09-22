@@ -39,11 +39,7 @@ class PageIndexer extends AbstractIndexer
         $page = $this->typo3PageRepository->getByUid($pageUid);
         $rootline = ($objectManager->get(\TYPO3\CMS\Core\Utility\RootlineUtility::class, $pageUid))->get();
         $layout = ($objectManager->get(BackendLayoutService::class))->getIdentifierByPage($pageUid);
-
-        switch ($hugoConfig->getOption('page.indexer.layout.nameTransform')) {
-            default:
-                $layout = strtolower(preg_replace('/([a-zA-Z])(?=[A-Z])/', '$1-', $layout));
-        }
+        $layout = strtolower(preg_replace('/([a-zA-Z])(?=[A-Z])/', '$1-', $layout));
 
         if (!in_array($page['doktype'], [
                 PageRepository::DOKTYPE_SYSFOLDER,
@@ -215,11 +211,7 @@ class PageIndexer extends AbstractIndexer
         $config = Configurator::getByPid($page['uid']);
         $customFields = [];
         foreach ((array)$config->getOption('page.indexer.customFields.fieldMapper') as $fieldToMap => $fieldOptions) {
-            $type = empty($fieldOptions['type']) ? null : $fieldOptions['type'];
-            switch ($type) {
-                default:
-                    $customFields[$fieldOptions['name']] = $page[$fieldToMap];
-            }
+            $customFields[$fieldOptions['name']] = $page[$fieldToMap];
         }
         return $customFields;
     }

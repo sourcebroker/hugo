@@ -11,6 +11,7 @@ master
 6) [TASK] Remove empty file.
 7) [BUGFIX] Disable passing by reference because expression can not be referenced.
 8) [BUGFIX] Add strict types checks.
+9) [BUGFIX] Remove not needed switch statements.
 
 0.6.0
 ~~~~~
