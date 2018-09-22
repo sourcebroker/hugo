@@ -49,10 +49,10 @@ class ExportContentService extends AbstractService
         $this->createLocker('ExportContentService');
         $serviceResult = $this->createServiceResult();
         $index = 0;
-        $hugoConfigForFirstRootsite = Configurator::getFirstRootsiteConfig();
-        if ((int)$hugoConfigForFirstRootsite->getOption('enable')) {
+        $hugoFirstRootSiteConfig = Configurator::getFirstRootsiteConfig();
+        if ($hugoFirstRootSiteConfig instanceof Configurator && (int)$hugoFirstRootSiteConfig->getOption('enable')) {
             foreach (($this->objectManager->get(Typo3ContentRepository::class))->getAll() as $contentElement) {
-                $this->saveContentElement($contentElement, $hugoConfigForFirstRootsite);
+                $this->saveContentElement($contentElement, $hugoFirstRootSiteConfig);
                 $index++;
             }
         }
@@ -78,7 +78,7 @@ class ExportContentService extends AbstractService
         $this->createLocker('ExportContentService');
         $serviceResult = $this->createServiceResult();
         $hugoFirstRootSiteConfig = Configurator::getFirstRootsiteConfig();
-        if ((int)$hugoFirstRootSiteConfig->getOption('enable')) {
+        if ($hugoFirstRootSiteConfig instanceof Configurator && (int)$hugoFirstRootSiteConfig->getOption('enable')) {
             $contentElement = $this->objectManager->get(Typo3ContentRepository::class)->getByUid($contentElementUid);
             $this->saveContentElement($contentElement, $hugoFirstRootSiteConfig);
         }
@@ -99,7 +99,7 @@ class ExportContentService extends AbstractService
         $this->createLocker('ExportContentService');
         $serviceResult = $this->createServiceResult();
         $hugoFirstRootSiteConfig = Configurator::getFirstRootsiteConfig();
-        if ((int)$hugoFirstRootSiteConfig->getOption('enable')) {
+        if ($hugoFirstRootSiteConfig instanceof Configurator && (int)$hugoFirstRootSiteConfig->getOption('enable')) {
             $contentElement = $this->objectManager->get(Typo3ContentRepository::class)->getByUid($contentElementUid);
             if (!empty($contentElement)) {
                 $contentElementAbsolutePath = $this->getAbsolutePathToStoreContentElement($hugoFirstRootSiteConfig) . '/'
