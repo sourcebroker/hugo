@@ -8,6 +8,7 @@ master
 3) [TASK] Add styleci and scrutinizer badges.
 4) [TASK] Fix styleci and scrutinizer badges.
 5) [BUGFIX] Add strict types checks.
+6) [TASK] Remove empty file.
 
 0.6.0
 ~~~~~
