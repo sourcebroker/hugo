@@ -66,16 +66,19 @@ class ExportContentService extends AbstractService
                     }
                     $camelCaseClass = str_replace('_', '', ucwords($contentElement['CType'], '_'));
                     $classForCType = null;
-                    foreach ($hugoConfigForRootSite->getOption('content.contentToClass.mapper') as $contentToClassMapper) {
-                        if (preg_match('/' . $contentToClassMapper['ctype'] . '/', $camelCaseClass, $cTypeMateches)) {
-                            $classForCType = preg_replace_callback(
-                                '/\\{([0-9]+)\\}/',
-                                function ($match) use ($cTypeMateches) {
-                                    return $cTypeMateches[$match[1]];
-                                },
-                                $contentToClassMapper['class']
-                            );
-                            break;
+                    if(is_array($hugoConfigForRootSite->getOption('content.contentToClass.mapper'))) {
+                        foreach ($hugoConfigForRootSite->getOption('content.contentToClass.mapper') as $contentToClassMapper) {
+                            if (preg_match('/' . $contentToClassMapper['ctype'] . '/', $camelCaseClass,
+                                $cTypeMateches)) {
+                                $classForCType = preg_replace_callback(
+                                    '/\\{([0-9]+)\\}/',
+                                    function ($match) use ($cTypeMateches) {
+                                        return $cTypeMateches[$match[1]];
+                                    },
+                                    $contentToClassMapper['class']
+                                );
+                                break;
+                            }
                         }
                     }
                     if (!$this->objectManager->isRegistered($classForCType)) {
@@ -137,16 +140,18 @@ class ExportContentService extends AbstractService
                 //$row = $this->sys_page->getRecordOverlay('tt_content', $row, $basePageRow['_PAGES_OVERLAY_LANGUAGE'], $tsfe->sys_language_contentOL);
                 $camelCaseClass = str_replace('_', '', ucwords($contentElement['CType'], '_'));
                 $classForCType = null;
-                foreach ($hugoConfigForRootSite->getOption('content.contentToClass.mapper') as $contentToClassMapper) {
-                    if (preg_match('/' . $contentToClassMapper['ctype'] . '/', $camelCaseClass, $cTypeMateches)) {
-                        $classForCType = preg_replace_callback(
-                            '/\\{([0-9]+)\\}/',
-                            function ($match) use ($cTypeMateches) {
-                                return $cTypeMateches[$match[1]];
-                            },
-                            $contentToClassMapper['class']
-                        );
-                        break;
+                if (is_array($hugoConfigForRootSite->getOption('content.contentToClass.mapper'))) {
+                    foreach ($hugoConfigForRootSite->getOption('content.contentToClass.mapper') as $contentToClassMapper) {
+                        if (preg_match('/' . $contentToClassMapper['ctype'] . '/', $camelCaseClass, $cTypeMateches)) {
+                            $classForCType = preg_replace_callback(
+                                '/\\{([0-9]+)\\}/',
+                                function ($match) use ($cTypeMateches) {
+                                    return $cTypeMateches[$match[1]];
+                                },
+                                $contentToClassMapper['class']
+                            );
+                            break;
+                        }
                     }
                 }
                 if (!$this->objectManager->isRegistered($classForCType)) {

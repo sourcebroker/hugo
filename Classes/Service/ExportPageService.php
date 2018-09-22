@@ -50,8 +50,7 @@ class ExportPageService extends AbstractService
         foreach ($this->objectManager->get(Typo3PageRepository::class)->getSiteRootPages() as $siteRoot) {
             $hugoConfigForRootSite = Configurator::getByPid((int)$siteRoot['uid']);
             if ($hugoConfigForRootSite->getOption('enable')) {
-                $writer = $this->objectManager->get($hugoConfigForRootSite->getOption('writer.class'));
-
+                $writer = $this->objectManager->get((string)$hugoConfigForRootSite->getOption('writer.class'));
                 /** @var \SourceBroker\Hugo\Traversing\TreeTraverser $treeTraverser */
                 $treeTraverser = $this->objectManager->get(TreeTraverser::class);
                 $writer->setRootPath($hugoConfigForRootSite->getOption('writer.path.content'));
