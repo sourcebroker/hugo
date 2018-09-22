@@ -6,7 +6,7 @@ CREATE TABLE sys_domain (
 	tx_hugo_domains varchar(255),
 );
 
-CREATE TABLE tx_local_queue_items (
+CREATE TABLE tx_hugo_queueitems (
   uid int(11) NOT NULL auto_increment,
   namespace varchar (32) NOT NULL,
   value varchar(128) NOT NULL,

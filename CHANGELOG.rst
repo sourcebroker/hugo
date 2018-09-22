@@ -13,6 +13,8 @@ master
 8) [BUGFIX] Add strict types checks.
 9) [BUGFIX] Remove not needed switch statements.
 10) [BUGFIX] Check if array bbefore use in foreach / check for null vs araray for config var.
+11) [TASK] Refactor ExportContentService class.
+12) [BUGFIX] Fix wrong tablename for queue.
 
 0.6.0
 ~~~~~
