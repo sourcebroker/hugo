@@ -38,7 +38,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 class ExportMediaService extends AbstractService
 {
     /**
-     * @return \SourceBroker\Hugo\Domain\Model\ServiceResult;
+     * @return \SourceBroker\Hugo\Domain\Model\ServiceResult
      * @throws \TYPO3\CMS\Core\Exception
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
