@@ -25,7 +25,7 @@
 namespace SourceBroker\Hugo\Service;
 
 use SourceBroker\Hugo\Configuration\Configurator;
-use SourceBroker\Hugo\Domain\Repository\Typo3PageRepository;
+use SourceBroker\Hugo\Domain\Model\ServiceResult;
 use Symfony\Component\Yaml\Yaml;
 use TYPO3\CMS\Core\Resource\Folder;
 use TYPO3\CMS\Core\Resource\StorageRepository;
@@ -38,85 +38,73 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 class ExportMediaService extends AbstractService
 {
     /**
-     * @return \SourceBroker\Hugo\Domain\Model\ServiceResult[]
+     * @return \SourceBroker\Hugo\Domain\Model\ServiceResult;
+     * @throws \TYPO3\CMS\Core\Exception
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
      * @throws \TYPO3\CMS\Core\Resource\Exception\InsufficientFolderAccessPermissionsException
+     * @throws \Exception
      */
-    public function exportAll(): array
+    public function exportAll(): ServiceResult
     {
         $this->createLocker('hugoExportMedia');
-        $results = [];
-
-        // We assume config for exporting content is the same for all available site roots so take first available
-        // site root which is enabled for hugo.
-        foreach ($this->objectManager->get(Typo3PageRepository::class)->getSiteRootPages() as $siteRoot) {
-            $hugoConfigForRootSite = Configurator::getByPid((int)$siteRoot['uid']);
-            if ($hugoConfigForRootSite->getOption('enable')) {
-                $folderToStore = rtrim(
-                    PATH_site . $hugoConfigForRootSite->getOption('writer.path.media'),
-                    '\\/'
+        $hugoFirstRootSiteConfig = Configurator::getFirstRootsiteConfig();
+        $serviceResult = $this->createServiceResult();
+        if ($hugoFirstRootSiteConfig instanceof Configurator && (int)$hugoFirstRootSiteConfig->getOption('enable')) {
+            $folderToStore = rtrim(
+                PATH_site . $hugoFirstRootSiteConfig->getOption('writer.path.media'),
+                '\\/'
+            );
+            if (!file_exists($folderToStore)) {
+                GeneralUtility::mkdir_deep($folderToStore);
+            }
+            $allStorages = GeneralUtility::makeInstance(StorageRepository::class)->findAll();
+            $filesHugo = [];
+            foreach ($allStorages as $storage) {
+                $folder = GeneralUtility::makeInstance(Folder::class, $storage, '/', 'All files');
+                $files = $storage->getFilesInFolder(
+                    $folder,
+                    $start = 0,
+                    $maxNumberOfItems = 0,
+                    $useFilters = false,
+                    $recursive = true,
+                    $sort = 'name'
                 );
-                if (!file_exists($folderToStore)) {
-                    GeneralUtility::mkdir_deep($folderToStore);
-                }
-
-                /** @var $storageRepository StorageRepository */
-                $storageRepository = GeneralUtility::makeInstance(StorageRepository::class);
-                $allStorages = $storageRepository->findAll();
-
-                $filesHugo = [];
-                foreach ($allStorages as $storage) {
-                    $serviceResult = $this->createServiceResult();
-                    $folder = GeneralUtility::makeInstance(Folder::class, $storage, '/', 'All files');
-                    $files = $storage->getFilesInFolder(
-                        $folder,
-                        $start = 0,
-                        $maxNumberOfItems = 0,
-                        $useFilters = false,
-                        $recursive = true,
-                        $sort = 'name'
-                    );
-                    foreach ($files as $file) {
-                        if (!$storage->isWithinProcessingFolder($file->getIdentifier())
-                            && $file->getProperty('type') == 2
-                        ) {
-                            $filesHugo[] = [
-                                'src' => $file->getPublicUrl(false),
-                                'name' => $file->getUid(),
-                            ];
-                        }
+                foreach ($files as $file) {
+                    if (!$storage->isWithinProcessingFolder($file->getIdentifier())
+                        && (int)$file->getProperty('type') === 2
+                    ) {
+                        $filesHugo[] = [
+                            'src' => $file->getPublicUrl(false),
+                            'name' => $file->getUid(),
+                        ];
                     }
+                }
+                $symlinkStorageFolder = PATH_site . rtrim($hugoFirstRootSiteConfig->getOption('writer.path.media'),
+                        '\\/') . '/' . rtrim($storage->getConfiguration()['basePath'], '\\/');
+                if (!file_exists($symlinkStorageFolder)) {
                     // TODO - make it relative symlink
-                    $symlinkStorageFolder = PATH_site . rtrim($hugoConfigForRootSite->getOption('writer.path.media'),
-                            '\\/') . '/' . rtrim($storage->getConfiguration()['basePath'], '\\/');
-                    $command = 'ln -s ' . rtrim(PATH_site . $storage->getConfiguration()['basePath'],
+                    $command = 'ln -nfs ' . rtrim(PATH_site . $storage->getConfiguration()['basePath'],
                             '\\/') . ' ' . $symlinkStorageFolder;
-                    $serviceResult->setCommand($command);
-                    if (!file_exists($symlinkStorageFolder)) {
-                        $this->executeServiceResultCommand($serviceResult);
-                    } else {
-                        $serviceResult->setExecutedSuccessfully(true);
-                        $serviceResult->setMessage('Storage folder: ' . $symlinkStorageFolder . ' exists');
-                    }
-
-                    $results[] = $serviceResult;
+                    exec($command, $out, $status);
                 }
-
-                $languages = $hugoConfigForRootSite->getOption('languages');
-                $languages = !is_array($languages) ? [0 => ''] : array_merge([0 => ''], $languages);
-                foreach ($languages as $lang) {
-                    file_put_contents(
-                        $folderToStore . '/index' . (!empty($lang) ? '.' . $lang : '') . '.md',
-                        "---\n" . Yaml::dump(['resources' => $filesHugo], 100) . "---\n"
-                    );
+                if (!file_exists($symlinkStorageFolder)) {
+                    throw new \Exception('Can not create symlink to storage.', 1537649774);
                 }
-                // Leave after first hugo enabled site root becase content elements are the same for all root sites.
-                break;
+            }
+            $languages = $hugoFirstRootSiteConfig->getOption('languages');
+            $languages = !is_array($languages) ? [0 => ''] : array_merge([0 => ''], $languages);
+            foreach ($languages as $lang) {
+                file_put_contents(
+                    $folderToStore . '/index' . (!empty($lang) ? '.' . $lang : '') . '.md',
+                    "---\n" . Yaml::dump(['resources' => $filesHugo], 100) . "---\n"
+                );
             }
         }
+        $serviceResult->setExecutedSuccessfully(true);
+        $serviceResult->setMessage('Storage files created at "' . $hugoFirstRootSiteConfig->getOption('writer.path.media') . '"');
 
         $this->release();
-        return $results;
+        return $serviceResult;
     }
 }

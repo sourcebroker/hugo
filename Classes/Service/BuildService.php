@@ -25,6 +25,7 @@
 namespace SourceBroker\Hugo\Service;
 
 use SourceBroker\Hugo\Configuration\Configurator;
+use SourceBroker\Hugo\Domain\Model\ServiceResult;
 use SourceBroker\Hugo\Domain\Repository\Typo3PageRepository;
 
 /**
@@ -36,14 +37,26 @@ class BuildService extends AbstractService
      * @return array
      * @throws \Exception
      */
-    public function buildAll(): array
+    public function buildAll(): ServiceResult
     {
-        $results = [];
+        $serviceMessage = '';
+        $commandOutput = [];
+        $failed = 0;
+        $serviceResult = $this->createServiceResult();
         foreach ($this->objectManager->get(Typo3PageRepository::class)->getSiteRootPages() as $siteRoot) {
-            $results[] = $this->buildSingle($siteRoot['uid']);
+            $singleServiceResult = $this->buildSingle($siteRoot['uid']);
+            $serviceMessage .= $singleServiceResult->getMessage();
+            $commandOutput[] = 'Command output when generating page tree for root site with uid: ' . $siteRoot['uid'] . "\n" . $singleServiceResult->getCommandOutput();
+            if (!$singleServiceResult->isExecutedSuccessfully()) {
+                $failed++;
+            }
         }
-
-        return $results;
+        if ($failed === 0) {
+            $serviceResult->setExecutedSuccessfully(true);
+        }
+        $serviceResult->setCommandOutput(implode("\n", $commandOutput));
+        $serviceResult->setMessage($serviceMessage);
+        return $serviceResult;
     }
 
     /**
@@ -53,23 +66,28 @@ class BuildService extends AbstractService
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
      */
-    public function buildSingle(int $rootPageUid): \SourceBroker\Hugo\Domain\Model\ServiceResult
+    public function buildSingle(int $rootPageUid): ServiceResult
     {
-        $this->createLocker('hugoBuildDist');
+        $this->createLocker('BuildService_buildSingle');
+        $serviceMessage = '';
         $hugoConfigForRootSite = Configurator::getByPid($rootPageUid);
         $serviceResult = $this->createServiceResult();
-
         if ($hugoConfigForRootSite->getOption('enable')) {
             $hugoPathBinary = $hugoConfigForRootSite->getOption('hugo.path.binary');
             if (!empty($hugoPathBinary)) {
                 $serviceResult->setCommand($hugoPathBinary . ' ' . str_replace(['{PATH_site}'], [PATH_site],
                         $hugoConfigForRootSite->getOption('hugo.command')));
                 $this->executeServiceResultCommand($serviceResult);
+                if ($serviceResult->isExecutedSuccessfully()) {
+                    $serviceMessage .= 'Generated successfully for root page with uid: ' . $rootPageUid . "\n";
+                } else {
+                    $serviceMessage .= 'Failed to generate for root page with uid: ' . $rootPageUid . "\n";
+                }
             } else {
-                $serviceResult->setMessage('Can\'t find hugo binary #1535713956');
+                $serviceMessage = 'Can\'t find hugo binary #1535713956';
             }
+            $serviceResult->setMessage($serviceMessage);
         }
-
         $this->release();
         return $serviceResult;
     }

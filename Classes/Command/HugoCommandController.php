@@ -15,6 +15,7 @@ namespace SourceBroker\Hugo\Command;
  * The TYPO3 project - inspiring people to share!
  */
 
+use SourceBroker\Hugo\Domain\Model\ServiceResult;
 use SourceBroker\Hugo\Service\BuildService;
 use SourceBroker\Hugo\Service\ExportContentService;
 use SourceBroker\Hugo\Service\ExportMediaService;
@@ -28,52 +29,32 @@ use TYPO3\CMS\Extbase\Mvc\Controller\CommandController;
  */
 class HugoCommandController extends CommandController
 {
-
     /**
      * Generating pages / content / media for all TYPO3 tree roots
      * Command: hugo:export
      *
+     * @throws \TYPO3\CMS\Core\Exception
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
-     * @throws \TYPO3\CMS\Core\Resource\Exception\InsufficientFolderAccessPermissionsException
      * @throws \TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotException
      * @throws \TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotReturnException
      */
     public function exportCommand()
     {
-        $summaryStatus = true;
-        /** @var \SourceBroker\Hugo\Service\ExportContentService $contentService */
-        $contentService = GeneralUtility::makeInstance(ExportContentService::class);
-        /** @var \SourceBroker\Hugo\Service\ExportMediaService $mediaService */
-        $mediaService = GeneralUtility::makeInstance(ExportMediaService::class);
-        /** @var \SourceBroker\Hugo\Service\ExportPageService $pageService */
-        $pageService = GeneralUtility::makeInstance(ExportPageService::class);
-        $this->outputLine($this->decorateLabel('Generating pages / content / media for all TYPO3 tree roots'));
-        $this->outputLine($this->decorateLabel('Export content elements:'));
-        foreach ($contentService->exportAll() as $result) {
-            $this->displayCommandResult($result);
-            if (!$result->isExecutedSuccessfully()) {
-                $summaryStatus = false;
-            }
-        }
-
-        $this->outputLine($this->decorateLabel('Export media:'));
-        foreach ($mediaService->exportAll() as $result) {
-            $this->displayCommandResult($result);
-            if (!$result->isExecutedSuccessfully()) {
-                $summaryStatus = false;
-            }
-        }
-
-        $this->outputLine($this->decorateLabel('Export pages:'));
-        foreach ($pageService->exportAll() as $result) {
-            $this->displayCommandResult($result);
-            if (!$result->isExecutedSuccessfully()) {
-                $summaryStatus = false;
-            }
-        }
-
-        $this->outputLine('Summary status: ' . ($summaryStatus ? 'Success' : 'Fail'));
+        $this->outputLine();
+        $this->outputLine('<fg=yellow;options=bold>[INFO]</>');
+        $this->outputLine('Generating media / content / pages for all TYPO3 tree roots.');
+        $this->outputLine('Below output of three commands:');
+        $this->outputLine('1) hugo:exportmedia');
+        $this->outputLine('2) hugo:exportcontent');
+        $this->outputLine('3) hugo:exportpages');
+        $this->outputLine();
+        $this->outputLine('[1]' . str_repeat('-', 80));
+        $this->exportMediaCommand();
+        $this->outputLine("\n[2]" . str_repeat('-', 80));
+        $this->exportContentCommand();
+        $this->outputLine("\n[3]" . str_repeat('-', 80));
+        $this->exportPagesCommand();
     }
 
     /**
@@ -87,31 +68,28 @@ class HugoCommandController extends CommandController
      */
     public function exportPagesCommand()
     {
-        /** @var \SourceBroker\Hugo\Service\ExportPageService $service */
-        $service = GeneralUtility::makeInstance(ExportPageService::class);
-        $this->outputLine('Generating Hugo pages for all TYPO3 tree roots.');
-
-        foreach ($service->exportAll() as $result) {
-            $this->displayCommandResult($result);
-        }
+        /** @var \SourceBroker\Hugo\Service\ExportPageService $exportPagesService */
+        $exportPagesService = GeneralUtility::makeInstance(ExportPageService::class);
+        $exportPagesServiceResult = $exportPagesService->exportAll();
+        $this->displayCommandResult('Generating Hugo pages.', $exportPagesServiceResult);
+        return $exportPagesServiceResult->isExecutedSuccessfully();
     }
 
     /**
      * Generating Hugo content for all TYPO3 tree roots
      * Command: hugo:exportcontent
      *
+     * @throws \TYPO3\CMS\Core\Exception
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
      */
     public function exportContentCommand()
     {
-        /** @var \SourceBroker\Hugo\Service\ExportContentService $hugoExportContentService */
-        $service = GeneralUtility::makeInstance(ExportContentService::class);
-        $this->outputLine('Generating Hugo content for all TYPO3 tree roots.');
-
-        foreach ($service->exportAll() as $result) {
-            $this->displayCommandResult($result);
-        }
+        /** @var \SourceBroker\Hugo\Service\ExportContentService $exportContentService */
+        $exportContentService = GeneralUtility::makeInstance(ExportContentService::class);
+        $exportContentServiceResult = $exportContentService->exportAll();
+        $this->displayCommandResult('Generating Hugo content.', $exportContentServiceResult);
+        return $exportContentServiceResult->isExecutedSuccessfully();
     }
 
     /**
@@ -120,13 +98,11 @@ class HugoCommandController extends CommandController
      */
     public function exportMediaCommand()
     {
-        /** @var \SourceBroker\Hugo\Service\ExportMediaService $service */
-        $service = GeneralUtility::makeInstance(ExportMediaService::class);
-        $this->outputLine('Generating Hugo media for all TYPO3 tree roots.');
-
-        foreach ($service->exportAll() as $result) {
-            $this->displayCommandResult($result);
-        }
+        /** @var \SourceBroker\Hugo\Service\ExportMediaService $exportMediaService */
+        $exportMediaService = GeneralUtility::makeInstance(ExportMediaService::class);
+        $exportMediaServiceResult = $exportMediaService->exportAll();
+        $this->displayCommandResult('Generating Hugo media.', $exportMediaServiceResult);
+        return $exportMediaServiceResult->isExecutedSuccessfully();
     }
 
     /**
@@ -138,37 +114,41 @@ class HugoCommandController extends CommandController
     public function buildCommand()
     {
         /** @var \SourceBroker\Hugo\Service\BuildService $service */
-        $service = GeneralUtility::makeInstance(BuildService::class);
-        $this->outputLine('Hugo build for all TYPO3 tree roots.');
-
-        foreach ($service->buildAll() as $result) {
-            $this->displayCommandResult($result);
-        }
+        $buildService = GeneralUtility::makeInstance(BuildService::class);
+        $buildServiceResult = $buildService->buildAll();
+        $this->displayCommandResult('Hugo build for all TYPO3 tree roots.', $buildServiceResult);
+        return $buildServiceResult->isExecutedSuccessfully();
     }
 
     /**
+     * @param string|null $commandDescription
      * @param \SourceBroker\Hugo\Domain\Model\ServiceResult $result
      */
-    protected function displayCommandResult(
-        \SourceBroker\Hugo\Domain\Model\ServiceResult $result
-    ) {
-        $this->outputLine('Command: ' . $result->getCommand());
-        $this->outputLine('Output: ' . $result->getCommandOutput());
-        $this->outputLine('Success: ' . ($result->isExecutedSuccessfully() ? 'true' : 'false'));
-        if ($result->getMessage()) {
-            $this->outputLine('Message: ' . $result->getMessage());
-        }
-        echo $this->outputLine("\n" . str_repeat('-', 80) . "\n");
-    }
-
-    /**
-     * @param string $label
-     * @param string $sign
-     *
-     * @return string
-     */
-    protected function decorateLabel($label, $sign = '#'): string
+    protected function displayCommandResult(string $commandDescription = null, ServiceResult $result)
     {
-        return str_repeat($sign, 20) . ' ' . $label . ' ' . str_repeat($sign, 20);
+        if (!empty($commandDescription)) {
+            $this->outputLine();
+            $this->outputLine('<fg=yellow;options=bold>[INFO]</>');
+            $this->outputLine($commandDescription);
+        }
+        $this->outputLine();
+        $this->outputLine('<fg=yellow;options=bold>[COMMAND STATUS]</> ');
+        $this->outputLine(($result->isExecutedSuccessfully() ? 'Success.' : '<error>Failed.</error>'));
+
+        if (!empty($result->getCommand())) {
+            $this->outputLine();
+            $this->outputLine('<fg=yellow;options=bold>[COMMAND EXECUTED]</>');
+            $this->outputLine($result->getCommand());
+        }
+        if (!empty($result->getCommandOutput())) {
+            $this->outputLine();
+            $this->outputLine('<fg=yellow;options=bold>[COMMAND OUTPUT]</>');
+            $this->outputLine($result->getCommandOutput());
+        }
+        if (!empty($result->getMessage())) {
+            $this->outputLine();
+            $this->outputLine('<fg=yellow;options=bold>[COMMAND MESSAGE]</> ');
+            $this->outputLine($result->getMessage());
+        }
     }
 }

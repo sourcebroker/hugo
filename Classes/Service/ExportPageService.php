@@ -25,6 +25,7 @@
 namespace SourceBroker\Hugo\Service;
 
 use SourceBroker\Hugo\Configuration\Configurator;
+use SourceBroker\Hugo\Domain\Model\ServiceResult;
 use SourceBroker\Hugo\Domain\Repository\Typo3PageRepository;
 use SourceBroker\Hugo\Traversing\TreeTraverser;
 
@@ -36,17 +37,17 @@ class ExportPageService extends AbstractService
 {
 
     /**
-     * @return \SourceBroker\Hugo\Domain\Model\ServiceResult[]
+     * @return \SourceBroker\Hugo\Domain\Model\ServiceResult
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
      * @throws \TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotException
      * @throws \TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotReturnException
      */
-    public function exportAll(): array
+    public function exportAll(): ServiceResult
     {
         $this->createLocker('hugoExportPages');
-        $results = [];
-
+        $serviceResult = $this->createServiceResult();
+        $serviceMessage = '';
         foreach ($this->objectManager->get(Typo3PageRepository::class)->getSiteRootPages() as $siteRoot) {
             $hugoConfigForRootSite = Configurator::getByPid((int)$siteRoot['uid']);
             if ($hugoConfigForRootSite->getOption('enable')) {
@@ -61,10 +62,13 @@ class ExportPageService extends AbstractService
                     [],
                     'getDocumentsForPage'
                 );
+                $serviceMessage .= 'Generated successfully Hugo pages for root site with uid: ' . $siteRoot['uid'] . "\n";
+                $serviceMessage .= 'Stored in folder: "' . (string)$hugoConfigForRootSite->getOption('writer.path.content') . "\"\n";
             }
         }
-
         $this->release();
-        return $results;
+        $serviceResult->setMessage($serviceMessage);
+        $serviceResult->setExecutedSuccessfully(true);
+        return $serviceResult;
     }
 }
