@@ -18,6 +18,7 @@ master
 13) [TASK] Refactor getFirstRootsiteConfig function in Configurator class.
 14) [TASK] Refactor cli command show result from services. Refactor BuildService / ExportMediaService / ExportPageService
 15) [TASK] Refactor Configurator class.
+16) [TASK] Add tests for Configurator.
 
 0.6.0
 ~~~~~
