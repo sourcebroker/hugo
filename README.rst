@@ -7,6 +7,9 @@ TYPO3 Extension ``hugo``
     .. image:: https://scrutinizer-ci.com/g/sourcebroker/hugo/badges/quality-score.png?b=master
        :target: https://scrutinizer-ci.com/g/sourcebroker/hugo/?branch=master
 
+    .. image:: https://travis-ci.org/sourcebroker/hugo.svg?branch=master
+       :target: https://travis-ci.org/sourcebroker/hugo
+
     .. image:: https://poser.pugx.org/sourcebroker/hugo/license
        :target: https://packagist.org/packages/sourcebroker/hugo
 
