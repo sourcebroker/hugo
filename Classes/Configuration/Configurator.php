@@ -108,7 +108,7 @@ class Configurator
     /**
      * @param array $config
      */
-    public function setConfig($config): void
+    public function setConfig($config)
     {
         $this->config = $config;
     }
