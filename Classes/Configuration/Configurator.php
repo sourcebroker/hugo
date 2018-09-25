@@ -58,7 +58,7 @@ class Configurator
      *
      * @return Configurator
      */
-    public static function getByPid(int $pid): Configurator
+    public static function getByPid(int $pid): self
     {
         if (!isset(self::$instances[$pid])) {
             self::$instances[$pid] = GeneralUtility::makeInstance(self::class, $pid);
@@ -70,7 +70,7 @@ class Configurator
      * @return Configurator
      * @throws Exception
      */
-    public static function getFirstRootsiteConfig(): Configurator
+    public static function getFirstRootsiteConfig(): self
     {
         $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
         $rootPages = $objectManager->get(Typo3PageRepository::class)->getSiteRootPages();
