@@ -1,6 +1,6 @@
 <?php
 
-namespace SourceBroker\Imageopt\Tests\Unit\Configuration;
+namespace SourceBroker\Hugo\Tests\Unit\Configuration;
 
 use Nimut\TestingFramework\TestCase\UnitTestCase;
 use SourceBroker\Hugo\Configuration\Configurator;
