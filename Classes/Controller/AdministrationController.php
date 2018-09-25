@@ -157,11 +157,11 @@ class AdministrationController extends ActionController
      */
     protected function updateElements(string $tableName, int $recordId)
     {
-        if ($tableName === 'tt_content') {
-            $this->exportHugoContentElements($recordId);
-        }
-
-        $this->exportHugoPages();
+//        if ($tableName === 'tt_content') {
+//            $this->exportHugoContentElements($recordId);
+//        }
+        // TODO - for now export all is fast enough to not make cache clear optimisations but that needed later
+        $this->exportAllAndBuild();
     }
 
     /**
@@ -175,11 +175,11 @@ class AdministrationController extends ActionController
      */
     protected function deleteElements(string $tableName, int $recordId)
     {
-        if ($tableName === 'tt_content') {
-            $this->deleteHugoContentElements($recordId);
-        }
-
-        $this->exportHugoPages();
+//        if ($tableName === 'tt_content') {
+//            $this->deleteHugoContentElements($recordId);
+//        }
+        // TODO - for now export all is fast enough to not make cache clear optimisations but that needed later
+        $this->exportAllAndBuild();
     }
 
     /**
@@ -299,6 +299,27 @@ class AdministrationController extends ActionController
     protected function exportHugoPages()
     {
         $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+        $hugoExportPageService = $objectManager->get(ExportPageService::class);
+        $hugoExportPageService->exportAll();
+        $hugoBuildService = $objectManager->get(BuildService::class);
+        $hugoBuildService->buildAll();
+    }
+
+    /**
+     * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
+     * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
+     * @throws \TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotException
+     * @throws \TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotReturnException
+     * @throws \Exception
+     */
+    protected function exportAllAndBuild()
+    {
+        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+
+        $hugoExportMediaService = $objectManager->get(ExportMediaService::class);
+        $hugoExportMediaService->exportAll();
+        $hugoExportContentService = $objectManager->get(ExportContentService::class);
+        $hugoExportContentService->exportAll();
         $hugoExportPageService = $objectManager->get(ExportPageService::class);
         $hugoExportPageService->exportAll();
         $hugoBuildService = $objectManager->get(BuildService::class);

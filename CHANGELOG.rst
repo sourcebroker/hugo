@@ -20,6 +20,7 @@ master
 15) [TASK] Refactor Configurator class.
 16) [TASK] Add tests for Configurator.
 16) [TASK] Extend nimut/testing-framework version for compatibility with different TYPO3 versions.
+17) [TASK] Do exportAll for content/media/pages on each change. Its in queue now and its fast. Optimize that later.
 
 0.6.0
 ~~~~~
