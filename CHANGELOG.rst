@@ -19,6 +19,7 @@ master
 14) [TASK] Refactor cli command show result from services. Refactor BuildService / ExportMediaService / ExportPageService
 15) [TASK] Refactor Configurator class.
 16) [TASK] Add tests for Configurator.
+16) [TASK] Extend nimut/testing-framework version for compatibility with different TYPO3 versions.
 
 0.6.0
 ~~~~~
