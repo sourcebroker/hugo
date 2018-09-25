@@ -154,7 +154,7 @@ class Configurator
      * Load configurator with TSconfig from give page id
      *
      * @param int $pageIdToGetTsConfig
-     * @param null $namespace
+     * @param string $namespace
      * @return array
      * @throws \Exception
      */
