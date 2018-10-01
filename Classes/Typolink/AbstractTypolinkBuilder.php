@@ -142,7 +142,6 @@ abstract class AbstractTypolinkBuilder extends \TYPO3\CMS\Frontend\Typolink\Abst
         return $langPrefix . '/' . $url;
     }
 
-
     /**
      * @param string $url
      * @param $linkDetails
@@ -167,4 +166,3 @@ abstract class AbstractTypolinkBuilder extends \TYPO3\CMS\Frontend\Typolink\Abst
         return $url;
     }
 }
-
