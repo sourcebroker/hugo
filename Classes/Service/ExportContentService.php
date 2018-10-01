@@ -162,7 +162,8 @@ class ExportContentService extends AbstractService
 
     protected function getAbsolutePathToStoreContentElement(Configurator $hugoFirstRootSiteConfig)
     {
-        return rtrim(PATH_site . (string)$hugoFirstRootSiteConfig->getOption('writer.path.data'), DIRECTORY_SEPARATOR);
+        return rtrim(PATH_site . (string)$hugoFirstRootSiteConfig->getOption('writer.path.data'),
+                DIRECTORY_SEPARATOR) . '/content';
     }
 
     protected function getFilenameToStoreContentElement(int $contentElementUid)

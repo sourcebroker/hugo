@@ -21,6 +21,7 @@ master
 16) [TASK] Add tests for Configurator.
 16) [TASK] Extend nimut/testing-framework version for compatibility with different TYPO3 versions.
 17) [TASK] Do exportAll for content/media/pages on each change. Its in queue now and its fast. Optimize that later.
+18) [BREAKING] writer.path.data should point to Hugo "data" directory and not to "data/content" directory where exported content elements are stored.
 
 0.6.0
 ~~~~~

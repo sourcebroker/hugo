@@ -26,7 +26,7 @@ class Pages
                 $data['row']['uid'], $sysLanguageUid)->getSlugifiedRootlinePath();
 
             $filename = PATH_site . rtrim($configurator->getOption('writer.path.content'), '/') .
-                '/' . $slugifiedRootline . '_index.md';
+                '/content/' . $slugifiedRootline . '_index.md';
 
             if (file_exists($filename)) {
                 $content = '<pre style="line-height: 0.85em">'
