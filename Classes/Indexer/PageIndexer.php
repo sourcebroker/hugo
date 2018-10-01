@@ -6,9 +6,11 @@ use SourceBroker\Hugo\Configuration\Configurator;
 use SourceBroker\Hugo\Domain\Model\DocumentCollection;
 use SourceBroker\Hugo\Domain\Repository\Typo3PageRepository;
 use SourceBroker\Hugo\Service\BackendLayoutService;
+use SourceBroker\Hugo\Typolink\PageLinkBuilder;
 use SourceBroker\Hugo\Utility\RootlineUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
+use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use TYPO3\CMS\Frontend\Page\PageRepository;
 
 /**
@@ -48,6 +50,11 @@ class PageIndexer extends AbstractIndexer
         )) {
             $contentElements = $this->getPageContentElements($pageUid);
             $this->applyContentSlide($contentElements, $pageUid);
+
+            $pageLinkBuilder = $objectManager->get(PageLinkBuilder::class, GeneralUtility::makeInstance(ContentObjectRenderer::class), $hugoConfig);
+            $linkConfig = ['type' => 'page', 'pageuid' => $page['uid']];
+            // Build link so its stored in data/links.yaml
+            $pageLinkBuilder->build($linkConfig, '', '', []);
 
             $document = $documentCollection->create();
             $document->setStoreFilename('_index')

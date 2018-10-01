@@ -50,7 +50,7 @@ class PageLinkBuilder extends AbstractTypolinkBuilder
             }
         }
         return [
-            $url === null ? null : $this->applyHugoProcessors($url),
+            $url === null ? null : $this->applyHugoProcessors($url, $linkData),
             (empty($linkText) && !empty($page['title'])) ? $page['title'] : $linkText,
             $target
         ];
@@ -66,6 +66,7 @@ class PageLinkBuilder extends AbstractTypolinkBuilder
             [
                 [$this, 'addHugoLanguagePrefix'],
                 [$this, 'addHugoAbsRelPrefix'],
+                [$this, 'addLinkToLinksFile']
             ]
         );
     }

@@ -37,6 +37,11 @@ abstract class AbstractTypolinkBuilder extends \TYPO3\CMS\Frontend\Typolink\Abst
     protected $txHugoSysLanguageUid = 0;
 
     /**
+     * @var array
+     */
+    protected static $linksCache = [];
+
+    /**
      * AbstractTypolinkBuilder constructor.
      *
      * @param ContentObjectRenderer $contentObjectRenderer
@@ -99,15 +104,15 @@ abstract class AbstractTypolinkBuilder extends \TYPO3\CMS\Frontend\Typolink\Abst
     /**
      * @param string $url
      *
+     * @param array $linkDetails
      * @return string
      */
-    protected function applyHugoProcessors(string $url): string
+    protected function applyHugoProcessors(string $url, array $linkDetails = []): string
     {
         /** @var callable $processor */
         foreach ($this->getProcessors() as $processor) {
-            $url = $processor($url);
+            $url = $processor($url, $linkDetails);
         }
-
         return $url;
     }
 
@@ -136,4 +141,30 @@ abstract class AbstractTypolinkBuilder extends \TYPO3\CMS\Frontend\Typolink\Abst
 
         return $langPrefix . '/' . $url;
     }
+
+
+    /**
+     * @param string $url
+     * @param $linkDetails
+     * @return string
+     */
+    protected function addLinkToLinksFile(string $url, $linkDetails): string
+    {
+        if ($linkDetails['type'] === 'page') {
+            $pageUid = ($linkDetails['pageuid'] !== 'current')
+                ? (int)$linkDetails['pageuid']
+                : $this->txHugoConfigurator->getPageUid();
+            $key = 'page:' . $pageUid;
+            if (count(self::$linksCache) === 0) {
+                unlink(PATH_site . $this->txHugoConfigurator->getOption('writer.path.data') . '/links.yaml');
+            }
+            if (!array_key_exists($key, self::$linksCache)) {
+                file_put_contents(PATH_site . $this->txHugoConfigurator->getOption('writer.path.data') . '/links.yaml',
+                    '\'' . $key . '\': \'' . $url . "'\n", FILE_APPEND);
+                self::$linksCache[$key] = true;
+            }
+        }
+        return $url;
+    }
 }
+
