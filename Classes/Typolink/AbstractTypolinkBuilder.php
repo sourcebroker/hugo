@@ -154,11 +154,12 @@ abstract class AbstractTypolinkBuilder extends \TYPO3\CMS\Frontend\Typolink\Abst
                 ? (int)$linkDetails['pageuid']
                 : $this->txHugoConfigurator->getPageUid();
             $key = 'page:' . $pageUid;
-            if (count(self::$linksCache) === 0) {
-                unlink(PATH_site . $this->txHugoConfigurator->getOption('writer.path.data') . '/links.yaml');
+            $storeLinksFile = PATH_site . $this->txHugoConfigurator->getOption('writer.path.data') . '/links.yaml';
+            if (count(self::$linksCache) === 0 && file_exists($storeLinksFile)) {
+                unlink($storeLinksFile);
             }
             if (!array_key_exists($key, self::$linksCache)) {
-                file_put_contents(PATH_site . $this->txHugoConfigurator->getOption('writer.path.data') . '/links.yaml',
+                file_put_contents($storeLinksFile,
                     '\'' . $key . '\': \'' . $url . "'\n", FILE_APPEND);
                 self::$linksCache[$key] = true;
             }
