@@ -93,6 +93,7 @@ class RecordIndexer extends AbstractIndexer implements SingletonInterface
 
                         $this->parseFields($table, $record, $hugoConfig);
 
+                        // @todo make slug configurable and use same approach in \SourceBroker\Hugo\Typolink\DatabaseRecordLinkBuilder::build
                         $slug = $this->slugify($record['title']);
                         $document = $documentCollection->create();
                         $document->setStoreFilename($record['uid'] . '_' . ucfirst($slug))
