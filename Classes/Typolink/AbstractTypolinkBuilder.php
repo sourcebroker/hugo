@@ -47,14 +47,16 @@ abstract class AbstractTypolinkBuilder extends \TYPO3\CMS\Frontend\Typolink\Abst
      * @param ContentObjectRenderer $contentObjectRenderer
      * @param Configurator $txHugoConfigurator
      * @param int $txHugoSysLanguageUid
+     *
+     * @throws \Exception
      */
     public function __construct(
         ContentObjectRenderer $contentObjectRenderer,
-        Configurator $txHugoConfigurator,
+        Configurator $txHugoConfigurator = null,
         int $txHugoSysLanguageUid = 0
     ) {
         parent::__construct($contentObjectRenderer);
-        $this->txHugoConfigurator = $txHugoConfigurator;
+        $this->txHugoConfigurator = $txHugoConfigurator ?? Configurator::getFirstRootsiteConfig();
         $this->txHugoSysLanguageUid = $txHugoSysLanguageUid;
     }
 
