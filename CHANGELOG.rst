@@ -24,6 +24,7 @@ master
 18) [BREAKING] writer.path.data should point to Hugo "data" directory and not to "data/content" directory where exported content elements are stored.
 19) [FEATURE] Add way to build links inside hugo templates.
 20) [BUGFIX] Remove file only if exists.
+21) [TASK] TYPO3 9.5 compatibility.
 
 0.6.0
 ~~~~~
