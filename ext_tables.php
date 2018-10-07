@@ -21,10 +21,9 @@ call_user_func(
                 ]
             );
         }
-
-        \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::registerAjaxHandler(
-            'HugoAdministrationController::export',
-            \SourceBroker\Hugo\Controller\AdministrationController::class . '->exportAjax'
-        );
+        $GLOBALS['TYPO3_CONF_VARS']['BE']['AJAX']['HugoAdministrationController::export'] = [
+            'callbackMethod' => \SourceBroker\Hugo\Controller\AdministrationController::class . '->exportAjax',
+            'csrfTokenCheck' => true
+        ];
     }
 );
