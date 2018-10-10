@@ -68,8 +68,11 @@ call_user_func(function () use ($_EXTKEY) {
         'record' => \SourceBroker\Hugo\Typolink\DatabaseRecordLinkBuilder::class
     ];
 
-    $pageRenderer = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Page\PageRenderer::class);
-    $pageRenderer->loadRequireJsModule('TYPO3/CMS/Hugo/Export');
+    # TODO make export module compatibile with TYPO3 9.5
+    if (\TYPO3\CMS\Core\Utility\VersionNumberUtility::convertVersionNumberToInteger(TYPO3_version) < 9000000) {
+        $pageRenderer = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Page\PageRenderer::class);
+        $pageRenderer->loadRequireJsModule('TYPO3/CMS/Hugo/Export');
+    }
 
     $extbaseObjectContainer = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Extbase\Object\Container\Container::class);
     $extbaseObjectContainer->registerImplementation(\SourceBroker\Hugo\Queue\Storage\StorageInterface::class, \SourceBroker\Hugo\Queue\Storage\MySqlStorage::class);

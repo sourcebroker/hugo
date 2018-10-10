@@ -1,6 +1,10 @@
 Changelog
 ---------
 
+master
+~~~~~~
+1) [BUGFIX] Disable Export.js in TYPO3 9.5 because its incompatible an doing JS errors in TYPO3 9.5 backend on login.
+
 0.7.0
 ~~~~~
 1) [TASK] Add styleci and scrutinizer checkers settings.
