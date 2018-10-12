@@ -115,7 +115,7 @@ class ExportContentService extends AbstractService
         $serviceResult = $this->createServiceResult();
         $hugoFirstRootSiteConfig = Configurator::getFirstRootsiteConfig();
         if ($hugoFirstRootSiteConfig instanceof Configurator && (int)$hugoFirstRootSiteConfig->getOption('enable')) {
-            $contentElement = $this->objectManager->get(Typo3ContentRepository::class)->getByUid($contentElementUid);
+            $contentElement = $this->objectManager->get(Typo3ContentRepository::class)->getByUid($contentElementUid, true);
             if (!empty($contentElement)) {
                 $contentElementAbsolutePath = $this->getAbsolutePathToStoreContentElement($hugoFirstRootSiteConfig) . '/'
                     . $this->getFilenameToStoreContentElement($contentElementUid);
