@@ -23,4 +23,23 @@ class DocumentCollection extends ObjectStorage
         $this->attach($document);
         return $document;
     }
+
+    /**
+     * @param string $type
+     * @param int $id
+     * @return Document|null
+     */
+    public function getByTypeAndId(string $type, int $id)
+    {
+        /** @var Document $document */
+        foreach ($this as $document) {
+            if ($document->getId() !== $id || $document->getType() !== $type) {
+                continue;
+            }
+
+            return $document;
+        }
+
+        return null;
+    }
 }

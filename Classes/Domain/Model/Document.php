@@ -41,6 +41,11 @@ class Document
     protected $layout = null;
 
     /**
+     * @var string
+     */
+    protected $type;
+
+    /**
      * @var array
      */
     protected $frontMatter = [
@@ -233,6 +238,43 @@ class Document
         foreach ((array)$this->frontMatter['columns'] as $key => $values) {
             $this->frontMatter['columns'][$key] = array_values($values);
         }
+        return $this;
+    }
+
+    /**
+     * @param $contentRaw
+     * @return Document
+     */
+    public function setContentRaw($contentRaw): self
+    {
+        $this->frontMatter['columns'] = $contentRaw;
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getContent(): array
+    {
+        return $this->frontMatter['columns'] ?? [];
+    }
+
+    /**
+     * @return string
+     */
+    public function getType(): string
+    {
+        return $this->type;
+    }
+
+    /**
+     * @param string $type
+     *
+     * @return Document
+     */
+    public function setType(string $type): self
+    {
+        $this->type = $type;
         return $this;
     }
 
