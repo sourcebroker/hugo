@@ -87,6 +87,21 @@ class ExportContentService extends AbstractService
     }
 
     /**
+     * @param $contentElement
+     * @return array
+     * @throws \TYPO3\CMS\Core\Exception
+     */
+    public function getYamlForSingle($contentElement): array
+    {
+        $data = [];
+        $hugoFirstRootSiteConfig = Configurator::getFirstRootsiteConfig();
+        if ($hugoFirstRootSiteConfig instanceof Configurator && (int)$hugoFirstRootSiteConfig->getOption('enable')) {
+            $data = $this->getContentElement($contentElement, $hugoFirstRootSiteConfig);
+        }
+        return $data;
+    }
+
+    /**
      * @param int $contentElementUid
      *
      * @return ServiceResult
@@ -116,10 +131,30 @@ class ExportContentService extends AbstractService
     /**
      * Save single content element to yaml file
      *
-     * @param $contentElement
-     * @param $hugoFirstRootSiteConfig
+     * @param array $contentElement
+     * @param Configurator $hugoFirstRootSiteConfig
      */
     protected function saveContentElement(array $contentElement, Configurator $hugoFirstRootSiteConfig)
+    {
+        $absolutePathToStoreContentElement = $this->getAbsolutePathToStoreContentElement($hugoFirstRootSiteConfig);
+        if (!file_exists($absolutePathToStoreContentElement)) {
+            GeneralUtility::mkdir_deep($absolutePathToStoreContentElement);
+        }
+        $data = $this->getContentElement($contentElement, $hugoFirstRootSiteConfig);
+        file_put_contents(
+            $absolutePathToStoreContentElement . '/' . $this->getFilenameToStoreContentElement($contentElement['uid']),
+            Yaml::dump($data, 100)
+        );
+    }
+
+    /**
+     * Get data for single content element
+     *
+     * @param array $contentElement
+     * @param Configurator $hugoFirstRootSiteConfig
+     * @return mixed
+     */
+    protected function getContentElement(array $contentElement, Configurator $hugoFirstRootSiteConfig)
     {
         if ($contentElement['sys_language_uid'] > 0) {
             /** @var PageRepository $pageRepository */
@@ -134,11 +169,11 @@ class ExportContentService extends AbstractService
         $classForCType = null;
         if (is_array($hugoFirstRootSiteConfig->getOption('content.contentToClass.mapper'))) {
             foreach ($hugoFirstRootSiteConfig->getOption('content.contentToClass.mapper') as $contentToClassMapper) {
-                if (preg_match('/' . $contentToClassMapper['ctype'] . '/', $camelCaseClass, $cTypeMateches)) {
+                if (preg_match('/' . $contentToClassMapper['ctype'] . '/', $camelCaseClass, $cTypeMatches)) {
                     $classForCType = preg_replace_callback(
                         '/\\{([0-9]+)\\}/',
-                        function ($match) use ($cTypeMateches) {
-                            return $cTypeMateches[$match[1]];
+                        function ($match) use ($cTypeMatches) {
+                            return $cTypeMatches[$match[1]];
                         },
                         $contentToClassMapper['class']
                     );
@@ -149,15 +184,7 @@ class ExportContentService extends AbstractService
         if (!$this->objectManager->isRegistered($classForCType)) {
             $classForCType = $hugoFirstRootSiteConfig->getOption('content.contentToClass.fallbackContentElementClass');
         }
-        $contentElementObject = $this->objectManager->get($classForCType);
-        $absolutePathToStoreContentElement = $this->getAbsolutePathToStoreContentElement($hugoFirstRootSiteConfig);
-        if (!file_exists($absolutePathToStoreContentElement)) {
-            GeneralUtility::mkdir_deep($absolutePathToStoreContentElement);
-        }
-        file_put_contents(
-            $absolutePathToStoreContentElement . '/' . $this->getFilenameToStoreContentElement($contentElement['uid']),
-            Yaml::dump($contentElementObject->getData($contentElement), 100)
-        );
+        return $this->objectManager->get($classForCType)->getData($contentElement);
     }
 
     protected function getAbsolutePathToStoreContentElement(Configurator $hugoFirstRootSiteConfig)
