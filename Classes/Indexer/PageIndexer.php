@@ -66,6 +66,7 @@ class PageIndexer extends AbstractIndexer
                 ->setLayout(str_replace('pagets__', '', $layout))
                 ->setContent($contentElements)
                 ->setMenu($page)
+                ->setType('page')
                 ->setCustomFields($this->resolveCustomFields($page));
 
             $languages = $hugoConfig->getOption('languages');
@@ -88,6 +89,7 @@ class PageIndexer extends AbstractIndexer
                     ->setLayout(str_replace('pagets__', '', $layout))
                     ->setContent($translationContentElements)
                     ->setMenu($page, $translation)
+                    ->setType('page')
                     ->setCustomFields($this->resolveCustomFields($page));
                 if (!$page['is_siteroot']) {
                     $document->setCustomFields([

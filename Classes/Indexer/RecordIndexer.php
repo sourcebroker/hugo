@@ -3,6 +3,7 @@
 namespace SourceBroker\Hugo\Indexer;
 
 use SourceBroker\Hugo\Configuration\Configurator;
+use SourceBroker\Hugo\Domain\Model\Document;
 use SourceBroker\Hugo\Domain\Model\DocumentCollection;
 use SourceBroker\Hugo\Service\RteService;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
@@ -64,8 +65,8 @@ class RecordIndexer extends AbstractIndexer implements SingletonInterface
     {
         $hugoConfig = Configurator::getByPid($pageUid);
         if (!empty($hugoConfig->getOption('record.indexer.exporter')) && is_array($hugoConfig->getOption('record.indexer.exporter'))) {
-            foreach ($hugoConfig->getOption('record.indexer.exporter') as $exporterConfig) {
-                if ($pageUid == $exporterConfig['pageUid']) {
+            foreach ($hugoConfig->getOption('record.indexer.exporter') as $exportType => $exporterConfig) {
+                if ($pageUid === (int)$exporterConfig['pageUid']) {
                     $table = $exporterConfig['table'];
                     $recordsPid = $exporterConfig['recordsPid'];
 
@@ -86,6 +87,9 @@ class RecordIndexer extends AbstractIndexer implements SingletonInterface
                         $recordRows = $queryBuilder->execute()->fetchAll();
                     }
 
+                    /** @var Document $parentDocument */
+                    $parentDocument = $documentCollection->getByTypeAndId('page', $pageUid);
+
                     foreach ($recordRows as $record) {
                         if (is_object($record) && $record instanceof AbstractDomainObject) {
                             $record = $this->mapPropertiesToArrayRecursive($record->_getProperties());
@@ -98,11 +102,16 @@ class RecordIndexer extends AbstractIndexer implements SingletonInterface
                         $document = $documentCollection->create();
                         $document->setStoreFilename($record['uid'] . '_' . ucfirst($slug))
                             ->setId($record['uid'])
+                            ->setType($exportType)
                             ->setSlug($slug)
                             ->setCustomFields([
                                 'template' => $exporterConfig['template'] ?? 'default',
                                 'record' => $record,
                             ]);
+
+                        if ($parentDocument instanceof Document && $parentDocument->getContent()) {
+                            $document->setContentRaw($parentDocument->getContent());
+                        }
                     }
                 }
             }
