@@ -30,6 +30,7 @@ master
 20) [BUGFIX] Remove file only if exists.
 21) [TASK] TYPO3 9.5 compatibility.
 22) [TASK] Update registering backend ajax with version compatible with TYPO3 9.5.
+23) [BUGFIX] Adapt Export AJAX action to work with TYPO3 8 and TYPO3 9
 
 0.6.0
 ~~~~~

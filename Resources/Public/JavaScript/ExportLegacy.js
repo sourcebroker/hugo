@@ -1,17 +1,17 @@
 define([
   'jquery',
-  'TYPO3/CMS/Backend/Storage/Persistent',
-], function($, PersistentStorage) {
+  'TYPO3/CMS/Backend/Storage',
+], function($, Storage) {
   'use strict';
 
   var HugoExport = {
     timeout: 1000 * 5, // per 5 sec
     execute: function() {
-      if (PersistentStorage.isset('hugoExportLock')) {
+      if (Storage.Persistent.isset('hugoExportLock')) {
         HugoExport.delay();
         return false;
       }
-      PersistentStorage.set('hugoExportLock', 1);
+      Storage.Persistent.set('hugoExportLock', 1);
       $.ajax(TYPO3.settings.ajaxUrls['hugo_admininistator_export'])
         .always(function() {
           HugoExport.delay();
@@ -24,7 +24,7 @@ define([
       }, HugoExport.timeout);
     },
     reset: function() {
-      PersistentStorage.unset('hugoExportLock');
+      Storage.Persistent.unset('hugoExportLock');
     },
   };
 
