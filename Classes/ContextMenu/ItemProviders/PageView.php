@@ -5,8 +5,8 @@ namespace SourceBroker\Hugo\ContextMenu\ItemProviders;
 use SourceBroker\Hugo\Utility\DomainUtility;
 use SourceBroker\Hugo\Utility\RootlineUtility;
 use TYPO3\CMS\Backend\ContextMenu\ItemProviders\AbstractProvider;
+use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Lang\LanguageService;
 
 /**
  * Item provider adding Hello World item
