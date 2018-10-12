@@ -30,7 +30,7 @@ class ShortcutContentElement extends AbstractContentElement
             'warningNote' => 'Not supported type in shortcut element'
         ];
         if (strpos($contentElementRawData['records'], $this->name) !== false) {
-            $elements = array_filter(explode(',', $contentElementRawData['records']), function ($value){
+            $elements = array_filter(explode(',', $contentElementRawData['records']), function ($value) {
                 return strpos($value, $this->name) !== false;
             });
             if (count($elements)) {
