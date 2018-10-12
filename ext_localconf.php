@@ -68,15 +68,11 @@ call_user_func(function () use ($_EXTKEY) {
         'record' => \SourceBroker\Hugo\Typolink\DatabaseRecordLinkBuilder::class
     ];
 
-    $pageRenderer = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Page\PageRenderer::class);
-    // For TYPO3 lower than 9 is used legacy version of export script
-    if (\TYPO3\CMS\Core\Utility\VersionNumberUtility::convertVersionNumberToInteger(TYPO3_version) < 9000000) {
-        $pageRenderer->loadRequireJsModule('TYPO3/CMS/Hugo/ExportLegacy');
-    } else {
-        $pageRenderer->loadRequireJsModule('TYPO3/CMS/Hugo/Export');
-    }
+    $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['typo3/backend.php']['constructPostProcess'][] = \SourceBroker\Hugo\Hooks\BackendHook::class . '->registerBackendJavaScriptsModules';
 
     $extbaseObjectContainer = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Extbase\Object\Container\Container::class);
-    $extbaseObjectContainer->registerImplementation(\SourceBroker\Hugo\Queue\Storage\StorageInterface::class, \SourceBroker\Hugo\Queue\Storage\MySqlStorage::class);
-    $extbaseObjectContainer->registerImplementation(\SourceBroker\Hugo\Queue\QueueInterface::class, \SourceBroker\Hugo\Queue\SimpleQueue::class);
+    $extbaseObjectContainer->registerImplementation(\SourceBroker\Hugo\Queue\Storage\StorageInterface::class,
+        \SourceBroker\Hugo\Queue\Storage\MySqlStorage::class);
+    $extbaseObjectContainer->registerImplementation(\SourceBroker\Hugo\Queue\QueueInterface::class,
+        \SourceBroker\Hugo\Queue\SimpleQueue::class);
 });
