@@ -9,6 +9,8 @@ use SourceBroker\Hugo\Service\ExportContentService;
 use SourceBroker\Hugo\Service\ExportMediaService;
 use SourceBroker\Hugo\Service\ExportPageService;
 use TYPO3\CMS\Backend\View\BackendTemplateView;
+use TYPO3\CMS\Core\Http\Response;
+use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
@@ -117,12 +119,15 @@ class AdministrationController extends ActionController
     }
 
     /**
+     * @param ServerRequest $request
+     * @param Response $response
+     * @return Response
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockAcquireException
      * @throws \TYPO3\CMS\Core\Locking\Exception\LockCreateException
      * @throws \TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotException
      * @throws \TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotReturnException
      */
-    public function exportAjax()
+    public function exportAjax(ServerRequest $request, Response $response): Response
     {
         $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
 
@@ -144,6 +149,8 @@ class AdministrationController extends ActionController
                     break;
             }
         }
+
+        return $response;
     }
 
     /**

@@ -68,9 +68,11 @@ call_user_func(function () use ($_EXTKEY) {
         'record' => \SourceBroker\Hugo\Typolink\DatabaseRecordLinkBuilder::class
     ];
 
-    # TODO make export module compatibile with TYPO3 9.5
+    $pageRenderer = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Page\PageRenderer::class);
+    // For TYPO3 lower than 9 is used legacy version of export script
     if (\TYPO3\CMS\Core\Utility\VersionNumberUtility::convertVersionNumberToInteger(TYPO3_version) < 9000000) {
-        $pageRenderer = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Page\PageRenderer::class);
+        $pageRenderer->loadRequireJsModule('TYPO3/CMS/Hugo/ExportLegacy');
+    } else {
         $pageRenderer->loadRequireJsModule('TYPO3/CMS/Hugo/Export');
     }
 

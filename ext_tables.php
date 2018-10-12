@@ -21,9 +21,5 @@ call_user_func(
                 ]
             );
         }
-        $GLOBALS['TYPO3_CONF_VARS']['BE']['AJAX']['HugoAdministrationController::export'] = [
-            'callbackMethod' => \SourceBroker\Hugo\Controller\AdministrationController::class . '->exportAjax',
-            'csrfTokenCheck' => true
-        ];
     }
 );
