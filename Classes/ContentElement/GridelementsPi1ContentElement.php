@@ -5,6 +5,7 @@ namespace SourceBroker\Hugo\ContentElement;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
 
 /**
@@ -13,12 +14,6 @@ use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
 class GridelementsPi1ContentElement extends AbstractContentElement
 {
     const SIGNAL = 'classes_for_gridelement';
-
-    /**
-     * @var \GridElementsTeam\Gridelements\Backend\LayoutSetup
-     * @inject
-     */
-    protected $layoutSetup;
 
     /**
      * @var array
@@ -36,31 +31,40 @@ class GridelementsPi1ContentElement extends AbstractContentElement
      */
     public function getSpecificContentElementData(array $contentElementRawData): array
     {
-        $layoutId = $contentElementRawData['tx_gridelements_backend_layout'];
-        $this->layoutSetup->init($contentElementRawData['pid']);
-        $setup = $this->layoutSetup->getLayoutSetup($layoutId);
-        $columns = $setup['config']['colCount'];
-        $signalSlotDispatcher = GeneralUtility::makeInstance(Dispatcher::class);
-        $this->getPluginFlexFormData($contentElementRawData);
+        $result = [
+            'type' => 'warning',
+            'warningNote' => 'Missing gridelements extension'
+        ];
+        if (class_exists(\GridElementsTeam\Gridelements\Backend\LayoutSetup::class)) {
+            $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+            $layoutSetup = $objectManager->get(\GridElementsTeam\Gridelements\Backend\LayoutSetup::class);
+            $layoutId = $contentElementRawData['tx_gridelements_backend_layout'];
+            $layoutSetup->init($contentElementRawData['pid']);
+            $setup = $layoutSetup->getLayoutSetup($layoutId);
+            $columns = $setup['config']['colCount'];
+            $signalSlotDispatcher = GeneralUtility::makeInstance(Dispatcher::class);
+            $this->getPluginFlexFormData($contentElementRawData);
 
-        $this->data['type'] = sprintf('grid%scol', $columns);
-        $children = $this->getAllChildren($contentElementRawData['uid']);
-        for ($i = 0; $i < $columns; $i++) {
-            $this->data['columns']['col' . ($i + 1)] = [
-                'classes' => '',
-                'contentElements' => $this->getChildrenForColumn($children, $i),
-            ];
+            $this->data['type'] = sprintf('grid%scol', $columns);
+            $children = $this->getAllChildren($contentElementRawData['uid']);
+            for ($i = 0; $i < $columns; $i++) {
+                $this->data['columns']['col' . ($i + 1)] = [
+                    'classes' => '',
+                    'contentElements' => $this->getChildrenForColumn($children, $i),
+                ];
+            }
+
+            $data = $signalSlotDispatcher->dispatch(
+                __CLASS__,
+                self::SIGNAL,
+                [
+                    'data' => $this->data,
+                    'row' => $contentElementRawData
+                ]
+            );
+            $result = $data['data'];
         }
-
-        $result = $signalSlotDispatcher->dispatch(
-            __CLASS__,
-            self::SIGNAL,
-            [
-                'data' => $this->data,
-                'row' => $contentElementRawData
-            ]
-        );
-        return $result['data'];
+        return $result;
     }
 
     /**
