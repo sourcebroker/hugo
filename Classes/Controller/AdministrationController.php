@@ -118,7 +118,6 @@ class AdministrationController extends ActionController
         $this->redirect('index');
     }
 
-
     /**
      * @param ServerRequest $request
      * @param Response $response
