@@ -33,7 +33,7 @@ class Typo3ContentRepository
      * @param bool $ignoreDeletedRestriction
      * @return array
      */
-    public function getByUid(int $uid, bool $ignoreDeletedRestriction = false): array
+    public function getByUid(int $uid, bool $ignoreDeletedRestriction = false): ?array
     {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
             ->getQueryBuilderForTable('tt_content');
@@ -45,7 +45,7 @@ class Typo3ContentRepository
             $queryBuilder->getRestrictions()->add(GeneralUtility::makeInstance(DeletedRestriction::class));
         }
 
-        return $queryBuilder
+        return array_filter((array)$queryBuilder
             ->select('*')
             ->from('tt_content')
             ->where(
@@ -54,6 +54,7 @@ class Typo3ContentRepository
                 )
             )
             ->execute()
-            ->fetch();
+            ->fetch()
+        );
     }
 }
