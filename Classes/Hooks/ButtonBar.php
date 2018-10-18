@@ -56,6 +56,15 @@ class ButtonBar
                 // @todo find better way to get the current page ID. Maybe read it from already existing view button?
                 $pageUid = (int)$_GET['id'];
 
+                if ($pageUid === 0) {
+                    // for the page 0 we can't get the FE domain, do nothing or just remove default button if
+                    // in replace mode
+                    if ($this->isReplaceMode()) {
+                        array_splice($buttons['buttons'][$buttonPosition][$buttonGroup], $pageViewPos, 1);
+                    }
+                    return $buttons['buttons'];
+                }
+
                 $domainUtility = GeneralUtility::makeInstance(DomainUtility::class);
                 $hugoDomains = $domainUtility->getHugoDomainsForPid($pageUid);
                 $hugoViewButtons = [];
@@ -84,8 +93,8 @@ class ButtonBar
 
                 array_splice(
                     $buttons['buttons'][$buttonPosition][$buttonGroup],
-                    $this->inputType === 'replace' ? $pageViewPos : $pageViewPos + 1,
-                    $this->inputType === 'replace' ? 1 : 0,
+                    $this->isReplaceMode() ? $pageViewPos : $pageViewPos + 1,
+                    $this->isReplaceMode() ? 1 : 0,
                     $hugoViewButtons
                 );
             }
@@ -134,5 +143,13 @@ class ButtonBar
                 ->sL('LLL:EXT:hugo/Resources/Private/Language/locallang_db.xlf:context_menu.pageView.label'),
             $domain
         );
+    }
+
+    /**
+     * @return bool
+     */
+    protected function isReplaceMode()
+    {
+        return $this->inputType === 'replace';
     }
 }
