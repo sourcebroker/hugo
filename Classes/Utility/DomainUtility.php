@@ -11,7 +11,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 class DomainUtility implements SingletonInterface
 {
-
     /**
      * @param int $pid
      *
@@ -21,7 +20,7 @@ class DomainUtility implements SingletonInterface
     {
         return array_filter(
             (array)array_merge(
-                ...array_map(
+                [], ...array_map(
                     function ($commaSeparatedHugoDomains) {
                         return GeneralUtility::trimExplode(',', $commaSeparatedHugoDomains);
                     },
