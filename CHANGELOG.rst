@@ -4,6 +4,7 @@ Changelog
 master
 ~~~~~~
 1) [BUGFIX] Disable Export.js in TYPO3 9.5 because its incompatible an doing JS errors in TYPO3 9.5 backend on login.
+2) [TASK] If no pages in database then create empty configuration object.
 
 0.7.0
 ~~~~~

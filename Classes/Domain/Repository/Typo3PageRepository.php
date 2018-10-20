@@ -38,6 +38,20 @@ class Typo3PageRepository
     /**
      * @return array
      */
+    public function getAll(): array
+    {
+        $queryBuilder = $this->getConnectionPool()
+            ->getQueryBuilderForTable('pages');
+        return $queryBuilder
+            ->select('uid')
+            ->from('pages')
+            ->execute()
+            ->fetchAll();
+    }
+
+    /**
+     * @return array
+     */
     public function getSiteRootPages(): array
     {
         $queryBuilder = $this->getConnectionPool()

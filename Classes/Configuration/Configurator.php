@@ -72,15 +72,23 @@ class Configurator
      */
     public static function getFirstRootsiteConfig(): self
     {
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        $rootPages = $objectManager->get(Typo3PageRepository::class)->getSiteRootPages();
-        if ($rootPages !== null) {
-            foreach ($rootPages as $rootPage) {
-                return self::getByPid((int)$rootPage['uid']);
+        $configurator = null;
+        $typo3PageRepository = GeneralUtility::makeInstance(ObjectManager::class)->get(Typo3PageRepository::class);
+        if (count($typo3PageRepository->getAll())) {
+            $rootPages = $typo3PageRepository->getSiteRootPages();
+            if (count($rootPages)) {
+                foreach ($rootPages as $rootPage) {
+                    $configurator = self::getByPid((int)$rootPage['uid']);
+                    break;
+                }
+            } else {
+                throw new Exception('Can not find any root page in your TYPO3.', 1537646094);
             }
         } else {
-            throw new Exception('Can not find any root page in your TYPO3.', 1537646094);
+            // Make empty configuration instead of some error here to allow to run without error on empty pages table.
+            $configurator = GeneralUtility::makeInstance(self::class);
         }
+        return $configurator;
     }
 
     /**
