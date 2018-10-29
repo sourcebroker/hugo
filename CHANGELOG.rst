@@ -6,6 +6,7 @@ master
 1) [BUGFIX] Disable Export.js in TYPO3 9.5 because its incompatible an doing JS errors in TYPO3 9.5 backend on login.
 2) [TASK] If no pages in database then create empty configuration object.
 3) [BUGFIX] Fix warning when there is no domain record.
+4) [FEATURE] Allow to set uid of file storages to index.
 
 0.7.0
 ~~~~~

@@ -58,10 +58,17 @@ class ExportMediaService extends AbstractService
             if (!file_exists($folderToStore)) {
                 GeneralUtility::mkdir_deep($folderToStore);
             }
-            $allStorages = GeneralUtility::makeInstance(StorageRepository::class)->findAll();
+            $storagesUids = GeneralUtility::trimExplode(',',
+                (string)$hugoFirstRootSiteConfig->getOption('media.indexer.fileStorageIds'));
+            if (empty(array_filter($storagesUids))) {
+                $storagesUids = array_map(function ($storage) {
+                    return $storage->getUid();
+                }, GeneralUtility::makeInstance(StorageRepository::class)->findAll());
+            };
             $filesHugo = [];
-            foreach ($allStorages as $storage) {
-                $folder = GeneralUtility::makeInstance(Folder::class, $storage, '/', 'All files');
+            foreach ($storagesUids as $storageUid) {
+                $storage = GeneralUtility::makeInstance(StorageRepository::class)->findByUid($storageUid);
+                $folder = GeneralUtility::makeInstance(Folder::class, $storage, '/', $storage->getName() . ' [uid:' . $storage->getUid() . ']');
                 $files = $storage->getFilesInFolder(
                     $folder,
                     $start = 0,

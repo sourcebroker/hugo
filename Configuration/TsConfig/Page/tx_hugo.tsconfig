@@ -9,6 +9,11 @@ tx_hugo {
             media = hugo/content/-media
         }
     }
+    media {
+        indexer {
+            fileStorageIds =
+            }
+    }
     content {
         contentToClass {
             fallbackContentElementClass = SourceBroker\Hugo\ContentElement\FallbackContentElement
