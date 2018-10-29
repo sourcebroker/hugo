@@ -64,7 +64,7 @@ class ExportMediaService extends AbstractService
                 $storagesUids = array_map(function ($storage) {
                     return $storage->getUid();
                 }, GeneralUtility::makeInstance(StorageRepository::class)->findAll());
-            };
+            }
             $filesHugo = [];
             foreach ($storagesUids as $storageUid) {
                 $storage = GeneralUtility::makeInstance(StorageRepository::class)->findByUid($storageUid);
