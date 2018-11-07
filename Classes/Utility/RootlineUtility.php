@@ -153,6 +153,10 @@ class RootlineUtility
         return static::$localCache[$this->cacheIdentifier];
     }
 
+    public function isInActiveRootsite() {
+        return !$this->get()[0]['hidden'];
+    }
+
     /**
      * Queries the database for the page record and returns it.
      *

@@ -27,6 +27,7 @@ namespace SourceBroker\Hugo\Service;
 use SourceBroker\Hugo\Configuration\Configurator;
 use SourceBroker\Hugo\Domain\Model\ServiceResult;
 use SourceBroker\Hugo\Domain\Repository\Typo3ContentRepository;
+use SourceBroker\Hugo\Utility\RootlineUtility;
 use Symfony\Component\Yaml\Yaml;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\Page\PageRepository;
@@ -50,10 +51,13 @@ class ExportContentService extends AbstractService
         $serviceResult = $this->createServiceResult();
         $index = 0;
         $hugoFirstRootSiteConfig = Configurator::getFirstRootsiteConfig();
+        // TODO: check getOption('enable') for each rootsite
         if ($hugoFirstRootSiteConfig instanceof Configurator && (int)$hugoFirstRootSiteConfig->getOption('enable')) {
             foreach (($this->objectManager->get(Typo3ContentRepository::class))->getAll() as $contentElement) {
-                $this->saveContentElement($contentElement, $hugoFirstRootSiteConfig);
-                $index++;
+                if(GeneralUtility::makeInstance(RootlineUtility::class, $contentElement['pid'])->isInActiveRootsite()) {
+                    $this->saveContentElement($contentElement, $hugoFirstRootSiteConfig);
+                    $index++;
+                }
             }
         }
         $serviceResult->setMessage($index . ' content elements have been exported to files.');

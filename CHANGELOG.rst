@@ -7,6 +7,7 @@ master
 2) [TASK] If no pages in database then create empty configuration object.
 3) [BUGFIX] Fix warning when there is no domain record.
 4) [FEATURE] Allow to set uid of file storages to index.
+5) [FEATURE] Do not render content elements for hidden rootsites.
 
 0.7.0
 ~~~~~
