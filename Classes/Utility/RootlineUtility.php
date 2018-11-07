@@ -153,7 +153,12 @@ class RootlineUtility
         return static::$localCache[$this->cacheIdentifier];
     }
 
-    public function isInActiveRootsite() {
+
+    /**
+     * @return bool
+     */
+    public function isInActiveRootsite()
+    {
         return !$this->get()[0]['hidden'];
     }
 

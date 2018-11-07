@@ -54,7 +54,8 @@ class ExportContentService extends AbstractService
         // TODO: check getOption('enable') for each rootsite
         if ($hugoFirstRootSiteConfig instanceof Configurator && (int)$hugoFirstRootSiteConfig->getOption('enable')) {
             foreach (($this->objectManager->get(Typo3ContentRepository::class))->getAll() as $contentElement) {
-                if(GeneralUtility::makeInstance(RootlineUtility::class, $contentElement['pid'])->isInActiveRootsite()) {
+                if (GeneralUtility::makeInstance(RootlineUtility::class,
+                    $contentElement['pid'])->isInActiveRootsite()) {
                     $this->saveContentElement($contentElement, $hugoFirstRootSiteConfig);
                     $index++;
                 }
