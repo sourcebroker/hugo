@@ -153,7 +153,6 @@ class RootlineUtility
         return static::$localCache[$this->cacheIdentifier];
     }
 
-
     /**
      * @return bool
      */
