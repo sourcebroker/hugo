@@ -37,11 +37,6 @@ abstract class AbstractTypolinkBuilder extends \TYPO3\CMS\Frontend\Typolink\Abst
     protected $txHugoSysLanguageUid = 0;
 
     /**
-     * @var array
-     */
-    protected static $linksCache = [];
-
-    /**
      * AbstractTypolinkBuilder constructor.
      *
      * @param ContentObjectRenderer $contentObjectRenderer
@@ -151,19 +146,38 @@ abstract class AbstractTypolinkBuilder extends \TYPO3\CMS\Frontend\Typolink\Abst
      */
     protected function addLinkToLinksFile(string $url, $linkDetails): string
     {
+        static $linksCache;
+
+        if (!is_array($linksCache)) {
+            $linksCache = [];
+        }
+
+        static $linksStoreFile;
+
+        if (!is_string($linksStoreFile)) {
+            $linksStoreFile = PATH_site . $this->txHugoConfigurator->getOption('writer.path.data') . '/links.yaml';
+        }
+
         if ($linkDetails['type'] === 'page') {
             $pageUid = ($linkDetails['pageuid'] !== 'current')
                 ? (int)$linkDetails['pageuid']
                 : $this->txHugoConfigurator->getPageUid();
             $key = 'page:' . $pageUid;
-            $storeLinksFile = PATH_site . $this->txHugoConfigurator->getOption('writer.path.data') . '/links.yaml';
-            if (count(self::$linksCache) === 0 && file_exists($storeLinksFile)) {
-                unlink($storeLinksFile);
-            }
-            if (!array_key_exists($key, self::$linksCache)) {
-                file_put_contents($storeLinksFile,
-                    '\'' . $key . '\': \'' . $url . "'\n", FILE_APPEND);
-                self::$linksCache[$key] = true;
+            if (!array_key_exists($key, $linksCache)) {
+                $line = '\'' . $key . '\': \'' . $url . '\'' . PHP_EOL;
+
+                $existingLinks = file_exists($linksStoreFile)
+                    ? explode(PHP_EOL, file_get_contents($linksStoreFile))
+                    : [];
+
+                if (!in_array(trim($line, PHP_EOL), $existingLinks)) {
+                    file_put_contents(
+                        $linksStoreFile,
+                        $line,
+                        FILE_APPEND
+                    );
+                    $linksCache[$key] = true;
+                }
             }
         }
         return $url;
