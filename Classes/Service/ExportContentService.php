@@ -172,8 +172,10 @@ class ExportContentService extends AbstractService
         }
         $camelCaseClass = str_replace('_', '', ucwords($contentElement['CType'], '_'));
         $classForCType = null;
-        if (is_array($hugoFirstRootSiteConfig->getOption('content.contentToClass.mapper'))) {
-            foreach ($hugoFirstRootSiteConfig->getOption('content.contentToClass.mapper') as $contentToClassMapper) {
+        $contentToClassMappers = $hugoFirstRootSiteConfig->getOption('content.contentToClass.mapper') ?? [];
+        ksort($contentToClassMappers);
+        if (!empty($contentToClassMappers)) {
+            foreach ($contentToClassMappers as $contentToClassMapper) {
                 if (preg_match('/' . $contentToClassMapper['ctype'] . '/', $camelCaseClass, $cTypeMatches)) {
                     $classForCType = preg_replace_callback(
                         '/\\{([0-9]+)\\}/',
