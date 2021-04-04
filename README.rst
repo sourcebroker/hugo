@@ -15,6 +15,10 @@ TYPO3 Extension ``hugo``
 
 .. contents:: :local:
 
+Important
+*********
+
+**This project is archived. Will no longer be developed and supported.**
 
 What does it do?
 ****************
